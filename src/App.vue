@@ -38,13 +38,22 @@ const jsCode = ref(`// Add interactivity to your page
 console.log('Welcome to Web Dev Playground!');`);
 
 const isSidebarCollapsed = ref(localStorage.getItem('sidebar-collapsed') === 'true');
-const currentModel = ref('gpt4');
+const currentModel = ref('sonnet');
 const conversations = ref([]);
 const currentConversationId = ref(null);
 const chatMessages = ref([
     { role: 'assistant', content: "Welcome! I'm your coding assistant. Ask me anything about web development." }
 ]);
 const isChatLoading = ref(false);
+
+// Watch for model changes
+watch(currentModel, (newModel) => {
+    const modelName = newModel.charAt(0).toUpperCase() + newModel.slice(1);
+    chatMessages.value.push({
+        role: 'assistant',
+        content: `Switched to Claude 3 ${modelName} model.`
+    });
+});
 
 // History State
 const codeHistory = ref([]);
@@ -98,24 +107,26 @@ const initializeConversation = () => {
         date: new Date().toISOString(),
         messages: [],
         code: {
-            html: htmlCode.value,
-            css: cssCode.value,
-            js: jsCode.value
-        }
+            html: '<p>Hello World</p>',
+            css:  '',
+            js: ''
+        },
+        history: [{ html: '<p>Hello World</p>', css: '', js: '' }],
+        historyIndex: 0
     };
-    
     conversations.value.unshift(conversation);
     saveConversations();
     loadConversation(conversationId);
 };
 
 const loadConversation = (id) => {
-    // Save current before switching? Maybe auto-save is handled by watcher
-    // But we should update current conversation code ref before switching logic
+    // Save current state and history to the active conversation before switching
     if (currentConversationId.value) {
-        const current = conversations.value.find(c => c.id === currentConversationId.value);
-        if (current) {
-            current.code = { html: htmlCode.value, css: cssCode.value, js: jsCode.value };
+        const prevConv = conversations.value.find(c => c.id === currentConversationId.value);
+        if (prevConv) {
+            prevConv.code = { html: htmlCode.value, css: cssCode.value, js: jsCode.value };
+            prevConv.history = [...codeHistory.value];
+            prevConv.historyIndex = historyIndex.value;
         }
     }
 
@@ -134,9 +145,17 @@ const loadConversation = (id) => {
             ...(conversation.messages || [])
         ];
         
-        // Reset history for new conversation
-        codeHistory.value = [{ html: htmlCode.value, css: cssCode.value, js: jsCode.value }];
-        historyIndex.value = 0;
+        // Load history for the selected conversation or initialize if missing
+        if (conversation.history && Array.isArray(conversation.history)) {
+            codeHistory.value = [...conversation.history];
+            historyIndex.value = conversation.historyIndex !== undefined ? conversation.historyIndex : codeHistory.value.length - 1;
+        } else {
+            codeHistory.value = [{ html: htmlCode.value, css: cssCode.value, js: jsCode.value }];
+            historyIndex.value = 0;
+            conversation.history = [...codeHistory.value];
+            conversation.historyIndex = historyIndex.value;
+            saveConversations();
+        }
     }
 };
 
@@ -172,6 +191,16 @@ const saveToHistory = () => {
         js: jsCode.value
     };
     
+    // Check if state is different from current history state to avoid duplicates
+    if (historyIndex.value >= 0 && codeHistory.value.length > 0) {
+        const lastState = codeHistory.value[historyIndex.value];
+        if (lastState.html === currentState.html && 
+            lastState.css === currentState.css && 
+            lastState.js === currentState.js) {
+            return;
+        }
+    }
+
     if (historyIndex.value < codeHistory.value.length - 1) {
         codeHistory.value = codeHistory.value.slice(0, historyIndex.value + 1);
     }
@@ -182,6 +211,16 @@ const saveToHistory = () => {
     } else {
         historyIndex.value++;
     }
+
+    // Sync to conversation object
+    if (currentConversationId.value) {
+        const conv = conversations.value.find(c => c.id === currentConversationId.value);
+        if (conv) {
+            conv.history = [...codeHistory.value];
+            conv.historyIndex = historyIndex.value;
+            saveConversations();
+        }
+    }
 };
 
 const undo = () => {
@@ -191,6 +230,16 @@ const undo = () => {
         htmlCode.value = state.html;
         cssCode.value = state.css;
         jsCode.value = state.js;
+        
+        // Sync index
+        if (currentConversationId.value) {
+            const conv = conversations.value.find(c => c.id === currentConversationId.value);
+            if (conv) {
+                conv.historyIndex = historyIndex.value;
+                conv.code = { html: htmlCode.value, css: cssCode.value, js: jsCode.value };
+                saveConversations();
+            }
+        }
     }
 };
 
@@ -201,6 +250,16 @@ const redo = () => {
         htmlCode.value = state.html;
         cssCode.value = state.css;
         jsCode.value = state.js;
+
+        // Sync index
+        if (currentConversationId.value) {
+            const conv = conversations.value.find(c => c.id === currentConversationId.value);
+            if (conv) {
+                conv.historyIndex = historyIndex.value;
+                conv.code = { html: htmlCode.value, css: cssCode.value, js: jsCode.value };
+                saveConversations();
+            }
+        }
     }
 };
 
@@ -251,10 +310,11 @@ const handleSendMessage = async ({ text, attachment }) => {
             html: htmlCode.value,
             css: cssCode.value,
             javascript: jsCode.value,
-            image: attachment ? attachment.dataUrl : null
+            image: attachment ? attachment.dataUrl : null,
+            model: currentModel.value
         };
 
-        const response = await fetch(`http://localhost:3004/api/chat`, {
+        const response = await fetch(`/api/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

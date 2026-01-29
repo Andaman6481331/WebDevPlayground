@@ -80,30 +80,30 @@ const handleDelete = (id) => {
         <div class="model-selection">
             <div 
                 class="model-item" 
-                :class="{ active: currentModel === 'gpt4' }"
-                @click="selectModel('gpt4')"
-                title="GPT-4"
+                :class="{ active: currentModel === 'sonnet' }"
+                @click="selectModel('sonnet')"
+                title="Claude 3.5 Sonnet"
             >
-                <div class="model-color model-red"></div>
-                <span class="model-name">GPT-4</span>
+                <div class="model-color model-purple"></div>
+                <span class="model-name">Sonnet</span>
             </div>
             <div 
                 class="model-item" 
-                :class="{ active: currentModel === 'gpt35' }"
-                @click="selectModel('gpt35')"
-                title="GPT-3.5"
+                :class="{ active: currentModel === 'haiku' }"
+                @click="selectModel('haiku')"
+                title="Claude 3 Haiku"
+            >
+                <div class="model-color model-green"></div>
+                <span class="model-name">Haiku</span>
+            </div>
+            <div 
+                class="model-item" 
+                :class="{ active: currentModel === 'opus' }"
+                @click="selectModel('opus')"
+                title="Claude 3 Opus"
             >
                 <div class="model-color model-orange"></div>
-                <span class="model-name">GPT-3.5</span>
-            </div>
-            <div 
-                class="model-item" 
-                :class="{ active: currentModel === 'claude' }"
-                @click="selectModel('claude')"
-                title="Claude"
-            >
-                <div class="model-color model-blue"></div>
-                <span class="model-name">Claude</span>
+                <span class="model-name">Opus</span>
             </div>
         </div>
 
@@ -481,6 +481,7 @@ const handleDelete = (id) => {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 120px;
 }
 
 .conversation-date {
@@ -495,9 +496,9 @@ const handleDelete = (id) => {
     margin-left: 8px;
 }
 
-.conversation-item:hover .conversation-actions {
+/* .conversation-item:hover .conversation-actions {
     display: flex;
-}
+} */
 
 .action-btn {
     background: transparent;
@@ -644,16 +645,17 @@ const handleDelete = (id) => {
     flex-shrink: 0;
 }
 
-.model-red {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+
+.model-purple {
+    background: linear-gradient(135deg, #a55eea, #8854d0);
+}
+
+.model-green {
+    background: linear-gradient(135deg, #20bf6b, #0eb875);
 }
 
 .model-orange {
     background: linear-gradient(135deg, #ffa500, #ff8c00);
-}
-
-.model-blue {
-    background: linear-gradient(135deg, #4a90e2, #357abd);
 }
 
 .model-name {

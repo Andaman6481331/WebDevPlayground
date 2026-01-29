@@ -38,29 +38,58 @@ onMounted(() => {
 function updatePreview() {
     if (!previewFrame.value) return;
 
+    // To prevent <\/script> tags in props.jsCode from breaking the HTML structure,
+    // we use a safe injection method.
     const completeHTML = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>${props.cssCode}</style>
+            <style>
+                ${props.cssCode}
+            </style>
         </head>
-        <body>
+        <body style="margin: 0; min-height: 100vh;">
             ${props.htmlCode}
-            <script>
-                try {
-                    ${props.jsCode}
-                } catch (error) {
-                    console.error('JavaScript Error:', error);
-                }
-            <\/script>
         </body>
         </html>
     `;
 
     const blob = new Blob([completeHTML], { type: 'text/html' });
-    previewFrame.value.src = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
+    
+    // Cleanup previous URL
+    if (previewFrame.value.src.startsWith('blob:')) {
+        URL.revokeObjectURL(previewFrame.value.src);
+    }
+
+    previewFrame.value.src = url;
+
+    // After iframe loads, inject the JS safely
+    previewFrame.value.onload = () => {
+        try {
+            const iframe = previewFrame.value;
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            if (props.jsCode && props.jsCode.trim()) {
+                const script = iframeDoc.createElement('script');
+                // Using textContent is safe against script-end tags in the code string
+                script.textContent = `
+                    (function() {
+                        try {
+                            ${props.jsCode}
+                        } catch (error) {
+                            console.error('Runtime Error in Live Preview Script:', error);
+                        }
+                    })();
+                `;
+                iframeDoc.body.appendChild(script);
+            }
+        } catch (e) {
+            console.error('Failed to inject JS into preview:', e);
+        }
+    };
 }
 
 // Ensure undo/redo buttons are handled by parent (App.vue) passing down props if needed, 
@@ -446,7 +475,6 @@ const sendEdit = () => {
 const closeEditModal = () => {
     editSelectionModal.value.close();
 };
-
 </script>
 
 <template>

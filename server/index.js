@@ -75,9 +75,9 @@ CRITICAL JSON FORMATTING RULES:
 6. Format:
 {
   "message": "First, describe the layout or image you see (if provided). Then describe your changes.",
-  "html": "HTML fragment content only (NO <!DOCTYPE>, <html>, <head>, or <body> tags). Just the internal elements.",
+  "html": "HTML content. Typically internal elements only, but can include <style> or multiple <script> tags if creating a standalone/complex component.",
   "css": "Complete CSS code with proper escaping",
-  "js": "Complete JavaScript code with proper escaping"
+  "js": "Complete JavaScript code with proper escaping. If multiple scripts are needed, you can also place them in the 'html' field."
 }
 
 CRITICAL JAVASCRIPT SAFETY RULES:
@@ -96,8 +96,8 @@ CRITICAL JAVASCRIPT SAFETY RULES:
    - Make the component work standalone with fallback behavior
 
 IMPORTANT: 
-- HTML: RETURN ONLY THE CONTENT INSIDE THE BODY TAGS. Do NOT return \`<!DOCTYPE html>\`, \`<html>\`, \`<head>\`, or \`<body>\` tags. This is critical.
-- CSS: Do NOT include \`script\` or \`link\` tags. Do NOT use \`*\` or \`body\` selectors unless absolutely necessary for the specific component.
+- HTML: RETURN THE BODY CONTENT. Do NOT return \`<!DOCTYPE html>\`, \`<html>\`, or \`<head>\` tags. You MAY include \`<style>\` and \`<script>\` tags within the HTML if needed for a standalone component structure.
+- CSS: Do NOT include \`script\` or \`link\` tags in the CSS field. Do NOT use \`*\` or \`body\` selectors unless absolutely necessary.
 - Design: Create full-width, modern layouts.
 - Responsiveness: Ensure mobile-friendliness.
 - Do NOT wrap response in markdown code blocks
@@ -147,7 +147,16 @@ Example of proper escaping:
 
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, html, css, javascript, image } = req.body;
+    const { message, html, css, javascript, image, model } = req.body;
+
+    // Map frontend model names to Anthropic model IDs
+    const modelMap = {
+      'sonnet': "claude-sonnet-4-5-20250929",
+      'haiku': "claude-haiku-4-5-20251001",
+      'opus': "claude-opus-4-5-20251101"
+    };
+
+    const selectedModel = modelMap[model] || 'claude-sonnet-4-5-20250929';
 
     // Construct the user message
     const userContent = [];
@@ -186,8 +195,8 @@ app.post("/api/chat", async (req, res) => {
     });
 
     const msg = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 8192,
+      model: selectedModel,
+      max_tokens: 16000,
       temperature: 0.1, // Low temperature for code determinism
       system: SYSTEM_PROMPT,
       messages: [

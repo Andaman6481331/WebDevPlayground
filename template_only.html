@@ -1,0 +1,118 @@
+<template>
+    <!-- Center Panel: Live Preview -->
+    <main class="preview-panel">
+        <div class="panel-header">
+            <h2>LIVE PREVIEW</h2>
+
+            <!-- Undo/Redo Toggle -->
+            <div class="version-toggle">
+                <button class="version-btn" @click="$emit('undo')" title="Undo last change">
+                    <svg class="icon" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                    </svg>
+                </button>
+                <button class="version-btn" @click="$emit('redo')" title="Redo change">
+                    <svg class="icon" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Shape Selection Button -->
+            <button 
+                class="shape-select-btn" 
+                :class="{ active: isSelectionMode }"
+                @click="openShapeModal" 
+                :title="isSelectionMode ? 'Finish selection' : 'Select area to edit'"
+            >
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                </svg>
+            </button>
+
+            <!-- Cancel Selection Button -->
+            <button 
+                v-if="isSelectionMode"
+                class="shape-select-btn cancel-btn" 
+                @click="deactivateSelectionMode" 
+                title="Cancel selection"
+            >
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <div class="traffic-lights">
+                <span class="light red"></span>
+                <span class="light yellow"></span>
+                <span class="light green"></span>
+            </div>
+        </div>
+
+        <!-- Live Preview Frame -->
+        <div class="preview-wrapper">
+            <iframe ref="previewFrame" id="previewFrame" class="preview-frame"></iframe>
+            <!-- Selection Overlay -->
+            <canvas 
+                ref="selectionCanvas" 
+                id="selectionCanvas" 
+                class="selection-canvas" 
+                :class="{ active: isSelectionMode }"
+                :style="{ display: isSelectionMode ? 'block' : 'none' }"
+                @mousedown="handleSelectionStart"
+                @mousemove="handleSelectionMove"
+                @mouseup="handleSelectionEnd"
+            ></canvas>
+            
+            <div 
+                v-if="isSelectionMode"
+                ref="selectionInfo" 
+                class="selection-info"
+            >
+                <strong>Selection Mode Active</strong><br>
+                Drawing: {{ selectedShape }} | Selected: {{ allSelections.length }} area(s)<br>
+                <small>Click and drag to select. Click the button above to finish.</small>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <dialog ref="shapeModal" class="modal">
+            <div class="modal-content">
+                <h3>Select Shape Tool</h3>
+                <p>Choose a shape to select an area in the preview for AI editing</p>
+                <div class="shape-options">
+                    <button class="shape-option-btn" @click="selectShape('rectangle')">
+                        <svg class="shape-icon" viewBox="0 0 100 100">
+                            <rect x="10" y="10" width="80" height="80" fill="none" stroke="currentColor" stroke-width="4"/>
+                        </svg>
+                        <span>Rectangle</span>
+                    </button>
+                    <button class="shape-option-btn" @click="selectShape('circle')">
+                        <svg class="shape-icon" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="4"/>
+                        </svg>
+                        <span>Circle</span>
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button @click="closeShapeModal" class="modal-btn secondary">Cancel</button>
+                </div>
+            </div>
+        </dialog>
+
+        <dialog ref="editSelectionModal" class="modal">
+            <div class="modal-content">
+                <h3>Edit Selected Area</h3>
+                <p class="selected-elements-info">{{ selectedElementsInfoText }}</p>
+                <textarea 
+                    v-model="editInstructionInput" 
+                    placeholder="Tell AI what to change in the selected area..."
+                ></textarea>
+                <div class="modal-actions">
+                    <button @click="closeEditModal" class="modal-btn secondary">Cancel</button>
+                    <button @click="sendEdit" class="modal-btn primary">Send to AI</button>
+                </div>
+            </div>
+        </dialog>
+    </main>
+</template>
