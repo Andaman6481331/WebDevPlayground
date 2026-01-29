@@ -1,0 +1,33 @@
+
+    <h1>Vue Web Dev Playground</h1>
+    <p>Simplified starter - add components as needed</p>
+    
+    <!-- Code Editor -->
+    <div class="editor-section">
+      <h2>HTML</h2>
+      <textarea v-model="htmlCode" class="code-editor"></textarea>
+      
+      <h2>CSS</h2>
+      <textarea v-model="cssCode" class="code-editor"></textarea>
+      
+      <h2>JavaScript</h2>
+      <textarea v-model="jsCode" class="code-editor"></textarea>
+    </div>
+    
+    <!-- Live Preview -->
+    <div class="preview-section">
+      <h2>Preview</h2>
+      <iframe ref="previewFrame" class="preview-frame"></iframe>
+    </div>
+    
+    <!-- AI Chat -->
+    <div class="chat-section">
+      <h2>AI Assistant</h2>
+      <div class="messages">
+        <div v-for="(msg, idx) in messages" :key="idx" :class="'message-' + msg.role">
+          {{ msg.content }}
+        </div>
+      </div>
+      <input v-model="userMessage" @keyup.enter="sendMessage" placeholder="Ask AI for help..." />
+      <button @click="sendMessage">Send</button>
+    </div>
