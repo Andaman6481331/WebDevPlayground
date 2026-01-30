@@ -395,6 +395,7 @@ const resetChat = () => {
                     @undo="undo"
                     @redo="redo"
                     @update-code="handleAIEdit"
+                    @direct-update-code="(code) => { htmlCode = code }"
                 />
                 
                 <!-- Code Editor -->

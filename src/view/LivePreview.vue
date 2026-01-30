@@ -7,7 +7,7 @@ const props = defineProps({
     jsCode: String
 });
 
-const emit = defineEmits(['undo', 'redo', 'update-code']);
+const emit = defineEmits(['undo', 'redo', 'update-code', 'direct-update-code']);
 
 const previewFrame = ref(null);
 const previewWrapper = ref(null);
@@ -20,6 +20,7 @@ const selectedElementsInfoText = ref('');
 
 // State
 const isSelectionMode = ref(false);
+const isTextEditMode = ref(false);
 const selectedShape = ref(null);
 const isDrawing = ref(false);
 const startX = ref(0);
@@ -483,6 +484,59 @@ const sendEdit = () => {
 const closeEditModal = () => {
     if (editSelectionModal.value) editSelectionModal.value.close();
 };
+
+// ========== TEXT EDIT MODE LOGIC ==========
+
+const toggleTextEditMode = () => {
+    if (isSelectionMode.value) deactivateSelectionMode();
+    
+    isTextEditMode.value = !isTextEditMode.value;
+    
+    if (previewFrame.value) {
+        const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
+        if (isTextEditMode.value) {
+            iframeDoc.designMode = 'on';
+            console.log('Text Edit Mode: ON');
+        } else {
+            iframeDoc.designMode = 'off';
+            console.log('Text Edit Mode: OFF');
+            // Re-render to discard unsaved changes if they just toggled it off without saving
+            updatePreview();
+        }
+    }
+};
+
+const saveTextChanges = () => {
+    if (!previewFrame.value) return;
+    
+    const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
+    
+    // Disable design mode first
+    iframeDoc.designMode = 'off';
+    isTextEditMode.value = false;
+    
+    // Extract the HTML content of the body
+    // We want the innerHTML of the body, but cleaned up
+    let newHtml = iframeDoc.body.innerHTML;
+    
+    // Remove any scripts we injected or that might have been added
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = newHtml;
+    
+    const scripts = tempDiv.querySelectorAll('script');
+    scripts.forEach(s => s.remove());
+    
+    // Clean up any attributes added by designMode or other things if necessary
+    // (Usually designMode doesn't add much, but sometimes contenteditable elements appear)
+    
+    const cleanedHtml = tempDiv.innerHTML.trim();
+    
+    console.log('Saving text changes:', cleanedHtml);
+    emit('direct-update-code', cleanedHtml);
+    
+    // updatePreview will be called by the watcher when props update
+};
+
 </script>
 
 <template>
@@ -524,6 +578,31 @@ const closeEditModal = () => {
                     </svg>
                 </button>
 
+                <!-- Text Edit Tool -->
+                <div class="text-edit-group">
+                    <button 
+                        class="text-edit-btn" 
+                        :class="{ active: isTextEditMode }"
+                        @click="toggleTextEditMode" 
+                        :title="isTextEditMode ? 'Discard changes' : 'Edit text directly'"
+                    >
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </button>
+                    
+                    <button 
+                        v-if="isTextEditMode"
+                        class="text-edit-btn save-btn" 
+                        @click="saveTextChanges" 
+                        title="Save text changes"
+                    >
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </button>
+                </div>
+
                 <button 
                     v-if="isSelectionMode"
                     class="shape-select-btn cancel-btn" 
@@ -560,6 +639,11 @@ const closeEditModal = () => {
                 <strong>Selection Mode Active</strong><br>
                 Tool: {{ selectedShape || 'None' }} | Areas: {{ allSelections.length }}<br>
                 <small>Drag to select. Click the tool button when done.</small>
+            </div>
+
+            <div v-if="isTextEditMode" class="selection-info text-edit-info">
+                <strong>Text Edit Mode Active</strong><br>
+                <small>Click any text to edit. Click checkmark to save, or pen to discard.</small>
             </div>
         </div>
 
@@ -657,6 +741,50 @@ const closeEditModal = () => {
     background: rgba(255, 255, 255, 0.4);
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
+
+.text-edit-group {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px;
+    border-radius: 6px;
+}
+
+.text-edit-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.text-edit-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.text-edit-btn.active {
+    background: #ff4757;
+    color: white;
+}
+
+.text-edit-btn.save-btn {
+    background: #2ed573;
+    color: white;
+}
+
+.text-edit-btn.save-btn:hover {
+    background: #26af5f;
+}
+
+.text-edit-info {
+    border-left: 4px solid #ff4757 !important;
+}
+
 
 .version-toggle {
     display: flex;
