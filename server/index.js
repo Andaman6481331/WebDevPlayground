@@ -77,7 +77,7 @@ CRITICAL JSON FORMATTING RULES:
   "message": "First, describe the layout or image you see (if provided). Then describe your changes.",
   "html": "HTML content. Typically internal elements only, but can include <style> or multiple <script> tags if creating a standalone/complex component.",
   "css": "Complete CSS code with proper escaping",
-  "js": "Complete JavaScript code with proper escaping. If multiple scripts are needed, you can also place them in the 'html' field."
+  "javascript": "Complete JavaScript code with proper escaping. If multiple scripts are needed, you can also place them in the 'html' field."
 }
 
 CRITICAL JAVASCRIPT SAFETY RULES:
@@ -120,7 +120,7 @@ RESPONSE FORMAT - You MUST respond with ONLY this JSON structure (no markdown, n
   "message": "Brief summary of what was created",
   "html": "HTML fragment content only (NO <!DOCTYPE>, <html>, <body> tags). Just the internal elements.",
   "css": "Complete CSS with exact colors, spacing, and typography from the image",
-  "js": "JavaScript for any interactive elements (empty string if none needed)"
+  "javascript": "JavaScript for any interactive elements (empty string if none needed)"
 }
 
 CRITICAL REQUIREMENTS:
@@ -237,6 +237,12 @@ app.post("/api/chat", async (req, res) => {
         javascript: javascript || "",
         explanation: "Sorry, I had trouble generating the structured code. Please try again."
       };
+    }
+
+    // Normalize keys: if AI returned 'js' instead of 'javascript', move it
+    if (parsedResponse.js && !parsedResponse.javascript) {
+      parsedResponse.javascript = parsedResponse.js;
+      delete parsedResponse.js;
     }
 
     res.json(parsedResponse);

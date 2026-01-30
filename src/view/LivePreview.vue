@@ -10,6 +10,7 @@ const props = defineProps({
 const emit = defineEmits(['undo', 'redo', 'update-code']);
 
 const previewFrame = ref(null);
+const previewWrapper = ref(null);
 const selectionCanvas = ref(null);
 const selectionInfo = ref(null);
 const shapeModal = ref(null);
@@ -94,6 +95,37 @@ function updatePreview() {
 
 // Ensure undo/redo buttons are handled by parent (App.vue) passing down props if needed, 
 // or just emitting events which we are doing.
+
+const openInNewTab = () => {
+    const completeHTML = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                ${props.cssCode}
+            </style>
+        </head>
+        <body style="margin: 0; min-height: 100vh;">
+            ${props.htmlCode}
+            <script>
+                (function() {
+                    try {
+                        ${props.jsCode}
+                    } catch (error) {
+                        console.error('Runtime Error in Standalone Preview:', error);
+                    }
+                })();
+            <\/script>
+        </body>
+        </html>
+    `;
+
+    const blob = new Blob([completeHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+};
 
 // ========== SHAPE SELECTION LOGIC ==========
 
@@ -497,6 +529,17 @@ const closeEditModal = () => {
                 </button>
             </div>
 
+            <!-- Open In New Tab Button -->
+            <button 
+                class="external-link-btn" 
+                @click="openInNewTab" 
+                title="Open in new tab"
+            >
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+            </button>
+
             <!-- Shape Selection Button -->
             <button 
                 class="shape-select-btn" 
@@ -529,7 +572,7 @@ const closeEditModal = () => {
         </div>
 
         <!-- Live Preview Frame -->
-        <div class="preview-wrapper">
+        <div class="preview-wrapper" ref="previewWrapper">
             <iframe ref="previewFrame" id="previewFrame" class="preview-frame"></iframe>
             <!-- Selection Overlay -->
             <canvas 
@@ -644,6 +687,29 @@ const closeEditModal = () => {
 }
 
 .shape-select-btn .icon {
+    width: 16px;
+    height: 16px;
+    stroke: white;
+}
+
+.external-link-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-right: 8px;
+}
+
+.external-link-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.external-link-btn .icon {
     width: 16px;
     height: 16px;
     stroke: white;

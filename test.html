@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .animated-button-container-1734619234 {
+            width: 100%;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 200px;
+        }
+
+        .animate-btn-1734619234 {
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .animate-btn-1734619234:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .animate-btn-1734619234:active {
+            transform: translateY(0);
+        }
+
+        .animate-btn-1734619234.animating {
+            pointer-events: none;
+        }
+
+        @keyframes dropDown-1734619234 {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(100px);
+            }
+        }
+
+        @keyframes slideRight-1734619234 {
+            0% {
+                transform: translateY(100px) translateX(0);
+            }
+
+            100% {
+                transform: translateY(100px) translateX(calc(100vw + 200px));
+            }
+        }
+
+        .popup-overlay-1734619234 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .popup-overlay-1734619234.show {
+            opacity: 1;
+        }
+
+        .popup-content-1734619234 {
+            background: #ffffff;
+            padding: 40px 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            transform: scale(0.7);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 90%;
+            width: 400px;
+        }
+
+        .popup-overlay-1734619234.show .popup-content-1734619234 {
+            transform: scale(1);
+        }
+
+        .popup-content-1734619234 h2 {
+            margin: 0 0 15px 0;
+            color: #333333;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .popup-content-1734619234 p {
+            margin: 0 0 25px 0;
+            color: #666666;
+            font-size: 16px;
+        }
+
+        .close-popup-1734619234 {
+            padding: 12px 35px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .close-popup-1734619234:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        .close-popup-1734619234:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .animated-button-container-1734619234 {
+                padding: 30px 15px;
+            }
+
+            .animate-btn-1734619234 {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+
+            .popup-content-1734619234 {
+                padding: 30px 25px;
+                width: 320px;
+            }
+
+            .popup-content-1734619234 h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="animated-button-container-1734619234">
+        <button class="animate-btn-1734619234">Click Me!</button>
+        <div class="popup-overlay-1734619234" style="display: none;">
+            <div class="popup-content-1734619234">
+                <h2>Surprise! 🎉</h2>
+                <p>The button made it here!</p>
+                <button class="close-popup-1734619234">Close</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const button = document.getElementById('animateBtn');
+        const popupOverlay = document.getElementById('popupOverlay');
+        const closeBtn = document.getElementById('closeBtn');
+
+        button.addEventListener('click', function () {
+            // Prevent multiple clicks
+            if (button.classList.contains('animating')) return;
+
+            // Start animation
+            button.classList.add('animating');
+
+            // Show popup after animation completes (2 seconds)
+            setTimeout(() => {
+                popupOverlay.classList.add('show');
+            }, 2000);
+        });
+
+        closeBtn.addEventListener('click', function () {
+            // Hide popup
+            popupOverlay.classList.remove('show');
+
+            // Reset button
+            setTimeout(() => {
+                button.classList.remove('animating');
+                button.style.opacity = '1';
+            }, 300);
+        });
+
+        // Close popup when clicking outside
+        popupOverlay.addEventListener('click', function (e) {
+            if (e.target === popupOverlay) {
+                closeBtn.click();
+            }
+        });
+    </script>
+</body>
+
+</html>
