@@ -1,206 +1,352 @@
-<!DOCTYPE html>
-<html lang="en">
+<style>
+    * {
+        box-sizing: border-box;
+    }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        .animated-button-container-1734619234 {
-            width: 100%;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 200px;
+    body {
+        margin: 0;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .product-cat-container {
+        width: 100%;
+        height: auto;
+        gap: 40px;
+        padding: 80px 10vw 40px 10vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .product-cat-header {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .product-cat-head-1 {
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 100%;
+        letter-spacing: 0%;
+        text-align: center;
+        color: #1379de;
+    }
+
+    .product-cat-head-2 {
+        font-weight: 600;
+        font-size: 36px;
+        line-height: 54px;
+        letter-spacing: -2%;
+        text-align: center;
+        vertical-align: bottom;
+        color: #1c1b1f;
+    }
+
+    .product-cat-card {
+        width: 100%;
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: start;
+        gap: 24px;
+    }
+
+    .product-card-item {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: auto;
+        border-radius: 20px;
+    }
+
+    .products-cat-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        display: block;
+    }
+
+    .products-cat-image-2 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        display: block;
+    }
+
+    .products-cat-image-3 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        display: block;
+    }
+
+    .products-cat-image-4 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        display: block;
+    }
+
+    .products-cat-image-5 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        display: block;
+    }
+
+    .products-cat-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .products-cat-image-2 img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: left;
+    }
+
+    .products-cat-image-3 img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .products-cat-image-4 img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .products-cat-image-5 img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .product-card-item-text {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: end;
+        gap: 10px;
+        padding: 50px 30px;
+        color: #fff;
+        height: 100%;
+        background-blend-mode: multiply;
+        background: rgba(201, 201, 201, 0.2);
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #080808 100%);
+    }
+
+    .product-card-item-text h2 {
+        font-weight: 600;
+        font-size: 24px;
+        line-height: 30px;
+        text-decoration: none;
+    }
+
+    .product-card-item-text-desc {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+
+    .product-card-item-text-desc-1 {
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 26px;
+    }
+
+    @media screen and (min-width: 384px) {
+        .product-card-item {
+            position: relative;
+            overflow: hidden;
+            width: 344px;
+            height: 420px;
+            border-radius: 20px;
         }
 
-        .animate-btn-1734619234 {
-            padding: 15px 40px;
-            font-size: 18px;
-            font-weight: 600;
-            color: #ffffff;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        .product-card-item-text {
             position: relative;
             z-index: 1;
-        }
-
-        .animate-btn-1734619234:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        .animate-btn-1734619234:active {
-            transform: translateY(0);
-        }
-
-        .animate-btn-1734619234.animating {
-            pointer-events: none;
-        }
-
-        @keyframes dropDown-1734619234 {
-            0% {
-                transform: translateY(0);
-            }
-
-            100% {
-                transform: translateY(100px);
-            }
-        }
-
-        @keyframes slideRight-1734619234 {
-            0% {
-                transform: translateY(100px) translateX(0);
-            }
-
-            100% {
-                transform: translateY(100px) translateX(calc(100vw + 200px));
-            }
-        }
-
-        .popup-overlay-1734619234 {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
             display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            flex-direction: column;
+            align-items: start;
+            justify-content: end;
+            gap: 10px;
+            padding: 30px;
+            color: #fff;
+            height: 100%;
+            background-blend-mode: multiply;
+            background: rgba(201, 201, 201, 0.2);
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #080808 100%);
         }
+    }
 
-        .popup-overlay-1734619234.show {
-            opacity: 1;
-        }
-
-        .popup-content-1734619234 {
-            background: #ffffff;
-            padding: 40px 50px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            transform: scale(0.7);
-            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            max-width: 90%;
-            width: 400px;
-        }
-
-        .popup-overlay-1734619234.show .popup-content-1734619234 {
-            transform: scale(1);
-        }
-
-        .popup-content-1734619234 h2 {
-            margin: 0 0 15px 0;
-            color: #333333;
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .popup-content-1734619234 p {
-            margin: 0 0 25px 0;
-            color: #666666;
-            font-size: 16px;
-        }
-
-        .close-popup-1734619234 {
-            padding: 12px 35px;
-            font-size: 16px;
+    @media screen and (min-width: 1024px) {
+        .product-cat-head-2 {
             font-weight: 600;
-            color: #ffffff;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-size: 44px;
+            line-height: 54px;
+            letter-spacing: -2%;
+            text-align: center;
+            vertical-align: bottom;
+            color: #1c1b1f;
         }
 
-        .close-popup-1734619234:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        .product-cat-card {
+            width: 712px;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            justify-content: start;
+            align-items: start;
+            gap: 24px;
         }
+    }
 
-        .close-popup-1734619234:active {
-            transform: translateY(0);
+    @media screen and (min-width: 1280px) {
+        .product-cat-card {
+            width: 1080px;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            justify-content: start;
+            align-items: start;
+            gap: 24px;
         }
-
-        @media (max-width: 768px) {
-            .animated-button-container-1734619234 {
-                padding: 30px 15px;
-            }
-
-            .animate-btn-1734619234 {
-                padding: 12px 30px;
-                font-size: 16px;
-            }
-
-            .popup-content-1734619234 {
-                padding: 30px 25px;
-                width: 320px;
-            }
-
-            .popup-content-1734619234 h2 {
-                font-size: 24px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <div class="animated-button-container-1734619234">
-        <button class="animate-btn-1734619234">Click Me!</button>
-        <div class="popup-overlay-1734619234" style="display: none;">
-            <div class="popup-content-1734619234">
-                <h2>Surprise! 🎉</h2>
-                <p>The button made it here!</p>
-                <button class="close-popup-1734619234">Close</button>
-            </div>
-        </div>
+    }
+</style>
+<section class="product-cat-container">
+    <div class="product-cat-header">
+        <div class="product-cat-head-1">Products Category</div>
+        <h1 class="product-cat-head-2">สินค้าและอุปกรณ์</h1>
     </div>
-    <script>
-        const button = document.getElementById('animateBtn');
-        const popupOverlay = document.getElementById('popupOverlay');
-        const closeBtn = document.getElementById('closeBtn');
-
-        button.addEventListener('click', function () {
-            // Prevent multiple clicks
-            if (button.classList.contains('animating')) return;
-
-            // Start animation
-            button.classList.add('animating');
-
-            // Show popup after animation completes (2 seconds)
-            setTimeout(() => {
-                popupOverlay.classList.add('show');
-            }, 2000);
-        });
-
-        closeBtn.addEventListener('click', function () {
-            // Hide popup
-            popupOverlay.classList.remove('show');
-
-            // Reset button
-            setTimeout(() => {
-                button.classList.remove('animating');
-                button.style.opacity = '1';
-            }, 300);
-        });
-
-        // Close popup when clicking outside
-        popupOverlay.addEventListener('click', function (e) {
-            if (e.target === popupOverlay) {
-                closeBtn.click();
-            }
-        });
-    </script>
-</body>
-
-</html>
+    <div class="product-cat-card"><a class="product-card-item" href="../../collections/Projector" target="_SELF"
+            rel="noopener noreferrer">
+            <picture class="products-cat-image">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/6/20/6854ded564190a5ef0c84a50.avif
+          " type="image/avif">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/6/20/6854ded564190a5ef0c84a50.webp
+          " type="image/webp">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/6/20/6854ded564190a5ef0c84a50.png
+          " type="image/png"> <img
+                    src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/6/20/6854ded564190a5ef0c84a50.png"
+                    alt="Projector Image" width="344" height="420" loading="lazy">
+            </picture>
+            <div class="product-card-item-text">
+                <h2>โปรเจคเตอร์</h2>
+            </div>
+        </a><a class="product-card-item" href="../../led-solution-for-presentation" target="_SELF"
+            rel="noopener noreferrer">
+            <picture class="products-cat-image-2">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d73182d4e84022130e4.avif
+          " type="image/avif">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d73182d4e84022130e4.webp
+          " type="image/webp">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d73182d4e84022130e4.png
+          " type="image/png"> <img
+                    src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d73182d4e84022130e4.png"
+                    alt="LED Display Image" width="344" height="420" loading="lazy">
+            </picture>
+            <div class="product-card-item-text">
+                <h2>จอ LED Display</h2>
+            </div>
+        </a><a class="product-card-item" href="../../collections/PTZ-Camera" target="_SELF" rel="noopener noreferrer">
+            <picture class="products-cat-image-3">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d9d182d4e84022130f4.avif
+          " type="image/avif">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d9d182d4e84022130f4.webp
+          " type="image/webp">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d9d182d4e84022130f4.png
+          " type="image/png"> <img
+                    src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d9d182d4e84022130f4.png"
+                    alt="PTZ Camera Image" width="344" height="420" loading="lazy">
+            </picture>
+            <div class="product-card-item-text">
+                <h2>กล้อง PTZ</h2>
+            </div>
+        </a><a class="product-card-item" href="../../collections/Interactive-Flat-Panel" target="_SELF"
+            rel="noopener noreferrer">
+            <picture class="products-cat-image-4">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d6a182d4e84022130dc.avif
+          " type="image/avif">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d6a182d4e84022130dc.webp
+          " type="image/webp">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d6a182d4e84022130dc.png
+          " type="image/png"> <img
+                    src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d6a182d4e84022130dc.png"
+                    alt="PTZ Camera Image" width="344" height="420" loading="lazy">
+            </picture>
+            <div class="product-card-item-text">
+                <h2>จอรับภาพ</h2>
+            </div>
+        </a><a class="product-card-item" href="../../collections/Projection%20Screen" target="_SELF"
+            rel="noopener noreferrer">
+            <picture class="products-cat-image-5">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d80182d4e84022130ec.avif
+          " type="image/avif">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d80182d4e84022130ec.webp
+          " type="image/webp">
+                <source srcset="
+            https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d80182d4e84022130ec.png
+          " type="image/png"> <img
+                    src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/webBannerComponent/2025/8/13/689c1d80182d4e84022130ec.png"
+                    alt="PTZ Camera Image" width="344" height="420" loading="lazy">
+            </picture>
+            <div class="product-card-item-text">
+                <h2>กระดานอัจฉริยะ</h2>
+            </div>
+        </a></div>
+</section>

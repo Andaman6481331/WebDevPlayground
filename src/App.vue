@@ -45,6 +45,7 @@ const chatMessages = ref([
     { role: 'assistant', content: "Welcome! I'm your coding assistant. Ask me anything about web development." }
 ]);
 const isChatLoading = ref(false);
+const totalTokens = ref(parseInt(localStorage.getItem('total-tokens')) || 0);
 
 // Watch for model changes
 watch(currentModel, (newModel) => {
@@ -96,7 +97,14 @@ const loadConversationsData = () => {
 };
 
 const saveConversations = () => {
-    localStorage.setItem('webdev_conversations', JSON.stringify(conversations.value));
+    try {
+        localStorage.setItem('webdev_conversations', JSON.stringify(conversations.value));
+    } catch (error) {
+        console.error('Failed to save conversations to localStorage:', error);
+        if (error.name === 'QuotaExceededError') {
+            console.warn('Storage quota exceeded. Some history might not be saved.');
+        }
+    }
 };
 
 const initializeConversation = () => {
@@ -329,8 +337,16 @@ const handleSendMessage = async ({ text, attachment }) => {
         if (data.css) cssCode.value = data.css;
         if (data.javascript) jsCode.value = data.javascript;
         
+        // Update token usage
+        const used = (data.usage.input_tokens || 0) + (data.usage.output_tokens || 0);
+        if (data.usage) {
+            totalTokens.value += used;
+            localStorage.setItem('total-tokens', totalTokens.value);
+            console.log(`Tokens used in this request: ${used}. Total: ${totalTokens.value}`);
+        }
+        
         // Add assistant message
-        const explanation = data.explanation || "I've updated the code based on your request.";
+        const explanation = (data.message || `I've updated the code based on your request.`) + `(${used} tokens used)`;
         const aiMsg = { role: 'assistant', content: explanation };
         chatMessages.value.push(aiMsg);
         
@@ -377,6 +393,7 @@ const resetChat = () => {
             :conversations="conversations"
             :current-conversation-id="currentConversationId"
             v-model:currentModel="currentModel"
+            :total-tokens="totalTokens"
             @toggle-sidebar="toggleSidebar"
             @new-conversation="initializeConversation"
             @load-conversation="loadConversation"

@@ -18,6 +18,13 @@ const editSelectionModal = ref(null);
 const editInstructionInput = ref('');
 const selectedElementsInfoText = ref('');
 
+// State for Image Editing
+const isImageEditMode = ref(false);
+const imageEditModal = ref(null);
+const selectedImgUrl = ref('');
+const editingImgElement = ref(null);
+const imageSources = ref([]); // For <picture> support
+
 // State
 const isSelectionMode = ref(false);
 const isTextEditMode = ref(false);
@@ -69,11 +76,16 @@ function updatePreview() {
     previewFrame.value.src = url;
 
     // After iframe loads, inject the JS safely
-    previewFrame.value.onload = () => {
+        previewFrame.value.onload = () => {
         try {
             const iframe = previewFrame.value;
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             
+            // Re-apply Image Edit Mode listeners if active
+            if (isImageEditMode.value) {
+                setupImageEditListeners();
+            }
+
             if (props.jsCode && props.jsCode.trim()) {
                 const script = iframeDoc.createElement('script');
                 // Using textContent is safe against script-end tags in the code string
@@ -132,15 +144,13 @@ const openInNewTab = () => {
 
 const openShapeModal = () => {
     if (isSelectionMode.value) {
-        if (allSelections.value.length > 0) {
-            if (confirm(`You have ${allSelections.value.length} selection(s). Click OK to finish and edit, or Cancel to continue selecting.`)) {
-                finishSelection();
-            }
-        } else {
-            deactivateSelectionMode();
-        }
+        // If they click the tool button again while active, we finish selection
+        // Removing confirm() to make it smoother and avoid blocking the UI
+        finishSelection();
     } else {
-        shapeModal.value.showModal();
+        if (shapeModal.value && !shapeModal.value.open) {
+            shapeModal.value.showModal();
+        }
     }
 };
 
@@ -247,7 +257,7 @@ function handleSelectionEnd(e) {
     if (!selectionBounds) return;
 
     const elements = findElementsInSelection(selectionBounds);
-    console.log('Found Elements:', elements.length);
+    console.log('Final elements found for selection:', elements.length);
     
     if (elements.length > 0) {
         allSelections.value.push({
@@ -259,7 +269,7 @@ function handleSelectionEnd(e) {
         
         redrawAllSelections();
     } else {
-        alert('No elements found in selection. Try selecting a larger area or different location.');
+        console.warn('No elements found in selection.');
         redrawAllSelections();
     }
 }
@@ -381,9 +391,8 @@ function findElementsInSelection(bounds) {
             const interHeight = Math.max(0, interBottom - interTop);
             const intersectionArea = interWidth * interHeight;
 
-            const coverageRatio = intersectionArea / elArea;
-
-            if (coverageRatio >= 0.8) {
+            // Be more permissive: if there is ANY intersection with a leaf-like element
+            if (intersectionArea > 0) {
                 validCandidates.push({
                     element: element,
                     tagName: element.tagName,
@@ -537,13 +546,132 @@ const saveTextChanges = () => {
     // updatePreview will be called by the watcher when props update
 };
 
+// ========== IMAGE EDIT MODE LOGIC ==========
+
+const toggleImageEditMode = () => {
+    if (isSelectionMode.value) deactivateSelectionMode();
+    if (isTextEditMode.value) toggleTextEditMode();
+    
+    isImageEditMode.value = !isImageEditMode.value;
+    
+    if (isImageEditMode.value) {
+        setupImageEditListeners();
+    } else {
+        removeImageEditListeners();
+    }
+};
+
+const setupImageEditListeners = () => {
+    if (!previewFrame.value) return;
+    const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
+    
+    // Add visual feedback class to all images
+    const style = iframeDoc.createElement('style');
+    style.id = 'img-edit-styles';
+    style.textContent = `
+        img { cursor: pointer !important; outline: 2px dashed #667eea !important; }
+        img:hover { outline: 2px solid #667eea !important; background: rgba(102, 126, 234, 0.1) !important; }
+    `;
+    iframeDoc.head.appendChild(style);
+    
+    iframeDoc.querySelectorAll('img').forEach(img => {
+        img.addEventListener('click', handleImageClick);
+    });
+};
+
+const removeImageEditListeners = () => {
+    if (!previewFrame.value) return;
+    const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
+    
+    const style = iframeDoc.getElementById('img-edit-styles');
+    if (style) style.remove();
+    
+    iframeDoc.querySelectorAll('img').forEach(img => {
+        img.removeEventListener('click', handleImageClick);
+    });
+};
+
+const handleImageClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    editingImgElement.value = e.target;
+    selectedImgUrl.value = e.target.src;
+    imageSources.value = [];
+
+    // Check if within a <picture> tag
+    const pictureEl = e.target.closest('picture');
+    if (pictureEl) {
+        const sources = Array.from(pictureEl.querySelectorAll('source'));
+        imageSources.value = sources.map((s, index) => ({
+            id: index,
+            element: s,
+            srcset: s.srcset,
+            type: s.type || ''
+        }));
+    }
+    
+    if (imageEditModal.value) {
+        imageEditModal.value.showModal();
+    }
+};
+
+const saveImageURL = () => {
+    if (editingImgElement.value) {
+        editingImgElement.value.src = selectedImgUrl.value;
+        
+        // Update <source> elements if they exist
+        imageSources.value.forEach(s => {
+            if (s.element) {
+                s.element.srcset = s.srcset;
+            }
+        });
+
+        // Extract updated HTML
+        const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
+        
+        // Remove our temporary styles before saving
+        const style = iframeDoc.getElementById('img-edit-styles');
+        if (style) style.remove();
+        
+        // If part of a picture, we want to make sure the picture structure is preserved
+        // We emit the body.innerHTML which will contain the updated picture/sources
+        let newHtml = iframeDoc.body.innerHTML;
+        
+        // Clean up scripts
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newHtml;
+        tempDiv.querySelectorAll('script').forEach(s => s.remove());
+        
+        const cleanedHtml = tempDiv.innerHTML.trim();
+        emit('direct-update-code', cleanedHtml);
+        
+        imageEditModal.value.close();
+        isImageEditMode.value = false;
+        removeImageEditListeners();
+    }
+};
+
+const closeImageModal = () => {
+    if (imageEditModal.value) imageEditModal.value.close();
+    editingImgElement.value = null;
+};
+
 </script>
 
 <template>
     <main class="preview-panel">
         <div class="panel-header">
             <h2>LIVE PREVIEW</h2>
-
+            <div v-if="isTextEditMode" class="selection-info text-edit-info">
+                <strong>Text Edit Mode Active</strong><br>
+                <small>Click any text to edit. Click checkmark to save, or pen to discard.</small>
+            </div>
+            <div v-if="isSelectionMode" class="selection-info">
+                <strong>Selection Mode Active</strong><br>
+                Tool: {{ selectedShape || 'None' }} | Areas: {{ allSelections.length }}<br>
+                <small>Drag to select. Click the tool button when done.</small>
+            </div>
             <div class="header-actions">
                 <!-- Undo/Redo -->
                 <div class="version-toggle">
@@ -603,6 +731,18 @@ const saveTextChanges = () => {
                     </button>
                 </div>
 
+                <!-- Image Edit Tool -->
+                <button 
+                    class="image-edit-btn" 
+                    :class="{ active: isImageEditMode }"
+                    @click="toggleImageEditMode" 
+                    :title="isImageEditMode ? 'Turn off image edit' : 'Edit image URLs'"
+                >
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h14a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </button>
+
                 <button 
                     v-if="isSelectionMode"
                     class="shape-select-btn cancel-btn" 
@@ -634,17 +774,8 @@ const saveTextChanges = () => {
                 @mousemove="handleSelectionMove"
                 @mouseup="handleSelectionEnd"
             ></canvas>
-            
-            <div v-if="isSelectionMode" class="selection-info">
-                <strong>Selection Mode Active</strong><br>
-                Tool: {{ selectedShape || 'None' }} | Areas: {{ allSelections.length }}<br>
-                <small>Drag to select. Click the tool button when done.</small>
-            </div>
 
-            <div v-if="isTextEditMode" class="selection-info text-edit-info">
-                <strong>Text Edit Mode Active</strong><br>
-                <small>Click any text to edit. Click checkmark to save, or pen to discard.</small>
-            </div>
+
         </div>
 
         <!-- Tool Picker -->
@@ -684,6 +815,33 @@ const saveTextChanges = () => {
                 </div>
             </div>
         </dialog>
+
+        <!-- Image URL Edit Modal -->
+        <dialog ref="imageEditModal" class="modal">
+            <div class="modal-content">
+                <h3>Edit Image / Picture Sources</h3>
+                <div class="image-preview-container" v-if="selectedImgUrl">
+                    <img :src="selectedImgUrl" class="img-edit-preview" alt="Preview">
+                </div>
+
+                <!-- Sources for <picture> -->
+                <div v-if="imageSources.length > 0" class="sources-list">
+                    <div v-for="source in imageSources" :key="source.id" class="input-group">
+                        <label>Source ({{ source.type || 'responsive' }})</label>
+                        <input v-model="source.srcset" type="text" placeholder="https://example.com/image.webp">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Fallback Image Source (img src)</label>
+                    <input v-model="selectedImgUrl" type="text" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="modal-actions">
+                    <button @click="closeImageModal" class="modal-btn secondary">Cancel</button>
+                    <button @click="saveImageURL" class="modal-btn primary">Update All Sources</button>
+                </div>
+            </div>
+        </dialog>
     </main>
 </template>
 
@@ -706,6 +864,8 @@ const saveTextChanges = () => {
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1000; /* Ensure header is always on top */
 }
 
 .header-actions {
@@ -785,6 +945,83 @@ const saveTextChanges = () => {
     border-left: 4px solid #ff4757 !important;
 }
 
+.image-edit-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.image-edit-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.image-edit-btn.active {
+    background: #ffa502;
+    color: white;
+}
+
+.image-preview-container {
+    margin: 15px 0;
+    max-height: 150px;
+    display: flex;
+    justify-content: center;
+    background: #111;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.img-edit-preview {
+    max-width: 100%;
+    max-height: 150px;
+    object-fit: contain;
+}
+
+.sources-list {
+    margin: 10px 0;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.sources-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sources-list::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 2px;
+}
+
+.input-group {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 11px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group input {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 10px;
+    color: white;
+    font-size: 13px;
+}
+
 
 .version-toggle {
     display: flex;
@@ -823,8 +1060,8 @@ const saveTextChanges = () => {
 
 .selection-info {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 5px;
+    left: 200px;
     background: rgba(0,0,0,0.8);
     color: white;
     padding: 8px 12px;

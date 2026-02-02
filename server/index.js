@@ -102,7 +102,10 @@ IMPORTANT:
 - Responsiveness: Ensure mobile-friendliness.
 - Do NOT wrap response in markdown code blocks
 - Return ONLY the raw JSON object
-- html must start with <div class={classname-timestamp}>, css must start with .{classname-timestamp}
+- html SHOULD start with a semantic container (div, section, main, etc.) that uses a unique classname contains timestamp if it's a new component.
+- PRESERVE existing structures: If the user has a <section> or <picture> tag as the outer structure, DO NOT wrap it in an extra <div> or replace it with a <div> unless requested.
+- if the source code already contain any universal classname, do not change or remove it
+- Code Preservation: When updating existing code, try to keep the original structure, classes, and patterns (like responsive <picture> sources) as much as possible.
 `
   // Example of proper escaping:
   // {
@@ -245,6 +248,9 @@ app.post("/api/chat", async (req, res) => {
       delete parsedResponse.js;
     }
 
+    // Add usage info
+    parsedResponse.usage = msg.usage;
+
     res.json(parsedResponse);
 
   } catch (err) {
@@ -253,7 +259,7 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3008;
+const PORT = process.env.PORT || 3009;
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });

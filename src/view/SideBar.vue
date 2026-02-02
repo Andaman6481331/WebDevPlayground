@@ -8,7 +8,11 @@ const props = defineProps({
         type: Array,
         default: () => []
     },
-    currentConversationId: String
+    currentConversationId: String,
+    totalTokens: {
+        type: Number,
+        default: 0
+    }
 });
 
 const emit = defineEmits([
@@ -149,6 +153,20 @@ const handleDelete = (id) => {
                         🗑️
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Token Tracker -->
+        <div class="token-tracker" v-if="!isCollapsed">
+            <div class="token-header">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>Usage Stats</span>
+            </div>
+            <div class="token-count">
+                <span class="token-value">{{ totalTokens.toLocaleString() }}</span>
+                <span class="token-label">Tokens</span>
             </div>
         </div>
     </aside>
@@ -514,6 +532,52 @@ const handleDelete = (id) => {
 .action-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     opacity: 1;
+}
+
+/* Token Tracker */
+.token-tracker {
+    margin: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.token-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.token-header .icon {
+    width: 14px;
+    height: 14px;
+    color: #ffb86c;
+}
+
+.token-count {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.token-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffb86c;
+}
+
+.token-label {
+    font-size: 10px;
+    color: #666;
+    font-weight: 500;
 }
 </style>
 <style scoped>
