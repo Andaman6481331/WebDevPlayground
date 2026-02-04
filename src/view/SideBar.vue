@@ -9,6 +9,11 @@ const props = defineProps({
         default: () => []
     },
     currentConversationId: String,
+    pages: {
+        type: Array,
+        default: () => []
+    },
+    currentPageId: String,
     totalTokens: {
         type: Number,
         default: 0
@@ -22,7 +27,10 @@ const emit = defineEmits([
     'load-conversation',
     'delete-conversation',
     'rename-conversation',
-    'new-page' // If pages are implemented
+    'new-page',
+    'load-page',
+    'delete-page',
+    'close-page'
 ]);
 
 const toggleSidebar = () => {
@@ -119,10 +127,28 @@ const handleDelete = (id) => {
             <span class="btn-text">New Page</span>
         </button>
 
-        <!-- Page List (Placeholder) -->
+
+        <!-- Page List -->
         <div class="page-list">
-            <!-- Pages will be loaded dynamically -->
+            <div 
+                v-for="page in pages" 
+                :key="page.id"
+                class="page-item"
+                :class="{ active: page.id === currentPageId }"
+                @click="$emit('load-page', page.id)"
+            >
+                <div class="page-info">
+                    <div class="conversation-title">{{ page.title }}</div>
+                    <div class="conversation-date">{{ formatDate(page.dateModified || page.dateCreated) }}</div>
+                </div>
+                <div class="conversation-actions">
+                    <button class="action-btn delete-btn" @click.stop="$emit('delete-page', page.id)" title="Delete">
+                        🗑️
+                    </button>
+                </div>
+            </div>
         </div>
+
 
         <!-- New Conversation Button -->
         <button class="new-conversation-btn" @click="$emit('new-conversation')">
@@ -138,8 +164,13 @@ const handleDelete = (id) => {
                 v-for="conv in conversations" 
                 :key="conv.id"
                 class="conversation-item"
-                :class="{ active: conv.id === currentConversationId }"
-                @click="$emit('load-conversation', conv.id)"
+                :class="{ 
+                    active: conv.id === currentConversationId 
+                }"
+                @click="
+                    $emit('close-page');
+                    $emit('load-conversation', conv.id);
+                "
             >
                 <div class="conversation-info">
                     <div class="conversation-title">{{ conv.title }}</div>

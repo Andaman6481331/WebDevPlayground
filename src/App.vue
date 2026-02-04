@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import Sidebar from './view/SideBar.vue';
 import LivePreview from './view/LivePreview.vue';
 import AssistantChat from './view/AssistantChat.vue';
 import CodeEditor from './view/CodeEditor.vue';
+import PageLayout from './view/PageLayout.vue';
 
 // ========== STATE ==========
 const htmlCode = ref('<div class="container">\n    <h1>Welcome to Web Dev Playground</h1>\n    <p>Start coding and see live results!</p>\n</div>');
@@ -47,6 +48,18 @@ const chatMessages = ref([
 const isChatLoading = ref(false);
 const totalTokens = ref(parseInt(localStorage.getItem('total-tokens')) || 0);
 
+// Component Library & Pages
+const savedComponents = ref([]);
+const pages = ref([]);
+const currentPageId = ref(null);
+const isPageMode = ref(false);
+
+// Computed current page
+const currentPage = computed(() => {
+    if (!currentPageId.value) return null;
+    return pages.value.find(p => p.id === currentPageId.value);
+});
+
 // Watch for model changes
 watch(currentModel, (newModel) => {
     const modelName = newModel.charAt(0).toUpperCase() + newModel.slice(1);
@@ -70,6 +83,10 @@ onMounted(() => {
     
     // Set initial history
     saveToHistory();
+    
+    // Load components and pages
+    loadSavedComponents();
+    loadPages();
     
     document.documentElement.style.setProperty('--sidebar-width', isSidebarCollapsed.value ? '48px' : '240px');
 });
@@ -383,6 +400,135 @@ const resetChat = () => {
     }
 };
 
+// Component Library Management
+const loadSavedComponents = () => {
+    const saved = localStorage.getItem('webdev_saved_components');
+    if (saved) {
+        savedComponents.value = JSON.parse(saved);
+    }
+};
+
+const saveComponentToLibrary = () => {
+    const componentName = prompt('Enter a name for this component:');
+    if (!componentName) return;
+    
+    const component = {
+        id: Date.now().toString(),
+        name: componentName,
+        html: htmlCode.value,
+        css: cssCode.value,
+        js: jsCode.value,
+        dateCreated: new Date().toISOString(),
+        thumbnail: htmlCode.value.substring(0, 100)
+    };
+    
+    savedComponents.value.unshift(component);
+    localStorage.setItem('webdev_saved_components', JSON.stringify(savedComponents.value));
+    
+    alert(`Component "${componentName}" saved successfully!`);
+};
+
+const deleteComponent = (id) => {
+    if (confirm('Delete this component?')) {
+        savedComponents.value = savedComponents.value.filter(c => c.id !== id);
+        localStorage.setItem('webdev_saved_components', JSON.stringify(savedComponents.value));
+    }
+};
+
+// Page Management
+const loadPages = () => {
+    const saved = localStorage.getItem('webdev_pages');
+    if (saved) {
+        pages.value = JSON.parse(saved);
+    }
+};
+
+const createNewPage = () => {
+    isPageMode.value = true;
+    const pageId = Date.now().toString();
+    const page = {
+        id: pageId,
+        title: 'Untitled Page',
+        components: [],
+        dateCreated: new Date().toISOString(),
+        dateModified: new Date().toISOString()
+    };
+    pages.value.unshift(page);
+    currentPageId.value = pageId;
+    savePages();
+};
+
+const loadPage = (id) => {
+    currentPageId.value = id;
+    isPageMode.value = true;
+};
+
+const savePages = () => {
+    localStorage.setItem('webdev_pages', JSON.stringify(pages.value));
+};
+
+const updatePage = (updatedPage) => {
+    const index = pages.value.findIndex(p => p.id === updatedPage.id);
+    if (index !== -1) {
+        pages.value[index] = { ...updatedPage, dateModified: new Date().toISOString() };
+        savePages();
+    }
+};
+
+const deletePage = (id) => {
+    if (confirm('Delete this page?')) {
+        pages.value = pages.value.filter(p => p.id !== id);
+        savePages();
+        if (currentPageId.value === id) {
+            isPageMode.value = false;
+            currentPageId.value = null;
+        }
+    }
+};
+
+const closePage = () => {
+    isPageMode.value = false;
+    currentPageId.value = null;
+};
+
+const openPageInNewTab = (page) => {
+    const fullHTML = generateFullHTML(page);
+    const blob = new Blob([fullHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+};
+
+const generateFullHTML = (page) => {
+    const pageComponents = page.components.map(componentId => {
+        return savedComponents.value.find(c => c.id === componentId);
+    }).filter(Boolean);
+    
+    const combinedHTML = pageComponents.map(c => c.html).join('\n');
+    const combinedCSS = pageComponents.map(c => c.css).join('\n');
+    const combinedJS = pageComponents.map(c => c.js).join('\n');
+    
+    const htmlDoc = '<!DOCTYPE html>\n' +
+        '<html lang="en">\n' +
+        '<head>\n' +
+        '    <meta charset="UTF-8">\n' +
+        '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+        '    <title>' + page.title + '</title>\n' +
+        '    <style>\\n' +
+        combinedCSS + '\\n' +
+        '    </style>\\n' +
+        '</head>\\n' +
+        '<body>\\n' +
+        combinedHTML + '\\n' +
+        '    <scr' + 'ipt>\\n' +
+        combinedJS + '\\n' +
+        '    </scr' + 'ipt>\\n' +
+        '</body>\\n' +
+        '</html>';
+    
+    return htmlDoc;
+};
+
 </script>
 
 <template>
@@ -392,6 +538,8 @@ const resetChat = () => {
             :is-collapsed="isSidebarCollapsed"
             :conversations="conversations"
             :current-conversation-id="currentConversationId"
+            :pages="pages"
+            :current-page-id="currentPageId"
             v-model:currentModel="currentModel"
             :total-tokens="totalTokens"
             @toggle-sidebar="toggleSidebar"
@@ -399,10 +547,25 @@ const resetChat = () => {
             @load-conversation="loadConversation"
             @delete-conversation="deleteConversation"
             @rename-conversation="renameConversation"
+            @new-page="createNewPage"
+            @load-page="loadPage"
+            @delete-page="deletePage"
+            @close-page="closePage"
         />
 
-        <!-- Main Content -->
-        <div class="main-container">
+        <!-- Page Builder Mode -->
+        <PageLayout 
+            v-if="isPageMode && currentPage"
+            :saved-components="savedComponents"
+            :current-page="currentPage"
+            @update-page="updatePage"
+            @close-page="closePage"
+            @open-in-tab="openPageInNewTab"
+            @delete-component="deleteComponent"
+        />
+
+        <!-- Main Content (Editor Mode) -->
+        <div v-else class="main-container">
             <div class="display-sections">
                 <!-- Live Preview -->
                 <LivePreview 
@@ -430,6 +593,7 @@ const resetChat = () => {
                     :is-loading="isChatLoading"
                     @send-message="handleSendMessage"
                     @reset-chat="resetChat"
+                    @save-component="saveComponentToLibrary"
                 />
             </div>
         </div>

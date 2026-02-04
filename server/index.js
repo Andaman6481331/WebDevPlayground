@@ -159,7 +159,7 @@ app.post("/api/chat", async (req, res) => {
       'opus': "claude-opus-4-5-20251101"
     };
 
-    const selectedModel = modelMap[model] || 'claude-sonnet-4-5-20250929';
+    const selectedModel = modelMap[model] || 'claude-haiku-4-5-20251001';
 
     // Construct the user message
     const userContent = [];

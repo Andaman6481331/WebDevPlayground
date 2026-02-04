@@ -9,7 +9,7 @@ const props = defineProps({
     isLoading: Boolean
 });
 
-const emit = defineEmits(['send-message', 'reset-chat']);
+const emit = defineEmits(['send-message', 'reset-chat', 'save-component']);
 
 const messageInput = ref('');
 const fileInput = ref(null);
@@ -129,13 +129,22 @@ watch(() => props.isLoading, (newVal) => {
                 </svg>
                 <h2>AI ASSISTANT</h2>
             </div>
-            <button class="reset-btn" title="Reset conversation" @click="$emit('reset-chat')">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                    </path>
-                </svg>
-            </button>
+            <div class="header-actions">
+                <button class="save-component-btn" title="Add to Component Library" @click="$emit('save-component')">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
+                </button>
+                <button class="reset-btn" title="Reset conversation" @click="$emit('reset-chat')">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                        </path>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <!-- Chat Messages -->
@@ -290,6 +299,34 @@ watch(() => props.isLoading, (newVal) => {
 .chat-header {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     padding: 8px 16px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.save-component-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.save-component-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.save-component-btn .icon {
+    width: 16px;
+    height: 16px;
+    stroke: white;
 }
 
 .reset-btn {
