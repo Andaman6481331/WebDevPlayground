@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
@@ -12,6 +13,13 @@ const app = express();
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+// Initialize Gemini client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// ⭐ Initialize state stores
+const conversations = new Map();
+const conversationStates = new Map();
 
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
@@ -25,6 +33,39 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, '../src')));
+
+// ⭐ Intent Detection Endpoint (Cheap & Fast)
+app.post("/api/intent", async (req, res) => {
+  try {
+    const { message } = req.body;
+    console.log(`🔍 Intent Check: "${message.substring(0, 50)}..."`);
+
+    const prompt = `Analyze this user request and determine which code files are needed to fulfill it. 
+    Respond ONLY with a JSON object: {"intent": {"html": boolean, "css": boolean, "js": boolean}}
+    
+    Request: "${message}"`;
+
+    const msg = await anthropic.messages.create({
+      model: "claude-3-haiku-20240307",
+      max_tokens: 100,
+      temperature: 0,
+      messages: [{ role: "user", content: prompt }]
+    });
+
+    let responseText = msg.content[0].text;
+    const startIndex = responseText.indexOf('{');
+    const endIndex = responseText.lastIndexOf('}');
+    if (startIndex !== -1 && endIndex !== -1) {
+      const intent = JSON.parse(responseText.substring(startIndex, endIndex + 1));
+      res.json(intent);
+    } else {
+      res.json({ intent: { html: true, css: true, js: true } });
+    }
+  } catch (err) {
+    console.warn("⚠️ Intent Detection error:", err.message);
+    res.json({ intent: { html: true, css: true, js: true } });
+  }
+});
 
 // const SYSTEM_PROMPT = `You are an expert Frontend Web Developer and UI Designer acting as an intelligent coding agent.
 
@@ -95,15 +136,13 @@ CRITICAL JAVASCRIPT SAFETY RULES:
    - Add clear comments explaining dependencies, OR
    - Make the component work standalone with fallback behavior
 
-IMPORTANT: 
-- HTML: RETURN THE BODY CONTENT. Do NOT return \`<!DOCTYPE html>\`, \`<html>\`, or \`<head>\` tags. You MAY include \`<style>\` and \`<script>\` tags within the HTML if needed for a standalone component structure.
-- CSS: Do NOT include \`script\` or \`link\` tags in the CSS field. Do NOT use \`*\` or \`body\` selectors unless absolutely necessary.
-- Design: Create full-width, modern layouts.
-- Responsiveness: Ensure mobile-friendliness.
-- Do NOT wrap response in markdown code blocks
-- Return ONLY the raw JSON object
+- HTML: RETURN THE BODY CONTENT. Do NOT return \`<!DOCTYPE html>\`, \`<html>\`, or \`<head>\` tags.
+- CSS: Do NOT include \`script\` or \`link\` tags in the CSS field.
+- FULL CODE RULE: If you make ANY change to a field (html, css, or js), you MUST return the COMPLETE and FULL content for that field. Do NOT return snippets or comments like "... existing code ...".
+- OPTIMIZATION RULE: If a field requires NO changes at all, you MUST return \`null\` for that field to save tokens.
+- COORDINATED UPDATES: If you change a class name or ID in one file (e.g. CSS), you MUST also return the other file (e.g. HTML) with the corresponding update, even if no other changes were made to it.
 - html SHOULD start with a semantic container (div, section, main, etc.) that uses a unique classname contains timestamp if it's a new component.
-- PRESERVE existing structures: If the user has a <section> or <picture> tag as the outer structure, DO NOT wrap it in an extra <div> or replace it with a <div> unless requested.
+- PRESERVE existing structures: If the user has a <section> or <picture> tag as the outer structure, DO NOT wrap it in an extra <div> unless requested.
 - if the source code already contain any universal classname, do not change or remove it
 - Code Preservation: When updating existing code, try to keep the original structure, classes, and patterns (like responsive <picture> sources) as much as possible.
 `
@@ -150,7 +189,9 @@ Example of proper escaping:
 
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, html, css, javascript, image, model } = req.body;
+    const { message, html, css, javascript, image, model, conversationId, intent } = req.body;
+
+    console.log(`\n📝 Request: conversationId=${conversationId}, intent=${JSON.stringify(intent)}`);
 
     // Map frontend model names to Anthropic model IDs
     const modelMap = {
@@ -159,102 +200,209 @@ app.post("/api/chat", async (req, res) => {
       'opus': "claude-opus-4-5-20251101"
     };
 
-    const selectedModel = modelMap[model] || 'claude-haiku-4-5-20251001';
+    const selectedModel = modelMap[model] || 'claude-3-haiku-20240307';
 
-    // Construct the user message
+    // Get or initialize conversation
+    let conversationData = conversations.get(conversationId);
+    if (!conversationData) {
+      conversationData = { messages: [], timestamp: Date.now() };
+      conversations.set(conversationId, conversationData);
+    }
+    conversationData.timestamp = Date.now();
+    let conversationMessages = conversationData.messages;
+
+    // Get current state
+    let currentCode = conversationStates.get(conversationId) || { html: '', css: '', javascript: '' };
+
+    // Update state based on what arrived (Selective Sync)
+    if (html !== undefined) currentCode.html = html;
+    if (css !== undefined) currentCode.css = css;
+    if (javascript !== undefined) currentCode.javascript = javascript;
+    conversationStates.set(conversationId, currentCode);
+
+    // Build user message content
     const userContent = [];
-
-    // Add image if present
     if (image) {
-      // Assuming image is a base64 data URL
       const base64Image = image.replace(/^data:image\/(png|jpeg|webp);base64,/, "");
       const mediaType = image.match(/^data:image\/(png|jpeg|webp);base64,/)?.[1] || "jpeg";
-
       userContent.push({
         type: "image",
-        source: {
-          type: "base64",
-          media_type: `image/${mediaType}`,
-          data: base64Image,
-        },
+        source: { type: "base64", media_type: `image/${mediaType}`, data: base64Image }
       });
     }
 
-    // Add text context
-    let contextMessage = `User Request: ${message || "Create a web page based on my input."}\n\n`;
+    // Add context if requested by intent OR if it's the first message
+    const isFirstMessage = conversationMessages.length === 0;
+    const needsCode = intent ? (intent.html || intent.css || intent.js) : true;
 
-    if (html || css || javascript) {
-      contextMessage += `CURRENT CODE STATE:\n`;
-      if (html) contextMessage += `HTML:\n${html}\n\n`;
-      if (css) contextMessage += `CSS:\n${css}\n\n`;
-      if (javascript) contextMessage += `JavaScript:\n${javascript}\n\n`;
+    if (isFirstMessage || needsCode) {
+      let codePrompt = 'CURRENT CODE STATE:\n';
+      if (isFirstMessage || (intent && intent.html)) codePrompt += `HTML:\n${currentCode.html}\n\n`;
+      if (isFirstMessage || (intent && intent.css)) codePrompt += `CSS:\n${currentCode.css}\n\n`;
+      if (isFirstMessage || (intent && intent.js)) codePrompt += `JavaScript:\n${currentCode.javascript}`;
+
+      userContent.push({ type: "text", text: codePrompt });
     }
-
-    contextMessage += `\nPlease generate the updated full HTML, CSS, and JS code based on the request.`;
 
     userContent.push({
       type: "text",
-      text: contextMessage,
+      text: `User Request: ${message || "Update the code."}\n\nPlease generate the updated full HTML, CSS, and JS code based on the intent.`
     });
 
-    const msg = await anthropic.messages.create({
-      model: selectedModel,
-      max_tokens: 16000,
-      temperature: 0.1, // Low temperature for code determinism
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: userContent,
-        },
-      ],
+    conversationMessages.push({ role: "user", content: userContent });
+
+    // ⭐ Sliding Window: Last 10 messages
+    const HISTORY_LIMIT = 10;
+    const windowedMessages = conversationMessages.slice(-HISTORY_LIMIT);
+
+    // Prepare API call (with caching on the latest code block)
+    const messagesForApi = windowedMessages.map((msg, idx) => {
+      const content = msg.content.map(block => ({ ...block }));
+      // Cache the last user message if it's long (e.g. contains code)
+      if (idx === windowedMessages.length - 1 && msg.role === 'user') {
+        const codeBlock = content.find(b => b.text && b.text.includes("CURRENT CODE STATE:"));
+        if (codeBlock) codeBlock.cache_control = { type: "ephemeral" };
+      }
+      return { role: msg.role, content };
     });
 
-    // Parse the response
-    let responseText = msg.content[0].text;
+    console.log(`📤 Sending to ${model === 'gemini' ? 'Gemini' : 'Claude'} (${model === 'gemini' ? 'gemini-2.0-flash' : selectedModel}), window: ${windowedMessages.length}`);
 
-    // Clean up markdown code blocks if present
-    responseText = responseText.replace(/```json\n/g, "").replace(/```/g, "").trim();
+    let responseText = "";
+    let usage = {};
 
-    // Find the first '{' and the last '}' to extract the JSON object
-    const startIndex = responseText.indexOf('{');
-    const endIndex = responseText.lastIndexOf('}');
+    if (model === 'gemini') {
+      const geminiModel = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        systemInstruction: SYSTEM_PROMPT
+      });
 
-    if (startIndex !== -1 && endIndex !== -1) {
-      responseText = responseText.substring(startIndex, endIndex + 1);
+      // Convert Anthropic format to Gemini format
+      const history = windowedMessages.slice(0, -1).map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: typeof m.content === 'string' ? m.content : m.content.map(b => b.text).join('\n') }]
+      }));
+
+      // Current message parts
+      const currentParts = [];
+      const userMsg = windowedMessages[windowedMessages.length - 1];
+      if (image) {
+        const base64Image = image.replace(/^data:image\/(png|jpeg|webp);base64,/, "");
+        const mediaType = image.match(/^data:image\/(png|jpeg|webp);base64,/)?.[1] || "jpeg";
+        currentParts.push({
+          inlineData: { data: base64Image, mimeType: `image/${mediaType}` }
+        });
+      }
+
+      const textContent = Array.isArray(userMsg.content)
+        ? userMsg.content.filter(b => b.type === 'text').map(b => b.text).join('\n')
+        : userMsg.content;
+      currentParts.push({ text: textContent });
+
+      const chatSession = geminiModel.startChat({ history });
+      const result = await chatSession.sendMessage(currentParts);
+      responseText = result.response.text();
+
+      usage = {
+        input_tokens: result.response.usageMetadata?.promptTokenCount || 0,
+        output_tokens: result.response.usageMetadata?.candidatesTokenCount || 0
+      };
+
+      // Add response to history in Anthropic-compatible format for future turns
+      conversationMessages.push({
+        role: "assistant",
+        content: [{ type: "text", text: responseText }]
+      });
+    } else {
+      const msg = await anthropic.messages.create({
+        model: selectedModel,
+        max_tokens: 16000,
+        temperature: 0.1,
+        system: SYSTEM_PROMPT,
+        messages: messagesForApi,
+      });
+
+      responseText = msg.content[0].text;
+      usage = msg.usage;
+
+      // Add response to history
+      conversationMessages.push({ role: "assistant", content: msg.content });
     }
 
-    console.log("Raw AI Response:", responseText); // Debugging
+    // Debug: Log first 100 chars of AI response
+    console.log(`🤖 AI Response (raw start): ${responseText.substring(0, 100)}...`);
+
+    // Robust JSON Extraction
+    const cleanJSON = (text) => {
+      let cleaned = text.trim();
+
+      // 1. Remove markdown code blocks if present
+      const codeBlockMatch = /```(?:json)?\s*([\s\S]*?)\s*```/.exec(cleaned);
+      if (codeBlockMatch) {
+        cleaned = codeBlockMatch[1].trim();
+      }
+
+      // 2. If it still doesn't look like JSON, try to find the first '{' and last '}'
+      if (!cleaned.startsWith('{')) {
+        const firstBrace = cleaned.indexOf('{');
+        const lastBrace = cleaned.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+        }
+      }
+
+      return cleaned;
+    };
 
     let parsedResponse;
+    const extractedText = cleanJSON(responseText);
+
     try {
-      parsedResponse = JSON.parse(responseText);
-    } catch (e) {
-      console.error("JSON Parse Error:", e.message);
-      console.error("Failed Response Text:", responseText);
-      console.error("Context Message Length:", contextMessage.length); // Check context size
-      // Fallback if JSON parsing fails - simple heuristic or error
-      parsedResponse = {
-        html: html || "",
-        css: css || "",
-        javascript: javascript || "",
-        explanation: "Sorry, I had trouble generating the structured code. Please try again."
+      parsedResponse = JSON.parse(extractedText);
+    } catch (parseError) {
+      console.warn("⚠️ JSON Parse Error, attempting manual extraction:", parseError.message);
+
+      // Fallback: Regex extraction for html, css, and javascript fields
+      const extractField = (field) => {
+        const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)(?="\\s*,|"\\s*})`, 'g');
+        const match = regex.exec(extractedText);
+        return match ? match[1].replace(/\\n/g, "\n").replace(/\\"/g, '"').replace(/\\\\/g, '\\') : null;
       };
+
+      const messageMatch = /"message"\s*:\s*"([\s\S]*?)(?="\s*,|"\s*})/.exec(extractedText);
+
+      parsedResponse = {
+        message: messageMatch ? messageMatch[1].replace(/\\n/g, "\n").replace(/\\"/g, '"') : "I've processed your request, but I had trouble formatting the response.",
+        html: extractField('html'),
+        css: extractField('css'),
+        javascript: extractField('javascript') || extractField('js')
+      };
+
+      // If we couldn't even extract the message, then it's a total failure
+      if (!parsedResponse.html && !parsedResponse.css && !parsedResponse.javascript) {
+        throw parseError; // Re-throw if nothing was found
+      }
+      console.log("✅ Successfully extracted partial data from malformed JSON");
     }
 
-    // Normalize keys: if AI returned 'js' instead of 'javascript', move it
-    if (parsedResponse.js && !parsedResponse.javascript) {
-      parsedResponse.javascript = parsedResponse.js;
-      delete parsedResponse.js;
-    }
+    // Normalize and update state
+    // If AI explicitly returned a field (even if it's an empty string), use it.
+    // Otherwise fallback to what we already have in state.
+    const newCode = {
+      html: (parsedResponse.html !== undefined && parsedResponse.html !== null) ? parsedResponse.html : currentCode.html,
+      css: (parsedResponse.css !== undefined && parsedResponse.css !== null) ? parsedResponse.css : currentCode.css,
+      javascript: (parsedResponse.javascript !== undefined && parsedResponse.javascript !== null) ? parsedResponse.javascript :
+        (parsedResponse.js !== undefined && parsedResponse.js !== null) ? parsedResponse.js : currentCode.javascript
+    };
 
-    // Add usage info
-    parsedResponse.usage = msg.usage;
+    console.log(`💾 Updated State: HTML(${newCode.html.length}), CSS(${newCode.css.length}), JS(${newCode.javascript.length})`);
+
+    conversationStates.set(conversationId, newCode);
+    parsedResponse.usage = usage;
 
     res.json(parsedResponse);
-
   } catch (err) {
-    console.error("Error in /api/chat:", err);
+    console.error("❌ Error in /api/chat:", err);
     res.status(500).json({ error: "Failed to process request with Claude API" });
   }
 });

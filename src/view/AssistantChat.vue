@@ -162,7 +162,12 @@ watch(() => props.isLoading, (newVal) => {
                         'has-selection': msg.content.includes('SELECTED AREAS')
                     }"
                 >
-                    <div class="message-header" v-if="msg.role === 'assistant'">AI Assistant</div>
+                    <div class="message-header" v-if="msg.role === 'assistant'">
+                        <div v-if="msg.model" class="model-badge" :class="'badge-' + msg.model">
+                            {{ msg.model.charAt(0).toUpperCase() + msg.model.slice(1) }}
+                        </div>
+                        <span v-else>AI Assistant</span>
+                    </div>
                     {{ msg.content }}
                     
                     <!-- Image Attachment -->
@@ -386,7 +391,6 @@ watch(() => props.isLoading, (newVal) => {
 .message.assistant {
     justify-content: flex-start;
 }
-
 .message-content {
     max-width: 85%;
     padding: 10px 14px;
@@ -395,6 +399,45 @@ watch(() => props.isLoading, (newVal) => {
     line-height: 1.5;
     position: relative;
     word-break: break-word;
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+}
+
+.model-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: white;
+}
+
+.badge-sonnet {
+    background: linear-gradient(135deg, #a55eea, #8854d0);
+    box-shadow: 0 0 10px rgba(165, 94, 234, 0.3);
+}
+
+.badge-haiku {
+    background: linear-gradient(135deg, #20bf6b, #0eb875);
+    box-shadow: 0 0 10px rgba(32, 191, 107, 0.3);
+}
+
+.badge-opus {
+    background: linear-gradient(135deg, #ffa500, #ff8c00);
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
+}
+
+.badge-gemini {
+    background: linear-gradient(135deg, #4a90e2, #357abd);
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
 }
 
 /* Message Types Customization */

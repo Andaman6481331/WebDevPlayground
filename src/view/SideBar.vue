@@ -117,6 +117,15 @@ const handleDelete = (id) => {
                 <div class="model-color model-orange"></div>
                 <span class="model-name">Opus</span>
             </div>
+            <div 
+                class="model-item" 
+                :class="{ active: currentModel === 'gemini' }"
+                @click="selectModel('gemini')"
+                title="Gemini 2.0 Flash"
+            >
+                <div class="model-color model-blue"></div>
+                <span class="model-name">Gemini</span>
+            </div>
         </div>
 
         <!-- Page Buttons (Placeholder for now as logic wasn't fully detailed in temp.js for Pages) -->
@@ -141,7 +150,7 @@ const handleDelete = (id) => {
                     <div class="conversation-title">{{ page.title }}</div>
                     <div class="conversation-date">{{ formatDate(page.dateModified || page.dateCreated) }}</div>
                 </div>
-                <div class="conversation-actions">
+                <div class="conversation-actions" style="width: max-content;">
                     <button class="action-btn delete-btn" @click.stop="$emit('delete-page', page.id)" title="Delete">
                         🗑️
                     </button>
@@ -176,7 +185,7 @@ const handleDelete = (id) => {
                     <div class="conversation-title">{{ conv.title }}</div>
                     <div class="conversation-date">{{ formatDate(conv.date) }}</div>
                 </div>
-                <div class="conversation-actions">
+                <div class="conversation-actions" >
                     <button class="action-btn rename-btn" @click.stop="handleRename(conv.id, conv.title)" title="Rename">
                         ✏️
                     </button>

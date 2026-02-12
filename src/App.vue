@@ -290,6 +290,73 @@ const redo = () => {
 
 // Debounced history save on code change
 let debounceTimer;
+const CORE_KEYWORDS = {
+    css: [
+        'color', 'blue', 'red', 'green', 'yellow', 'white', 'black', 'bigger', 'smaller', 'size', 'font', 'large', 'small', 'margin', 'padding', 'space', 'background', 'border', 'shadow', 'rounded',
+        'grid', 'flex', 'center', 'middle', 'aligned', 'stack', 'row', 'column', 'overflow', 'gradient', 'blur', 'opacity', 'transparent', 'bold', 'italic', 'uppercase', 'lowercase', 'gap', 'width', 'height',
+        'สี', 'น้ำเงิน', 'แดง', 'เขียว', 'เหลือง', 'ขาว', 'ดำ', 'ใหญ่ขึ้น', 'เล็กลง', 'ขนาด', 'ฟอนต์', 'ใหญ่', 'เล็ก', 'ระยะห่างขอบ', 'ระยะห่างใน', 'ที่ว่าง', 'พื้นหลัง', 'เส้นขอบ', 'เงา', 'มุมมน',
+        'ตาราง', 'ยืดหยุ่น', 'กึ่งกลาง', 'จัดวาง', 'ซ้อน', 'แถว', 'คอลัมน์', 'ล้น', 'ไล่สี', 'เบลอ', 'โปร่งใส', 'ตัวหนา', 'ตัวเอียง', 'ตัวพิมพ์ใหญ่', 'ตัวพิมพ์เล็ก', 'ช่องว่าง', 'กว้าง', 'สูง'
+    ],
+    html: [
+        'add', 'remove', 'create', 'delete', 'section', 'div', 'button', 'header', 'footer', 'image', 'text', 'link','fill', 'cover',
+        'navbar', 'sidebar', 'card', 'form', 'input', 'dropdown', 'modal', 'popup', 'table', 'list', 'span', 'icon', 'video', 'audio', 'label', 'placeholder', 'container', 'wrapper', 'article', 'aside',
+        'เพิ่ม', 'ลบ', 'สร้าง', 'ส่วน', 'ปุ่ม', 'ส่วนหัว', 'ส่วนท้าย', 'รูปภาพ', 'ข้อความ', 'ลิงก์',
+        'แถบเมนู', 'แถบข้าง', 'การ์ด', 'แบบฟอร์ม', 'ช่องกรอก', 'รายการเลือก', 'หน้าต่างเด้ง', 'ตาราง', 'รายการ', 'ไอคอน', 'วิดีโอ', 'เสียง', 'ป้ายชื่อ', 'กล่องใส่', 'ตัวครอบ'
+    ],
+    js: [
+        'click', 'hover', 'press', 'animate', 'move', 'fade', 'interactive', 'function', 'event',
+        'scroll', 'submit', 'change', 'keydown', 'focus', 'blur', 'load', 'resize', 'show', 'hide', 'toggle', 'slide', 'delay', 'infinite', 'loop', 'validate', 'alert', 'refresh', 'fetch', 'storage',
+        'คลิก', 'วางเหนือ', 'กด', 'เคลื่อนไหว', 'ย้าย', 'จาง', 'โต้ตอบ', 'ฟังก์ชัน', 'เหตุการณ์',
+        'เลื่อน', 'ส่งข้อมูล', 'เปลี่ยน', 'โฟกัส', 'โหลด', 'ปรับขนาด', 'แสดง', 'ซ่อน', 'สลับ', 'สไลด์', 'หน่วงเวลา', 'วนลูป', 'ตรวจสอบ', 'แจ้งเตือน', 'รีเฟรช', 'ดึงข้อมูล', 'ที่เก็บข้อมูล'
+    ]
+};
+
+const analyzeUserIntent = (message) => {
+    const msg = message.toLowerCase();
+    const matches = { html: 0, css: 0, js: 0 };
+    CORE_KEYWORDS.css.forEach(kw => { if (msg.includes(kw)) matches.css++; });
+    CORE_KEYWORDS.html.forEach(kw => { if (msg.includes(kw)) matches.html++; });
+    CORE_KEYWORDS.js.forEach(kw => { if (msg.includes(kw)) matches.js++; });
+    const totalMatches = matches.html + matches.css + matches.js;
+    if (totalMatches === 0) return { html: true, css: true, js: true };
+    if (Math.abs(matches.html - matches.css) <= 1) return { html: true, css: true, js: false };
+    return { html: matches.html > 0, css: matches.css > 0, js: matches.js > 0 };
+};
+
+const calculateConfidence = (intent) => {
+    const flags = Object.values(intent).filter(Boolean).length;
+    if (flags === 1) return 0.8;
+    if (flags === 2) return 0.6;
+    return 0.3;
+};
+
+const detectIntentWithAI = async (message) => {
+    try {
+        const response = await fetch('/api/intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
+        if (!response.ok) return { html: true, css: true, js: true };
+        const data = await response.json();
+        return data.intent || { html: true, css: true, js: true };
+    } catch (e) {
+        console.warn('AI Intent detection failed', e);
+        return { html: true, css: true, js: true };
+    }
+};
+
+const optimizeRequest = async (message) => {
+    let keywordIntent = analyzeUserIntent(message || "");
+    if (keywordIntent.css || keywordIntent.js) keywordIntent.html = true;
+
+    if (calculateConfidence(keywordIntent) > 0.7) return keywordIntent;
+    
+    let aiIntent = await detectIntentWithAI(message || "");
+    if (aiIntent.css || aiIntent.js) aiIntent.html = true;
+    return aiIntent;
+};
+
 const onCodeUpdate = () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
@@ -308,8 +375,24 @@ const onCodeUpdate = () => {
 
 watch([htmlCode, cssCode, jsCode], onCodeUpdate);
 
+const lastUsage = ref({
+    input_tokens: 0,
+    output_tokens: 0,
+    cache_creation_input_tokens: 0,
+    cache_read_input_tokens: 0,
+    billed_tokens: 0
+});
+
+const calculateBilledTokens = (usage) => {
+    const input = usage.input_tokens || 0;
+    const output = usage.output_tokens || 0;
+    const creation = (usage.cache_creation_input_tokens || 0) * 1.25;
+    const read = (usage.cache_read_input_tokens || 0) * 0.1;
+    return Math.round(input + output + creation + read);
+};
+
 // Chat & AI
-const handleSendMessage = async ({ text, attachment }) => {
+const handleSendMessage = async ({ text, attachment, intent }) => {
     // Add user message
     const userMsg = { role: 'user', content: text || '(Image attached)', attachment };
     chatMessages.value.push(userMsg);
@@ -330,11 +413,17 @@ const handleSendMessage = async ({ text, attachment }) => {
     isChatLoading.value = true;
     
     try {
+        // Detect intent if not provided (important for Visual Editor calls)
+        const finalIntent = intent || await optimizeRequest(text);
+        console.log('🎯 Final Intent for request:', finalIntent);
+
         const payload = {
             message: text,
-            html: htmlCode.value,
-            css: cssCode.value,
-            javascript: jsCode.value,
+            conversationId: currentConversationId.value,
+            intent: finalIntent,
+            html: finalIntent.html ? htmlCode.value : undefined,
+            css: finalIntent.css ? cssCode.value : undefined,
+            javascript: finalIntent.js ? jsCode.value : undefined,
             image: attachment ? attachment.dataUrl : null,
             model: currentModel.value
         };
@@ -348,33 +437,60 @@ const handleSendMessage = async ({ text, attachment }) => {
         if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
         
         const data = await response.json();
+        console.log('📦 Received AI Data:', {
+            hasHtml: !!data.html,
+            hasCss: !!data.css,
+            hasJs: !!data.javascript,
+            message: data.message?.substring(0, 50) + '...'
+        });
         
         // Update code if returned
-        if (data.html) htmlCode.value = data.html;
-        if (data.css) cssCode.value = data.css;
-        if (data.javascript) jsCode.value = data.javascript;
+        const updates = [];
+        if (data.html !== undefined && data.html !== null) {
+            htmlCode.value = data.html;
+            updates.push('HTML');
+        }
+        if (data.css !== undefined && data.css !== null) {
+            cssCode.value = data.css;
+            updates.push('CSS');
+        }
+        if (data.javascript !== undefined && data.javascript !== null) {
+            jsCode.value = data.javascript;
+            updates.push('JS');
+        } else if (data.js !== undefined && data.js !== null) { // Fallback for 'js' key
+            jsCode.value = data.js;
+            updates.push('JS');
+        }
+        
+        if (updates.length > 0) {
+            console.log(`✅ Applied updates to: ${updates.join(', ')}`);
+        } else {
+            console.warn('⚠️ No code updates were applied from this response.');
+        }
         
         // Update token usage
-        const used = (data.usage.input_tokens || 0) + (data.usage.output_tokens || 0);
         if (data.usage) {
-            totalTokens.value += used;
+            const billed = calculateBilledTokens(data.usage);
+            totalTokens.value += billed;
+            lastUsage.value = { ...data.usage, billed_tokens: billed };
+            
             localStorage.setItem('total-tokens', totalTokens.value);
-            console.log(`Tokens used in this request: ${used}. Total: ${totalTokens.value}`);
+            localStorage.setItem('last-usage', JSON.stringify(lastUsage.value));
+            console.log(`Billed Tokens: ${billed}. Total: ${totalTokens.value}`);
         }
         
         // Add assistant message
-        const explanation = (data.message || `I've updated the code based on your request.`) + `(${used} tokens used)`;
-        const aiMsg = { role: 'assistant', content: explanation };
+        const explanation = (data.message || data.explanation || `I've updated the code based on your request.`) + ` (${lastUsage.value.billed_tokens} tokens used)`;
+        const aiMsg = { role: 'assistant', content: explanation, model: currentModel.value };
         chatMessages.value.push(aiMsg);
         
         if (conv) {
             conv.messages.push({ ...aiMsg, timestamp: new Date().toISOString() });
             saveConversations();
         }
-        
     } catch (error) {
-        console.error('AI Error:', error);
-        chatMessages.value.push({ role: 'assistant', content: "Sorry, I encountered an error communicating with the server." });
+        console.error('Error in AI Chat:', error);
+        chatMessages.value.push({ role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' });
     } finally {
         isChatLoading.value = false;
     }
@@ -514,16 +630,16 @@ const generateFullHTML = (page) => {
         '    <meta charset="UTF-8">\n' +
         '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
         '    <title>' + page.title + '</title>\n' +
-        '    <style>\\n' +
-        combinedCSS + '\\n' +
-        '    </style>\\n' +
-        '</head>\\n' +
-        '<body>\\n' +
-        combinedHTML + '\\n' +
-        '    <scr' + 'ipt>\\n' +
-        combinedJS + '\\n' +
-        '    </scr' + 'ipt>\\n' +
-        '</body>\\n' +
+        '    <style>\n' +
+        combinedCSS + '\n' +
+        '    </style>\n' +
+        '</head>\n' +
+        '<body>\n' +
+        combinedHTML + '\n' +
+        '    <scr' + 'ipt>\n' +
+        combinedJS + '\n' +
+        '    </scr' + 'ipt>\n' +
+        '</body>\n' +
         '</html>';
     
     return htmlDoc;
