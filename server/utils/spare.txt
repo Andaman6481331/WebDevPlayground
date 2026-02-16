@@ -1,0 +1,64 @@
+app.post("/api/fetch-website-rendered", async (req, res) => {
+  let browser;
+  try {
+    const { url } = req.body;
+    
+    browser = await puppeteer.launch({ 
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    
+    // Extract rendered HTML
+    const html = await page.content();
+    
+    // Extract all computed styles
+    const css = await page.evaluate(() => {
+      let styles = '';
+      
+      // Get all stylesheets
+      Array.from(document.styleSheets).forEach(sheet => {
+        try {
+          Array.from(sheet.cssRules).forEach(rule => {
+            styles += rule.cssText + '\n';
+          });
+        } catch (e) {
+          // CORS-blocked stylesheet
+          console.log('Blocked stylesheet:', sheet.href);
+        }
+      });
+      
+      return styles;
+    });
+    
+    // Extract all scripts
+    const javascript = await page.evaluate(() => {
+      let scripts = '';
+      document.querySelectorAll('script').forEach(script => {
+        if (!script.src && script.innerHTML) {
+          scripts += script.innerHTML + '\n\n';
+        }
+      });
+      return scripts;
+    });
+    
+    await browser.close();
+    
+    res.json({
+      html: html,
+      css: css,
+      javascript: javascript,
+      message: `Rendered and extracted content from ${url}`
+    });
+    
+  } catch (err) {
+    if (browser) await browser.close();
+    console.error("❌ Error rendering website:", err);
+    res.status(500).json({ 
+      error: "Failed to render website",
+      details: err.message 
+    });
+  }
+});

@@ -400,33 +400,45 @@ const calculateBilledTokens = (usage) => {
 
 // Chat & AI — Adaptive Pipeline
 const handleSendMessage = async ({ text, attachment, intent, type }) => {
-    // Add user message
-    const userMsg = { role: 'user', content: text || '(Image attached)', attachment };
-    chatMessages.value.push(userMsg);
+    const targetConversationId = currentConversationId.value;
+    const conv = conversations.value.find(c => c.id === targetConversationId);
     
-    // Save to conversation
-    const conv = conversations.value.find(c => c.id === currentConversationId.value);
-    if (conv) {
-        if (!conv.messages) conv.messages = [];
-        conv.messages.push({ ...userMsg, timestamp: new Date().toISOString() });
-        
-        // Update title if it's the first message
-        if (conv.messages.length === 1 && text) {
-            conv.title = text.substring(0, 30) + (text.length > 30 ? '...' : '');
-        }
-        saveConversations();
+    if (!conv) {
+        console.error('No target conversation found for message');
+        return;
+    }
+
+    // Add user message to conversation object
+    const userMsg = { 
+        role: 'user', 
+        content: text || '(Image attached)', 
+        attachment,
+        timestamp: new Date().toISOString()
+    };
+    
+    if (!conv.messages) conv.messages = [];
+    conv.messages.push(userMsg);
+    
+    // Update title if it's the first message
+    if (conv.messages.length === 1 && text) {
+        conv.title = text.substring(0, 30) + (text.length > 30 ? '...' : '');
     }
     
+    // Update local reactive state ONLY if still on the same conversation
+    if (currentConversationId.value === targetConversationId) {
+        chatMessages.value.push(userMsg);
+    }
+    
+    saveConversations();
     isChatLoading.value = true;
     
     try {
-        // Send all code to the adaptive pipeline — the server decides what's needed
         const payload = {
             message: text,
-            conversationId: currentConversationId.value,
-            html: htmlCode.value,
-            css: cssCode.value,
-            javascript: jsCode.value,
+            conversationId: targetConversationId,
+            html: conv.code?.html || htmlCode.value,
+            css: conv.code?.css || cssCode.value,
+            javascript: conv.code?.js || jsCode.value,
             image: attachment ? attachment.dataUrl : null,
             model: currentModel.value,
         };
@@ -439,8 +451,7 @@ const handleSendMessage = async ({ text, attachment, intent, type }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...payload, type })
             });
-            
-        }else{
+        } else {
             console.log('🧠 Sending to adaptive pipeline...');
             response = await fetch(`/api/adaptive-chat`, {
                 method: 'POST',
@@ -453,50 +464,32 @@ const handleSendMessage = async ({ text, attachment, intent, type }) => {
         
         const data = await response.json();
         
-        // Log pipeline info
         if (data.pipeline) {
             console.log(`📊 Pipeline: strategy=${data.pipeline.strategy}, type=${data.pipeline.mutationType}, elapsed=${data.pipeline.elapsed}ms`);
         }
-        console.log('📦 Received AI Data:', {
-            hasHtml: !!data.html,
-            hasCss: !!data.css,
-            hasJs: !!data.javascript,
-            message: data.message?.substring(0, 50) + '...'
-        });
         
-        // Update code if returned
+        // Update code in the conversation object
         const updates = [];
         if (data.html !== undefined && data.html !== null) {
-            htmlCode.value = data.html;
+            conv.code.html = data.html;
             updates.push('HTML');
         }
         if (data.css !== undefined && data.css !== null) {
-            cssCode.value = data.css;
+            conv.code.css = data.css;
             updates.push('CSS');
         }
-        if (data.javascript !== undefined && data.javascript !== null) {
-            jsCode.value = data.javascript;
-            updates.push('JS');
-        } else if (data.js !== undefined && data.js !== null) {
-            jsCode.value = data.js;
+        const newJs = data.javascript !== undefined ? data.javascript : data.js;
+        if (newJs !== undefined && newJs !== null) {
+            conv.code.js = newJs;
             updates.push('JS');
         }
         
-        if (updates.length > 0) {
+        // Sync to reactive state if current
+        if (currentConversationId.value === targetConversationId && updates.length > 0) {
+            if (data.html !== undefined) htmlCode.value = data.html;
+            if (data.css !== undefined) cssCode.value = data.css;
+            if (newJs !== undefined) jsCode.value = newJs;
             console.log(`✅ Applied updates to: ${updates.join(', ')}`);
-            
-            // Force save to conversation object immediately
-            // This ensures code is saved to localStorage along with the message
-            // otherwise the debounced watcher might not save in time if page reloads
-            if (conv) {
-                conv.code = { 
-                    html: htmlCode.value, 
-                    css: cssCode.value, 
-                    js: jsCode.value 
-                };
-            }
-        } else {
-            console.warn('⚠️ No code updates were applied from this response.');
         }
         
         // Update token usage
@@ -505,7 +498,6 @@ const handleSendMessage = async ({ text, attachment, intent, type }) => {
             totalTokens.value += billed;
             lastUsage.value = { ...data.usage, billed_tokens: billed };
             
-            // Accumulate detailed stats
             totalUsageStats.value.input_tokens += (data.usage.input_tokens || 0);
             totalUsageStats.value.output_tokens += (data.usage.output_tokens || 0);
             totalUsageStats.value.cache_creation_input_tokens += (data.usage.cache_creation_input_tokens || 0);
@@ -515,23 +507,34 @@ const handleSendMessage = async ({ text, attachment, intent, type }) => {
             localStorage.setItem('total-tokens', totalTokens.value);
             localStorage.setItem('last-usage', JSON.stringify(lastUsage.value));
             localStorage.setItem('total-usage-stats', JSON.stringify(totalUsageStats.value));
-            console.log(`Billed Tokens: ${billed}. Total: ${totalTokens.value}`);
         }
         
-        // Add assistant message with pipeline info
+        // Add assistant message
         const pipelineTag = data.pipeline ? ` [${data.pipeline.strategy}/${data.pipeline.mutationType}]` : '';
         const explanation = (data.message || data.explanation || `I've updated the code based on your request.`) + 
             ` (${lastUsage.value.billed_tokens} tokens${pipelineTag})`;
-        const aiMsg = { role: 'assistant', content: explanation, model: currentModel.value };
-        chatMessages.value.push(aiMsg);
         
-        if (conv) {
-            conv.messages.push({ ...aiMsg, timestamp: new Date().toISOString() });
-            saveConversations();
+        const aiMsg = { 
+            role: 'assistant', 
+            content: explanation, 
+            model: currentModel.value,
+            timestamp: new Date().toISOString()
+        };
+        
+        conv.messages.push(aiMsg);
+        
+        if (currentConversationId.value === targetConversationId) {
+            chatMessages.value.push(aiMsg);
         }
+        
+        saveConversations();
     } catch (error) {
         console.error('Error in AI Chat:', error);
-        chatMessages.value.push({ role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' });
+        const errorMsg = { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' };
+        conv.messages.push(errorMsg);
+        if (currentConversationId.value === targetConversationId) {
+            chatMessages.value.push(errorMsg);
+        }
     } finally {
         isChatLoading.value = false;
     }
@@ -546,6 +549,95 @@ const handleAIEdit = (message) => {
     // When editing via shape selection, we send the selection context as the message
     // We DON'T assume an attachment unless explicitly added (which isn't supported in this flow yet)
     handleSendMessage({ text: message, attachment: null });
+};
+
+const handleUpdateAllCode = ({ html, css, js }) => {
+    if (html !== undefined) htmlCode.value = html;
+    if (css !== undefined) cssCode.value = css;
+    if (js !== undefined) jsCode.value = js;
+    saveToHistory();
+};
+
+const handleDissectResult = (sections) => {
+    if (!sections || sections.length === 0) return;
+    
+    // Create a new conversation for each section
+    sections.forEach(section => {
+        const conversationId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+        const conversation = {
+            id: conversationId,
+            title: `Extracted: ${section.name}`,
+            date: new Date().toISOString(),
+            messages: [{
+                id: Date.now().toString(),
+                role: 'assistant',
+                text: `I've extracted the **${section.name}** section for you.\n\n**Description:** ${section.description}`,
+                timestamp: new Date().toISOString()
+            }],
+            code: {
+                html: section.html || '',
+                css: section.css || '',
+                js: ''
+            },
+            history: [{ html: section.html || '', css: section.css || '', js: '' }],
+            historyIndex: 0
+        };
+        conversations.value.unshift(conversation);
+    });
+    
+    saveConversations();
+    
+    // Load the first (most recent) extracted section
+    if (conversations.value.length > 0) {
+        loadConversation(conversations.value[0].id);
+    }
+};
+
+const handleModernizeResult = async ({ screenshotUrl, theme, color }) => {
+    if (!screenshotUrl) return;
+    
+    // 1. Create a new conversation first and switch to it
+    initializeConversation();
+    
+    // Update the title of the new conversation
+    const newConv = conversations.value[0];
+    if (newConv) {
+        newConv.title = `Modernize: ${theme} - ${color}`;
+        saveConversations();
+    }
+    
+    // 2. Fetch the image and convert to base64
+    try {
+        const response = await fetch(screenshotUrl);
+        const blob = await response.blob();
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64data = reader.result;
+            
+            // 3. Add as a new message with attachment
+            const prompt = `Analyze this website screenshot and regenerate it into a more modern, premium design. 
+            
+            USER PREFERENCES:
+            - Theme Style: ${theme}
+            - Primary Color: ${color}
+            
+            Maintain the logical structure but use a state-of-the-art aesthetic that incorporates the ${theme} theme and ${color} as the primary color. Focus on glassmorphism, excellent typography, smooth gradients, and cleaner layouts.`;
+
+            handleSendMessage({
+                text: prompt,
+                attachment: {
+                    type: 'image',
+                    dataUrl: base64data,
+                    name: 'target-website.png'
+                }
+            });
+        };
+        reader.readAsDataURL(blob);
+    } catch (error) {
+        console.error('Error processing screenshot for modernization:', error);
+        alert('Failed to process screenshot: ' + error.message);
+    }
 };
 
 const resetChat = () => {
@@ -715,6 +807,8 @@ const generateFullHTML = (page) => {
             @load-page="loadPage"
             @delete-page="deletePage"
             @close-page="closePage"
+            @dissect-website="handleDissectResult"
+            @modernize-web="handleModernizeResult"
         />
 
         <!-- Page Builder Mode -->
@@ -741,6 +835,7 @@ const generateFullHTML = (page) => {
                     @update-code="handleAIEdit"
                     @add-responsive="handleResponsiveEdit"
                     @direct-update-code="(code) => { htmlCode = code }"
+                    @update-all-code="handleUpdateAllCode"
                 />
                 
                 <!-- Code Editor -->

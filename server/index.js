@@ -1,11 +1,18 @@
 import express from "express";
+import fs from "fs";
+import path from "path";
 import cors from "cors";
 import dotenv from "dotenv";
+import puppeteer from 'puppeteer';
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { processAdaptiveRequest } from './services/claudeService.js';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -27,13 +34,13 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Serve static files from the src directory
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 app.use(express.static(path.join(__dirname, '../src')));
+
+// Serve screenshots publicly
+const screenshotsDir = path.join(process.cwd(), 'public', 'screenshots');
+if (!fs.existsSync(path.join(process.cwd(), 'public'))) fs.mkdirSync(path.join(process.cwd(), 'public'));
+if (!fs.existsSync(screenshotsDir)) fs.mkdirSync(screenshotsDir);
+app.use('/screenshots', express.static(screenshotsDir));
 
 // ⭐ Intent Detection Endpoint (Cheap & Fast)
 app.post("/api/intent", async (req, res) => {
@@ -599,6 +606,303 @@ app.post("/api/responsive", async (req, res) => {
   } catch (err) {
     console.error("❌ Error in /api/responsive:", err);
     res.status(500).json({ error: "Failed to process responsive request" });
+  }
+});
+
+
+app.post("/api/dissect-website", async (req, res) => {
+  let browser;
+  try {
+    const { url } = req.body;
+
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.goto(url, { waitUntil: 'networkidle2' });
+
+    // 1. Take full-page screenshot
+    const screenshot = await page.screenshot({
+      fullPage: true,
+      encoding: 'base64'
+    });
+
+    // 2. Get simplified DOM structure
+    const domStructure = await page.evaluate(() => {
+      function getSelector(element) {
+        if (element.id) return `#${element.id}`;
+        if (element.className) return `.${element.className.split(' ')[0]}`;
+        return element.tagName.toLowerCase();
+      }
+
+      function analyzeElement(el, depth = 0) {
+        if (depth > 5) return null; // Increased depth for better section identification
+
+        const rect = el.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(el);
+
+        return {
+          tag: el.tagName.toLowerCase(),
+          selector: getSelector(el),
+          text: el.innerText?.substring(0, 100),
+          bounds: {
+            top: rect.top,
+            height: rect.height,
+            width: rect.width
+          },
+          style: {
+            position: computedStyle.position,
+            display: computedStyle.display,
+            backgroundColor: computedStyle.backgroundColor
+          },
+          children: Array.from(el.children)
+            .map(child => analyzeElement(child, depth + 1))
+            .filter(Boolean)
+        };
+      }
+
+      return analyzeElement(document.body);
+    });
+
+    // 3. Ask Claude to identify sections
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const aiResponse = await anthropic.messages.create({
+      model: "claude-sonnet-4-5-20250929",
+      max_tokens: 4096,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: "image/png",
+                data: screenshot
+              }
+            },
+            {
+              type: "text",
+              text: `Analyze this website screenshot and identify the main sections.
+
+DOM Structure:
+${JSON.stringify(domStructure, null, 2)}
+
+Return ONLY raw JSON (no markdown backticks) for a JSON array of sections with this exact structure:
+{
+  "sections": [
+    {
+      "name": "navbar|hero|features|testimonials|footer|etc",
+      "description": "Brief description",
+      "selector": "CSS selector to target this section",
+      "bounds": {"top": 0, "height": 80}
+    }
+  ]
+}
+
+Important:
+- Your response must be valid JSON and nothing else.
+- Identify sections by visual appearance AND DOM structure
+- Common sections: navbar, hero, features, about, testimonials, pricing, footer
+- Provide accurate CSS selectors to extract each section
+- Order sections from top to bottom`
+            }
+          ]
+        }
+      ]
+    });
+
+    const aiContent = aiResponse.content[0].text;
+    // Strip markdown code blocks if present
+    const cleanJson = aiContent.replace(/```json/g, '').replace(/```/g, '').trim();
+    const sections = JSON.parse(cleanJson).sections;
+
+    // 4. Extract HTML/CSS for each identified section
+    const rawSections = await Promise.all(
+      sections.map(async (section) => {
+        const sectionData = await page.evaluate((selector) => {
+          const mainElement = document.querySelector(selector);
+          if (!mainElement) return null;
+
+          const interestingProps = [
+            'background-color', 'background-image', 'color', 'font-family', 'font-size', 'font-weight',
+            'padding', 'margin', 'display', 'flex-direction', 'justify-content', 'align-items',
+            'gap', 'grid-template-columns', 'position', 'top', 'left', 'right', 'bottom',
+            'width', 'height', 'max-width', 'border', 'border-radius', 'box-shadow', 'opacity', 'z-index',
+            'text-align', 'flex-wrap', 'object-fit'
+          ];
+
+          function getStyles(el) {
+            const styles = window.getComputedStyle(el);
+            let css = '';
+            interestingProps.forEach(prop => {
+              const val = styles.getPropertyValue(prop);
+              if (val && val !== 'normal' && val !== 'none' && val !== '0px' && val !== 'auto' && val !== 'rgba(0, 0, 0, 0)') {
+                css += `${prop}: ${val}; `;
+              }
+            });
+            return css;
+          }
+
+          // Recursively extract HTML and inline the CRITICAL computed styles
+          function extractWithStyles(el) {
+            if (el.nodeType !== 1) return el.textContent; // Text node
+
+            const clone = el.cloneNode(false);
+            const styles = getStyles(el);
+            if (styles) clone.setAttribute('style', styles);
+
+            Array.from(el.childNodes).forEach(child => {
+              if (child.nodeType === 1 || child.nodeType === 3) {
+                const processed = extractWithStyles(child);
+                if (typeof processed === 'string') {
+                  clone.appendChild(document.createTextNode(processed));
+                } else {
+                  clone.appendChild(processed);
+                }
+              }
+            });
+
+            return clone;
+          }
+
+          const styledElement = extractWithStyles(mainElement);
+          const html = styledElement.outerHTML;
+
+          // Return a simplified CSS block just for the container
+          const containerCss = `${selector} { ${getStyles(mainElement)} }`;
+
+          return { html, css: containerCss };
+        }, section.selector);
+
+        if (!sectionData) return null;
+
+        return {
+          ...section,
+          ...sectionData
+        };
+      })
+    );
+
+    await browser.close();
+
+    // 5. Modernize and Refactor each section using AI
+    console.log(`✨ Modernizing ${rawSections.filter(Boolean).length} sections...`);
+
+    const modernizedSections = await Promise.all(
+      rawSections.filter(Boolean).map(async (section) => {
+        try {
+          const modernizationResponse = await anthropic.messages.create({
+            model: "claude-3-haiku-20240307",
+            max_tokens: 4000,
+            temperature: 0,
+            system: "You are a senior frontend engineer. Your task is to refactor raw, extracted website snippets into clean, modern, and standalone HTML/CSS components. Use semantic HTML and modern CSS (Flexbox/Grid). Remove site-specific junk attributes.",
+            messages: [
+              {
+                role: "user",
+                content: `Refactor and modernize this extracted component.
+Section Type: ${section.name}
+Description: ${section.description}
+
+RAW HTML:
+${section.html}
+
+RAW COMPUTED CSS:
+${section.css}
+
+REQUIREMENTS:
+1. Clean the HTML: Remove redundant classes (if they look like framework junk), data attributes, and unnecessary nesting.
+2. Distill the CSS: Convert the verbose computed styles into clean, modular CSS. Use the provided styles as a reference to keep the look identical, but use cleaner selectors.
+3. Standalone: Ensure all styles needed for this section are included.
+4. Output: Return ONLY raw JSON with "html" and "css" fields.`
+              }
+            ]
+          });
+
+          const rawText = modernizationResponse.content[0].text;
+          const cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+          const refactored = JSON.parse(cleanText);
+
+          return {
+            ...section,
+            html: refactored.html,
+            css: refactored.css
+          };
+        } catch (e) {
+          console.error(`Failed to modernize section ${section.name}:`, e);
+          return section; // Fallback to raw if AI fails
+        }
+      })
+    );
+
+    res.json({
+      url,
+      sections: modernizedSections,
+      message: `Modernized and extracted ${modernizedSections.length} sections`
+    });
+
+  } catch (err) {
+    if (browser) await browser.close();
+    console.error("❌ Error dissecting website:", err);
+    res.status(500).json({
+      error: "Failed to dissect website",
+      details: err.message
+    });
+  }
+});
+
+app.post("/api/screenshot-website-file", async (req, res) => {
+  let browser;
+  try {
+    const { url } = req.body;
+
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
+
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.goto(url, { waitUntil: 'networkidle2' });
+
+    // Generate filename
+    const timestamp = Date.now();
+    const filename = `screenshot-${timestamp}.png`;
+
+    const filepath = path.join(screenshotsDir, filename);
+
+    // Ensure directory exists
+    const dir = path.dirname(filepath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    // Save screenshot to file
+    await page.screenshot({
+      path: filepath,
+      fullPage: true
+    });
+
+    await browser.close();
+
+    res.json({
+      success: true,
+      url: url,
+      screenshotUrl: `/screenshots/${filename}`, // Public URL
+      filepath: filepath,
+      message: 'Screenshot saved successfully'
+    });
+
+  } catch (err) {
+    if (browser) await browser.close();
+    console.error("❌ Error:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
