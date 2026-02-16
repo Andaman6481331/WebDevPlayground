@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { processAdaptiveRequest } from './services/claudeService.js';
 
 dotenv.config();
 
@@ -67,41 +68,6 @@ app.post("/api/intent", async (req, res) => {
   }
 });
 
-// const SYSTEM_PROMPT = `You are an expert Frontend Web Developer and UI Designer acting as an intelligent coding agent.
-
-// Your goal is to help the user build and modify a web page by generating HTML, CSS, and JavaScript code.
-
-// INPUT CONTEXT:
-// The user will provide you with:
-// 1. The user's request/instruction.
-// 2. The current state of HTML, CSS, and JavaScript code.
-// 3. Optionally, an image for reference.
-
-// OUTPUT FORMAT:
-// You must return a JSON object with the following structure:
-// {
-//   "html": "The complete HTML code",
-//   "css": "The complete CSS code",
-//   "javascript": "The complete JavaScript code",
-//   "explanation": "A brief explanation of what you changed or created"
-// }
-
-// GUIDELINES:
-// 1. **Complete Code**: Always return the FULL code for each section (HTML, CSS, JS), not just snippets. If a section hasn't changed, return the existing code for that section.
-// 2. **Modern Standards**: Use modern HTML5, CSS3 (Flexbox, Grid), and ES6+ JavaScript.
-// 3. **Visual Aesthetics**: prioritizing premium, modern designs (gradients, shadows, rounded corners, good typography) unless requested otherwise.
-// 4. **Safety**: Ensure the code is safe to run in a browser.
-// 5. **Responsiveness**: Try to make designs responsive where applicable.
-// 6. **Uniqueness**: The class name of the element must contain timestamp to prevent same class name collision on css
-
-// BEHAVIOR:
-// - If the user sends a new request, analyze their instruction and the current code.
-// - Apply the requested changes intelligently.
-// - If the user provides an image, try to replicate its design in the code.
-// - Be creative but faithful to the user's intent.
-
-// CRITICAL: Return ONLY valid JSON. Do not include markdown formatting or text outside the JSON object.`;
-
 const SYSTEM_PROMPT = `You are a web development assistant. 
 
 CRITICAL JSON FORMATTING RULES:
@@ -152,53 +118,92 @@ CRITICAL JAVASCRIPT SAFETY RULES:
   //   "css": ".container-1703123456791 {\\n  display: flex;\\n}"
   // }`
   ;
+// Map frontend model names to Anthropic model IDs
+const modelMap = {
+  'sonnet': "claude-sonnet-4-5-20250929",
+  'haiku': "claude-haiku-4-5-20251001",
+  'opus': "claude-opus-4-5-20251101"
+};
 
-const IMAGE_TO_CODE_SYSTEM_PROMPT = `You are an expert Frontend Developer specializing in converting design mockups to production-ready code.
+// ========== ADAPTIVE PIPELINE ENDPOINT ==========
+app.post("/api/adaptive-chat", async (req, res) => {
+  try {
+    const { message, html, css, javascript, image, conversationId, model } = req.body;
 
-TASK: Convert the provided design image into pixel-perfect HTML and CSS that matches the design exactly.
+    console.log(`\n🧠 Adaptive Request: conversationId=${conversationId}, model=${model}`);
 
-RESPONSE FORMAT - You MUST respond with ONLY this JSON structure (no markdown, no explanations):
-{
-  "message": "Brief summary of what was created",
-  "html": "HTML fragment content only (NO <!DOCTYPE>, <html>, <body> tags). Just the internal elements.",
-  "css": "Complete CSS with exact colors, spacing, and typography from the image",
-  "javascript": "JavaScript for any interactive elements (empty string if none needed)"
-}
+    // Default to Sonnet for adaptive pipeline if not specified, 
+    // but the pipeline might choose lighter models for simple tasks
+    const selectedModel = modelMap[model] || "claude-sonnet-4-5-20250929";
 
-CRITICAL REQUIREMENTS:
-1. COLOR ACCURACY: Extract exact colors from the image and use them precisely
-2. LAYOUT FIDELITY: Match spacing, alignment, and proportions exactly
-3. TYPOGRAPHY: Match font sizes, weights, and styles as closely as possible
-4. RESPONSIVE: Make it mobile-friendly with breakpoints
-5. MODERN CSS: Use Flexbox/Grid, CSS variables for colors
-6. NO EXTERNAL LIBS: No Tailwind, Bootstrap, or CDN dependencies
-7. PLACEHOLDER IMAGES: Use via.placeholder.com or similar for any images
-8. FULL-WIDTH: Make layouts edge-to-edge unless it's clearly a centered component
-9. PRODUCTION-READY: Clean, well-structured, commented code
+    // Get or initialize conversation state
+    let currentCode = conversationStates.get(conversationId) || { html: '', css: '', javascript: '' };
+    if (html !== undefined) currentCode.html = html;
+    if (css !== undefined) currentCode.css = css;
+    if (javascript !== undefined) currentCode.javascript = javascript;
+    conversationStates.set(conversationId, currentCode);
 
-IMPORTANT JSON FORMATTING:
-- Escape all special characters: newlines as \\n, quotes as \\"
-- Do NOT wrap response in markdown code blocks
-- Return ONLY the raw JSON object
+    // Get or initialize conversation messages
+    let conversationData = conversations.get(conversationId);
+    if (!conversationData) {
+      conversationData = { messages: [], timestamp: Date.now() };
+      conversations.set(conversationId, conversationData);
+    }
+    conversationData.timestamp = Date.now();
 
-Example of proper escaping:
-{
-  "html": "<div class=\\"container\\">\\n  <h1>Title</h1>\\n</div>",
-  "css": ".container {\\n  display: flex;\\n}"
-}`;
+    // Run the adaptive pipeline
+    const result = await processAdaptiveRequest(anthropic, message, currentCode, { image, model: selectedModel });
+
+    // Update state with result
+    const newCode = {
+      html: (result.html !== null && result.html !== undefined) ? result.html : currentCode.html,
+      css: (result.css !== null && result.css !== undefined) ? result.css : currentCode.css,
+      javascript: (result.javascript !== null && result.javascript !== undefined) ? result.javascript : currentCode.javascript
+    };
+    conversationStates.set(conversationId, newCode);
+
+    // Store in conversation history
+    conversationData.messages.push(
+      { role: "user", content: [{ type: "text", text: message }] },
+      { role: "assistant", content: [{ type: "text", text: result.message }] }
+    );
+
+    console.log(`💾 Adaptive Result: HTML(${newCode.html.length}), CSS(${newCode.css.length}), JS(${newCode.javascript.length})`);
+
+    res.json(result);
+  } catch (err) {
+    console.error("❌ Error in /api/adaptive-chat:", err);
+    res.status(500).json({ error: "Failed to process adaptive request" });
+  }
+});
+
+// Robust JSON Extraction
+const cleanJSON = (text) => {
+  let cleaned = text.trim();
+
+  // 1. Remove markdown code blocks if present
+  const codeBlockMatch = /```(?:json)?\s*([\s\S]*?)\s*```/.exec(cleaned);
+  if (codeBlockMatch) {
+    cleaned = codeBlockMatch[1].trim();
+  }
+
+  // 2. If it still doesn't look like JSON, try to find the first '{' and last '}'
+  if (!cleaned.startsWith('{')) {
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+    }
+  }
+
+  return cleaned;
+};
 
 app.post("/api/chat", async (req, res) => {
   try {
     const { message, html, css, javascript, image, model, conversationId, intent } = req.body;
 
     console.log(`\n📝 Request: conversationId=${conversationId}, intent=${JSON.stringify(intent)}`);
-
-    // Map frontend model names to Anthropic model IDs
-    const modelMap = {
-      'sonnet': "claude-sonnet-4-5-20250929",
-      'haiku': "claude-haiku-4-5-20251001",
-      'opus': "claude-opus-4-5-20251101"
-    };
 
     const selectedModel = modelMap[model] || 'claude-3-haiku-20240307';
 
@@ -332,28 +337,6 @@ app.post("/api/chat", async (req, res) => {
     // Debug: Log first 100 chars of AI response
     console.log(`🤖 AI Response (raw start): ${responseText.substring(0, 100)}...`);
 
-    // Robust JSON Extraction
-    const cleanJSON = (text) => {
-      let cleaned = text.trim();
-
-      // 1. Remove markdown code blocks if present
-      const codeBlockMatch = /```(?:json)?\s*([\s\S]*?)\s*```/.exec(cleaned);
-      if (codeBlockMatch) {
-        cleaned = codeBlockMatch[1].trim();
-      }
-
-      // 2. If it still doesn't look like JSON, try to find the first '{' and last '}'
-      if (!cleaned.startsWith('{')) {
-        const firstBrace = cleaned.indexOf('{');
-        const lastBrace = cleaned.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-          cleaned = cleaned.substring(firstBrace, lastBrace + 1);
-        }
-      }
-
-      return cleaned;
-    };
-
     let parsedResponse;
     const extractedText = cleanJSON(responseText);
 
@@ -404,6 +387,218 @@ app.post("/api/chat", async (req, res) => {
   } catch (err) {
     console.error("❌ Error in /api/chat:", err);
     res.status(500).json({ error: "Failed to process request with Claude API" });
+  }
+});
+
+const RESPONSIVE_SYSTEM_PROMPT = `You are a frontend CSS modification agent.
+
+The existing website is desktop-only and must remain visually identical on desktop resolutions.
+
+The user has selected {COMPACT | COMFORTABLE | SPACIOUS} Mobile Mode.
+
+Your task:
+
+1. Convert ALL existing class names into a timestamp-based namespace system.
+   - Every class must follow this format:
+     .originalName-{{TIMESTAMP}}
+   - Example:
+     .box → .box-{{TIMESTAMP}}
+   - The timestamp must be consistent across the entire response.
+   - Use the provided timestamp: {{TIMESTAMP}}
+
+2. Update BOTH HTML and CSS so that:
+   - Every renamed class in CSS is also updated in HTML.
+   - No old class names remain.
+   - No duplicate selectors exist.
+
+3. After converting to timestamp namespace, add mobile and tablet responsiveness ONLY.
+
+4. Use CSS @media (max-width: 1024px) exclusively for responsiveness.
+
+5. Desktop layout, spacing, and visual appearance MUST remain pixel-identical.
+   - Do not redesign layouts.
+   - Do not change desktop spacing or typography.
+   - Do not remove any existing rules.
+
+6. Append responsive overrides below existing CSS.
+
+7. Do not add JavaScript unless absolutely required.
+   - If no JavaScript is needed, return null for the javascript field.
+
+Allowed mobile changes inside @media:
+- Adjust font sizes
+- Adjust padding and margins
+- Stack elements vertically
+- Hide non-essential sidebars or secondary navigation
+
+STRICT NAMESPACE RULE:
+- ALL class names must use the timestamp format.
+- No original class names may remain.
+- IDs must remain unchanged unless explicitly required.
+- Do not rename universal or system-reserved classes (e.g., third-party libraries).
+- If a class belongs to an external framework, leave it unchanged.
+
+CRITICAL JSON FORMATTING RULES:
+
+1. You MUST respond with ONLY valid JSON.
+2. Use proper JSON escaping:
+   - Newlines must be \\n
+   - Quotes must be \\"
+   - Backslashes must be \\\\
+3. The timestamp must be EXACTLY: {{TIMESTAMP}}
+4. The same timestamp {{TIMESTAMP}} must be used everywhere in the response.
+
+Format:
+{
+  "message": "First, describe the layout you received. Then describe the namespace conversion and responsive changes made.",
+  "html": "FULL updated body content with all classes converted to timestamp format.",
+  "css": "FULL updated CSS including original desktop rules (renamed) plus responsive @media overrides.",
+  "javascript": null or "Complete JavaScript if required."
+}
+
+FULL CODE RULE:
+- If you change HTML, return the COMPLETE HTML body.
+- If you change CSS, return the COMPLETE CSS.
+- Do NOT return snippets.
+- Do NOT return comments like '...existing code...'.
+
+COORDINATED UPDATE RULE:
+- If a class is renamed in CSS, it MUST be renamed in HTML.
+- No mismatch is allowed.
+
+OPTIMIZATION RULE:
+- If javascript is not required, return null.
+`;
+const responsiveModelMap = {
+  compact: `
+Apply Compact Mobile Mode.
+
+Characteristics:
+- Reduce font size slightly
+- Reduce padding and margin spacing
+- Increase content density
+- Hide non-essential sidebars if present
+- Maintain usability for touch
+`,
+
+  comfortable: `
+Apply Comfortable Mobile Mode.
+
+Characteristics:
+- Balanced font sizing
+- Moderate padding and margins
+- Standard touch-friendly button height (~44px)
+- Stack layouts vertically where needed
+`,
+
+  spacious: `
+Apply Spacious (Accessible) Mobile Mode.
+
+Characteristics:
+- Increase font size
+- Increase padding and margins
+- Increase button height (~52px or more)
+- Improve content separation for readability
+`
+};
+
+app.post("/api/responsive", async (req, res) => {
+  try {
+    const { html, css, javascript, type, model, conversationId } = req.body;
+
+    let currentCode = conversationStates.get(conversationId) || { html: '', css: '', javascript: '' };
+
+    // Update state based on what arrived (Selective Sync)
+    if (html !== undefined) currentCode.html = html;
+    if (css !== undefined) currentCode.css = css;
+    if (javascript !== undefined) currentCode.javascript = javascript;
+    conversationStates.set(conversationId, currentCode);
+
+
+    //AI Computation
+    const modePrompt = responsiveModelMap[type];
+    const selectedModel = modelMap[model] || 'claude-3-haiku-20240307';
+    const maxTokens = selectedModel.includes('haiku') ? 4096 : 8000;
+
+    // Generate current timestamp in yymmddhhmm format
+    const now = new Date();
+    const yymmddhhmm = now.getFullYear().toString().slice(-2) +
+      (now.getMonth() + 1).toString().padStart(2, '0') +
+      now.getDate().toString().padStart(2, '0') +
+      now.getHours().toString().padStart(2, '0') +
+      now.getMinutes().toString().padStart(2, '0');
+
+    console.log(`📱 Responsive Request: model=${selectedModel}, type=${type}, timestamp=${yymmddhhmm}`);
+
+    const systemPrompt = RESPONSIVE_SYSTEM_PROMPT.replaceAll('{{TIMESTAMP}}', yymmddhhmm);
+
+    const response = await anthropic.messages.create({
+      model: selectedModel,
+      max_tokens: maxTokens,
+      temperature: 0.1,
+      system: systemPrompt,
+      messages: [
+        {
+          role: "user",
+          content: `${modePrompt}\n\n\nHTML: ${html}\nCSS: ${css}\nJS: ${javascript}`
+        },
+      ],
+    });
+
+    // Extract Claude's text response
+    const content = response.content[0].text;
+    const usage = response.usage;
+
+    let parsedResponse;
+    const extractedText = cleanJSON(content);
+
+    try {
+      parsedResponse = JSON.parse(extractedText);
+    } catch (parseError) {
+      console.warn("⚠️ JSON Parse Error, attempting manual extraction:", parseError.message);
+
+      // Fallback: Regex extraction for html, css, and javascript fields
+      const extractField = (field) => {
+        const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)(?="\\s*,|"\\s*})`, 'g');
+        const match = regex.exec(extractedText);
+        return match ? match[1].replace(/\\n/g, "\n").replace(/\\"/g, '"').replace(/\\\\/g, '\\') : null;
+      };
+
+      const messageMatch = /"message"\s*:\s*"([\s\S]*?)(?="\s*,|"\s*})/.exec(extractedText);
+
+      parsedResponse = {
+        message: messageMatch ? messageMatch[1].replace(/\\n/g, "\n").replace(/\\"/g, '"') : "I've processed your request, but I had trouble formatting the response.",
+        html: extractField('html'),
+        css: extractField('css'),
+        javascript: extractField('javascript') || extractField('js')
+      };
+
+      // If we couldn't even extract the message, then it's a total failure
+      if (!parsedResponse.html && !parsedResponse.css && !parsedResponse.javascript) {
+        throw parseError; // Re-throw if nothing was found
+      }
+      console.log("✅ Successfully extracted partial data from malformed JSON");
+    }
+
+    // Normalize and update state
+    // If AI explicitly returned a field (even if it's an empty string), use it.
+    // Otherwise fallback to what we already have in state.
+    const newCode = {
+      html: (parsedResponse.html !== undefined && parsedResponse.html !== null) ? parsedResponse.html : currentCode.html,
+      css: (parsedResponse.css !== undefined && parsedResponse.css !== null) ? parsedResponse.css : currentCode.css,
+      javascript: (parsedResponse.javascript !== undefined && parsedResponse.javascript !== null) ? parsedResponse.javascript :
+        (parsedResponse.js !== undefined && parsedResponse.js !== null) ? parsedResponse.js : currentCode.javascript
+    };
+
+    console.log(`💾 Updated State: HTML(${newCode.html.length}), CSS(${newCode.css.length}), JS(${newCode.javascript.length})`);
+
+    conversationStates.set(conversationId, newCode);
+    parsedResponse.usage = usage;
+
+    res.json(parsedResponse);
+  } catch (err) {
+    console.error("❌ Error in /api/responsive:", err);
+    res.status(500).json({ error: "Failed to process responsive request" });
   }
 });
 

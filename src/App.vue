@@ -47,6 +47,13 @@ const chatMessages = ref([
 ]);
 const isChatLoading = ref(false);
 const totalTokens = ref(parseInt(localStorage.getItem('total-tokens')) || 0);
+const totalUsageStats = ref(JSON.parse(localStorage.getItem('total-usage-stats')) || {
+    input_tokens: 0,
+    output_tokens: 0,
+    cache_creation_input_tokens: 0,
+    cache_read_input_tokens: 0,
+    billed_tokens: 0
+});
 
 // Component Library & Pages
 const savedComponents = ref([]);
@@ -391,8 +398,8 @@ const calculateBilledTokens = (usage) => {
     return Math.round(input + output + creation + read);
 };
 
-// Chat & AI
-const handleSendMessage = async ({ text, attachment, intent }) => {
+// Chat & AI — Adaptive Pipeline
+const handleSendMessage = async ({ text, attachment, intent, type }) => {
     // Add user message
     const userMsg = { role: 'user', content: text || '(Image attached)', attachment };
     chatMessages.value.push(userMsg);
@@ -413,30 +420,43 @@ const handleSendMessage = async ({ text, attachment, intent }) => {
     isChatLoading.value = true;
     
     try {
-        // Detect intent if not provided (important for Visual Editor calls)
-        const finalIntent = intent || await optimizeRequest(text);
-        console.log('🎯 Final Intent for request:', finalIntent);
-
+        // Send all code to the adaptive pipeline — the server decides what's needed
         const payload = {
             message: text,
             conversationId: currentConversationId.value,
-            intent: finalIntent,
-            html: finalIntent.html ? htmlCode.value : undefined,
-            css: finalIntent.css ? cssCode.value : undefined,
-            javascript: finalIntent.js ? jsCode.value : undefined,
+            html: htmlCode.value,
+            css: cssCode.value,
+            javascript: jsCode.value,
             image: attachment ? attachment.dataUrl : null,
-            model: currentModel.value
+            model: currentModel.value,
         };
 
-        const response = await fetch(`/api/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+        let response;
+        if (intent){
+            console.log('📱 Sending to responsive pipeline...');
+            response = await fetch(`/api/responsive`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...payload, type })
+            });
+            
+        }else{
+            console.log('🧠 Sending to adaptive pipeline...');
+            response = await fetch(`/api/adaptive-chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        }
 
         if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
         
         const data = await response.json();
+        
+        // Log pipeline info
+        if (data.pipeline) {
+            console.log(`📊 Pipeline: strategy=${data.pipeline.strategy}, type=${data.pipeline.mutationType}, elapsed=${data.pipeline.elapsed}ms`);
+        }
         console.log('📦 Received AI Data:', {
             hasHtml: !!data.html,
             hasCss: !!data.css,
@@ -457,13 +477,24 @@ const handleSendMessage = async ({ text, attachment, intent }) => {
         if (data.javascript !== undefined && data.javascript !== null) {
             jsCode.value = data.javascript;
             updates.push('JS');
-        } else if (data.js !== undefined && data.js !== null) { // Fallback for 'js' key
+        } else if (data.js !== undefined && data.js !== null) {
             jsCode.value = data.js;
             updates.push('JS');
         }
         
         if (updates.length > 0) {
             console.log(`✅ Applied updates to: ${updates.join(', ')}`);
+            
+            // Force save to conversation object immediately
+            // This ensures code is saved to localStorage along with the message
+            // otherwise the debounced watcher might not save in time if page reloads
+            if (conv) {
+                conv.code = { 
+                    html: htmlCode.value, 
+                    css: cssCode.value, 
+                    js: jsCode.value 
+                };
+            }
         } else {
             console.warn('⚠️ No code updates were applied from this response.');
         }
@@ -474,13 +505,23 @@ const handleSendMessage = async ({ text, attachment, intent }) => {
             totalTokens.value += billed;
             lastUsage.value = { ...data.usage, billed_tokens: billed };
             
+            // Accumulate detailed stats
+            totalUsageStats.value.input_tokens += (data.usage.input_tokens || 0);
+            totalUsageStats.value.output_tokens += (data.usage.output_tokens || 0);
+            totalUsageStats.value.cache_creation_input_tokens += (data.usage.cache_creation_input_tokens || 0);
+            totalUsageStats.value.cache_read_input_tokens += (data.usage.cache_read_input_tokens || 0);
+            totalUsageStats.value.billed_tokens += billed;
+
             localStorage.setItem('total-tokens', totalTokens.value);
             localStorage.setItem('last-usage', JSON.stringify(lastUsage.value));
+            localStorage.setItem('total-usage-stats', JSON.stringify(totalUsageStats.value));
             console.log(`Billed Tokens: ${billed}. Total: ${totalTokens.value}`);
         }
         
-        // Add assistant message
-        const explanation = (data.message || data.explanation || `I've updated the code based on your request.`) + ` (${lastUsage.value.billed_tokens} tokens used)`;
+        // Add assistant message with pipeline info
+        const pipelineTag = data.pipeline ? ` [${data.pipeline.strategy}/${data.pipeline.mutationType}]` : '';
+        const explanation = (data.message || data.explanation || `I've updated the code based on your request.`) + 
+            ` (${lastUsage.value.billed_tokens} tokens${pipelineTag})`;
         const aiMsg = { role: 'assistant', content: explanation, model: currentModel.value };
         chatMessages.value.push(aiMsg);
         
@@ -494,6 +535,11 @@ const handleSendMessage = async ({ text, attachment, intent }) => {
     } finally {
         isChatLoading.value = false;
     }
+};
+const handleResponsiveEdit = (message   , type) => {
+    // When editing via shape selection, we send the selection context as the message
+    // We DON'T assume an attachment unless explicitly added (which isn't supported in this flow yet)
+    handleSendMessage({ text: message, attachment: null, intent: "responsive", type: type });
 };
 
 const handleAIEdit = (message) => {
@@ -658,6 +704,8 @@ const generateFullHTML = (page) => {
             :current-page-id="currentPageId"
             v-model:currentModel="currentModel"
             :total-tokens="totalTokens"
+            :total-usage-stats="totalUsageStats"
+            :last-usage="lastUsage"
             @toggle-sidebar="toggleSidebar"
             @new-conversation="initializeConversation"
             @load-conversation="loadConversation"
@@ -691,6 +739,7 @@ const generateFullHTML = (page) => {
                     @undo="undo"
                     @redo="redo"
                     @update-code="handleAIEdit"
+                    @add-responsive="handleResponsiveEdit"
                     @direct-update-code="(code) => { htmlCode = code }"
                 />
                 

@@ -17,6 +17,14 @@ const props = defineProps({
     totalTokens: {
         type: Number,
         default: 0
+    },
+    totalUsageStats: {
+        type: Object,
+        default: () => ({ input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0, billed_tokens: 0 })
+    },
+    lastUsage: {
+        type: Object,
+        default: () => ({ input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0, billed_tokens: 0 })
     }
 });
 
@@ -32,6 +40,9 @@ const emit = defineEmits([
     'delete-page',
     'close-page'
 ]);
+
+import { ref } from 'vue';
+const showTokenDetails = ref(false);
 
 const toggleSidebar = () => {
     emit('toggle-sidebar');
@@ -198,15 +209,74 @@ const handleDelete = (id) => {
 
         <!-- Token Tracker -->
         <div class="token-tracker" v-if="!isCollapsed">
-            <div class="token-header">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span>Usage Stats</span>
+            <div class="token-header-row">
+                <div class="token-header">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Usage Stats</span>
+                </div>
+                <button class="details-btn" @click="showTokenDetails = true" title="View Details">
+                    <svg class="icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
             </div>
             <div class="token-count">
                 <span class="token-value">{{ totalTokens.toLocaleString() }}</span>
-                <span class="token-label">Tokens</span>
+                <span class="token-label">Billed Tokens</span>
+            </div>
+        </div>
+
+        <!-- Token Details Modal -->
+        <div v-if="showTokenDetails" class="modal-overlay" @click.self="showTokenDetails = false">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Token Usage Details</h3>
+                    <button class="close-btn" @click="showTokenDetails = false">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <table class="usage-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Last Request</th>
+                                <th>Total Lifetime</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Input Tokens</td>
+                                <td>{{ lastUsage.input_tokens.toLocaleString() }}</td>
+                                <td>{{ totalUsageStats.input_tokens.toLocaleString() }}</td>
+                            </tr>
+                            <tr>
+                                <td>Output Tokens</td>
+                                <td>{{ lastUsage.output_tokens.toLocaleString() }}</td>
+                                <td>{{ totalUsageStats.output_tokens.toLocaleString() }}</td>
+                            </tr>
+                            <tr>
+                                <td>Cache Write (Creation)</td>
+                                <td>{{ lastUsage.cache_creation_input_tokens?.toLocaleString() || 0 }}</td>
+                                <td>{{ totalUsageStats.cache_creation_input_tokens.toLocaleString() }}</td>
+                            </tr>
+                            <tr>
+                                <td>Cache Read (Hit)</td>
+                                <td>{{ lastUsage.cache_read_input_tokens?.toLocaleString() || 0 }}</td>
+                                <td>{{ totalUsageStats.cache_read_input_tokens.toLocaleString() }}</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td><strong>Estimated Billed</strong></td>
+                                <td><strong>{{ lastUsage.billed_tokens.toLocaleString() }}</strong></td>
+                                <td><strong>{{ totalUsageStats.billed_tokens.toLocaleString() }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="footnote">
+                        * Billed = Input + Output + (Cache Write × 1.25) + (Cache Read × 0.1)<br>
+                        Values are estimates based on Anthropic pricing logic.
+                    </p>
+                </div>
             </div>
         </div>
     </aside>
@@ -225,6 +295,7 @@ const handleDelete = (id) => {
     transition: width 0.3s ease;
     position: relative;
     height: 100%;
+    width: 280px;
 }
 
 .sidebar.collapsed {
@@ -378,7 +449,6 @@ const handleDelete = (id) => {
 }
 
 .new-page-btn:hover {
-    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
 }
 
@@ -488,7 +558,6 @@ const handleDelete = (id) => {
 }
 
 .new-conversation-btn:hover {
-    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
 }
 
@@ -519,12 +588,7 @@ const handleDelete = (id) => {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.conversation-item.active {
-    background: rgba(255, 107, 107, 0.2);
-    border-left: 3px solid #ff6b6b;
-    border-right: 1px solid rgba(255, 107, 107, 0.3);
-    box-shadow: inset 0 0 10px rgba(255, 107, 107, 0.05);
-}
+
 
 .conversation-info {
     flex: 1;
@@ -786,7 +850,6 @@ const handleDelete = (id) => {
 }
 
 .new-page-btn:hover {
-    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
 }
 
@@ -896,7 +959,6 @@ const handleDelete = (id) => {
 }
 
 .new-conversation-btn:hover {
-    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
 }
 
@@ -981,5 +1043,198 @@ const handleDelete = (id) => {
 .conversation-date, .page-date {
     font-size: 10px;
     color: #666;
+}
+
+/* Token Tracker */
+.token-tracker {
+    margin: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.token-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.token-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.token-header .icon {
+    width: 14px;
+    height: 14px;
+    color: #ffb86c;
+}
+
+.details-btn {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.details-btn:hover {
+    color: #e0e0e0;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.details-btn .icon.small {
+    width: 14px;
+    height: 14px;
+}
+
+.token-count {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.token-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffb86c;
+}
+
+.token-label {
+    font-size: 10px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #252525;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #e0e0e0;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.close-btn:hover {
+    color: #fff;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.usage-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: #e0e0e0;
+    margin-bottom: 16px;
+}
+
+.usage-table tr {
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.usage-table th, .usage-table td {
+    padding: 12px 8px;
+    text-align: right;
+}
+
+.usage-table th:first-child, .usage-table td:first-child {
+    text-align: left;
+    padding-left: 4px;
+}
+
+.usage-table th {
+    color: #888;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding-bottom: 8px;
+}
+
+.usage-table tr:last-child {
+    border-bottom: none;
+}
+
+.usage-table .total-row td {
+    color: #ffb86c;
+    font-size: 14px;
+    border-top: 2px solid #333;
+    padding-top: 16px;
+    font-weight: 600;
+}
+
+.footnote {
+    margin: 0;
+    font-size: 11px;
+    color: #666;
+    line-height: 1.4;
+    text-align: center;
 }
 </style>

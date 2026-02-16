@@ -1,0 +1,17 @@
+✅ Server running at http://localhost:3009
+
+🧠 Adaptive Request: conversationId=test-no-base64-restart-1770884339
+
+============================================================
+🧠 ADAPTIVE PIPELINE START: "make design like this; use realistic text..."
+============================================================
+🔍 Intent: action=redesign, target=all, strategy=simple (local=simple, llm=full)
+📋 Stage 1 Complete — Strategy: full, Action: redesign, Target: all, Image: true
+🖼️ Image Detected — Mode: reference
+🖼️ Image Reference mutation using claude-sonnet-4-5-20250929
+
+✅ ADAPTIVE PIPELINE COMPLETE in 16267ms
+   Strategy: image-reference | Type: image-reference | Tokens: 3130
+============================================================
+
+💾 Adaptive Result: HTML(333), CSS(1611), JS(0)

@@ -7,7 +7,7 @@ const props = defineProps({
     jsCode: String
 });
 
-const emit = defineEmits(['undo', 'redo', 'update-code', 'direct-update-code']);
+const emit = defineEmits(['undo', 'redo', 'update-code', 'direct-update-code', 'add-responsive']);
 
 const previewFrame = ref(null);
 const previewWrapper = ref(null);
@@ -657,6 +657,27 @@ const closeImageModal = () => {
     editingImgElement.value = null;
 };
 
+// ========== RESPONSIVENESS LOGIC ==========
+const responsivenessModal = ref(null);
+
+const openResponsivenessModal = () => {
+    if (responsivenessModal.value) {
+        responsivenessModal.value.showModal();
+    }
+};
+
+const closeResponsivenessModal = () => {
+    if (responsivenessModal.value) {
+        responsivenessModal.value.close();
+    }
+};
+
+const applyResponsiveness = (type) => {
+    const message = `Make this page responsive using ${type} layout. Ensure it looks good on mobile devices.`;
+    emit('add-responsive', message, type);
+    closeResponsivenessModal();
+};
+
 </script>
 
 <template>
@@ -740,6 +761,17 @@ const closeImageModal = () => {
                 >
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h14a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </button>
+
+                <!-- Responsiveness Tool -->
+                <button 
+                    class="response-tool-btn" 
+                    @click="openResponsivenessModal" 
+                    title="Make Responsive"
+                >
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                     </svg>
                 </button>
 
@@ -839,6 +871,61 @@ const closeImageModal = () => {
                 <div class="modal-actions">
                     <button @click="closeImageModal" class="modal-btn secondary">Cancel</button>
                     <button @click="saveImageURL" class="modal-btn primary">Update All Sources</button>
+                </div>
+            </div>
+        </dialog>
+
+        <!-- Responsiveness Modal -->
+        <dialog ref="responsivenessModal" class="modal">
+            <div class="modal-content">
+                <h3>Make Page Responsive</h3>
+                <p>Choose how you want the AI to adjust the layout for mobile devices:</p>
+                <div class="responsive-options">
+                    <button class="responsive-option-btn" @click="applyResponsiveness('compact')">
+                        <div class="option-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                <path d="M12 8v8" />
+                                <path d="M17 12l2 0" />
+                                <path d="M5 12l2 0" />
+                            </svg>
+                        </div>
+                        <div class="option-text">
+                            <strong>Compact Mobile Mode</strong>
+                            <span>More content visible on small screens without changing desktop layout.</span>
+                        </div>
+                    </button>
+                    <button class="responsive-option-btn" @click="applyResponsiveness('comfortable')">
+                        <div class="option-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                            </svg>
+                        </div>
+                        <div class="option-text">
+                            <strong>Comfortable (Default) Mobile Mode</strong>
+                            <span>Safe, well-balanced responsive design for mobile & tablet.</span>
+                        </div>
+                    </button>
+                    <button class="responsive-option-btn" @click="applyResponsiveness('spacious')">
+                        <div class="option-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="4" y="2" width="16" height="20" rx="2" />
+                                <line x1="8" y1="6" x2="16" y2="6" />
+                                <line x1="8" y1="10" x2="16" y2="10" />
+                                <line x1="8" y1="14" x2="16" y2="14" />
+                            </svg>
+                        </div>
+                        <div class="option-text">
+                            <strong>Spacious / Accessible Mobile Mode</strong>
+                            <span>Improves readability and tap accuracy on mobile devices.</span>
+                        </div>
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button @click="closeResponsivenessModal" class="modal-btn secondary">Cancel</button>
                 </div>
             </div>
         </dialog>
@@ -1072,10 +1159,15 @@ const closeImageModal = () => {
 }
 
 /* Modals */
-.modal {
+.modal[open] {
     background: transparent;
     border: none;
     padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .modal::backdrop {
@@ -1174,4 +1266,81 @@ const closeImageModal = () => {
 .light.red { background: #ff5f56; }
 .light.yellow { background: #ffbd2e; }
 .light.green { background: #27c93f; }
+
+/* Responsiveness Tool */
+.response-tool-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.response-tool-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.responsive-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.responsive-option-btn {
+    background: #1a1a1a;
+    border: 2px solid #3a3a3a;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s ease;
+    color: white;
+    text-align: left;
+}
+
+.responsive-option-btn:hover {
+    border-color: #667eea;
+    background: #333;
+}
+
+.option-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #667eea;
+    flex-shrink: 0;
+}
+
+.option-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.option-text strong {
+    font-size: 14px;
+    color: #fff;
+}
+
+.option-text span {
+    font-size: 12px;
+    color: #aaa;
+}
 </style>
