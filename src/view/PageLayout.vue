@@ -12,7 +12,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['update-page', 'close-page', 'open-in-tab', 'delete-component']);
+const emit = defineEmits(['update-page', 'close-page', 'open-in-tab', 'delete-component', 'open-in-conversation']);
 
 const showComponentModal = ref(false);
 const searchQuery = ref('');
@@ -166,6 +166,13 @@ const deleteComponentFromLibrary = (componentId) => {
                         >
                             ×
                         </button>
+                        <button 
+                            class="icon-btn open-conv-btn"
+                            @click="emit('open-in-conversation', component)"
+                            title="Open in new conversation"
+                        >
+                            🗨
+                        </button>
                     </div>
                 </div>
                 <div class="component-preview">
@@ -175,16 +182,18 @@ const deleteComponentFromLibrary = (componentId) => {
                             <html>
                             <head>
                                 <style>
-                                    body { margin: 0; padding: 20px; font-family: sans-serif; }
-                                    ${component.css || ''}
+                                    body { margin: 0; padding: 20px; font-family: sans-serif; }`
+                                    +`${component.css || ''}`+
+                                    `
                                 </style>
                             </head>
-                            <body>
-                                ${component.html || ''}
-                                <script>
+                            <body>`
+                            +`${component.html || ''}`+
+                            `<script>
                                     // Handle internal script errors or prevent them from bubbing up
-                                    window.onerror = function(msg) { console.error('Preview error:', msg); return true; };
-                                    ${component.js || ''}
+                                    window.onerror = function(msg) { console.error('Preview error:', msg); return true; };`
+                                    +`${component.js || ''}`+
+                                    `
                                 </script>
                             </body>
                             </html>
@@ -450,6 +459,11 @@ const deleteComponentFromLibrary = (componentId) => {
 
 .icon-btn.delete:hover {
     background: #e74c3c;
+    color: white;
+}
+
+.icon-btn.open-conv-btn:hover {
+    background: #667eea;
     color: white;
 }
 

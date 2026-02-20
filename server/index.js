@@ -145,9 +145,9 @@ app.post("/api/adaptive-chat", async (req, res) => {
 
     // Get or initialize conversation state
     let currentCode = conversationStates.get(conversationId) || { html: '', css: '', javascript: '' };
-    if (html !== undefined) currentCode.html = html;
-    if (css !== undefined) currentCode.css = css;
-    if (javascript !== undefined) currentCode.javascript = javascript;
+    if (html !== undefined) currentCode.html = html || '';
+    if (css !== undefined) currentCode.css = css || '';
+    if (javascript !== undefined) currentCode.javascript = javascript || '';
     conversationStates.set(conversationId, currentCode);
 
     // Get or initialize conversation messages
@@ -175,7 +175,7 @@ app.post("/api/adaptive-chat", async (req, res) => {
       { role: "assistant", content: [{ type: "text", text: result.message }] }
     );
 
-    console.log(`💾 Adaptive Result: HTML(${newCode.html.length}), CSS(${newCode.css.length}), JS(${newCode.javascript.length})`);
+    console.log(`💾 Adaptive Result: HTML(${(newCode.html || '').length}), CSS(${(newCode.css || '').length}), JS(${(newCode.javascript || '').length})`);
 
     res.json(result);
   } catch (err) {
@@ -194,12 +194,26 @@ const cleanJSON = (text) => {
     cleaned = codeBlockMatch[1].trim();
   }
 
-  // 2. If it still doesn't look like JSON, try to find the first '{' and last '}'
+  // 2. If it still doesn't look like JSON, try to find the first '{' 
   if (!cleaned.startsWith('{')) {
     const firstBrace = cleaned.indexOf('{');
-    const lastBrace = cleaned.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-      cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+    cleaned = cleaned.substring(firstBrace);
+  }
+
+  // 3. Robust Truncation Fix: If it doesn't end with '}', try to close it
+  // This is a "hail mary" for truncated AI responses
+  if (!cleaned.endsWith('}')) {
+    console.warn("⚠️ AI response appears truncated. Attempting to force-close JSON.");
+
+    // If it's cut off inside a string, we need to close the string first
+    const openQuotes = (cleaned.match(/"/g) || []).length;
+    if (openQuotes % 2 !== 0) cleaned += '"';
+
+    // Add missing closing braces
+    const openBraces = (cleaned.match(/\{/g) || []).length;
+    const closeBraces = (cleaned.match(/\}/g) || []).length;
+    for (let i = 0; i < (openBraces - closeBraces); i++) {
+      cleaned += '}';
     }
   }
 
@@ -227,9 +241,9 @@ app.post("/api/chat", async (req, res) => {
     let currentCode = conversationStates.get(conversationId) || { html: '', css: '', javascript: '' };
 
     // Update state based on what arrived (Selective Sync)
-    if (html !== undefined) currentCode.html = html;
-    if (css !== undefined) currentCode.css = css;
-    if (javascript !== undefined) currentCode.javascript = javascript;
+    if (html !== undefined) currentCode.html = html || '';
+    if (css !== undefined) currentCode.css = css || '';
+    if (javascript !== undefined) currentCode.javascript = javascript || '';
     conversationStates.set(conversationId, currentCode);
 
     // Build user message content
@@ -385,7 +399,7 @@ app.post("/api/chat", async (req, res) => {
         (parsedResponse.js !== undefined && parsedResponse.js !== null) ? parsedResponse.js : currentCode.javascript
     };
 
-    console.log(`💾 Updated State: HTML(${newCode.html.length}), CSS(${newCode.css.length}), JS(${newCode.javascript.length})`);
+    console.log(`💾 Updated State: HTML(${(newCode.html || '').length}), CSS(${(newCode.css || '').length}), JS(${(newCode.javascript || '').length})`);
 
     conversationStates.set(conversationId, newCode);
     parsedResponse.usage = usage;
@@ -516,9 +530,9 @@ app.post("/api/responsive", async (req, res) => {
     let currentCode = conversationStates.get(conversationId) || { html: '', css: '', javascript: '' };
 
     // Update state based on what arrived (Selective Sync)
-    if (html !== undefined) currentCode.html = html;
-    if (css !== undefined) currentCode.css = css;
-    if (javascript !== undefined) currentCode.javascript = javascript;
+    if (html !== undefined) currentCode.html = html || '';
+    if (css !== undefined) currentCode.css = css || '';
+    if (javascript !== undefined) currentCode.javascript = javascript || '';
     conversationStates.set(conversationId, currentCode);
 
 
@@ -597,7 +611,7 @@ app.post("/api/responsive", async (req, res) => {
         (parsedResponse.js !== undefined && parsedResponse.js !== null) ? parsedResponse.js : currentCode.javascript
     };
 
-    console.log(`💾 Updated State: HTML(${newCode.html.length}), CSS(${newCode.css.length}), JS(${newCode.javascript.length})`);
+    console.log(`💾 Updated State: HTML(${(newCode.html || '').length}), CSS(${(newCode.css || '').length}), JS(${(newCode.javascript || '').length})`);
 
     conversationStates.set(conversationId, newCode);
     parsedResponse.usage = usage;
@@ -799,10 +813,10 @@ Important:
       rawSections.filter(Boolean).map(async (section) => {
         try {
           const modernizationResponse = await anthropic.messages.create({
-            model: "claude-3-haiku-20240307",
-            max_tokens: 4000,
+            model: "claude-sonnet-4-5-20250929",
+            max_tokens: 6000,
             temperature: 0,
-            system: "You are a senior frontend engineer. Your task is to refactor raw, extracted website snippets into clean, modern, and standalone HTML/CSS components. Use semantic HTML and modern CSS (Flexbox/Grid). Remove site-specific junk attributes.",
+            system: "You are a senior frontend engineer. Your task is to refactor raw, extracted website snippets into clean, modern, human-like, and standalone HTML/CSS components. Use semantic HTML and modern CSS (Flexbox/Grid). Remove site-specific junk attributes. Don't afriad to use full screen width component, and use flexbox or grid to make it responsive.",
             messages: [
               {
                 role: "user",
@@ -820,7 +834,12 @@ REQUIREMENTS:
 1. Clean the HTML: Remove redundant classes (if they look like framework junk), data attributes, and unnecessary nesting.
 2. Distill the CSS: Convert the verbose computed styles into clean, modular CSS. Use the provided styles as a reference to keep the look identical, but use cleaner selectors.
 3. Standalone: Ensure all styles needed for this section are included.
-4. Output: Return ONLY raw JSON with "html" and "css" fields.`
+4. Output: Return ONLY raw JSON with "html" and "css" fields.
+
+CSS extra rule!!!(follow strictly):
+1. DO NOT create .body or * classname, MUST use semantic classname instead
+2. DO NOT add any border-radius(NO ROUND EDGE)
+3. Main Container MUST NOT have margin, padding, border, and max-width`
               }
             ]
           });
@@ -857,6 +876,151 @@ REQUIREMENTS:
   }
 });
 
+// XML-tag based extractor — works even if AI response is truncated
+const extractTagContent = (text, tag) => {
+  const openTag = `<${tag}>`;
+  const closeTag = `</${tag}>`;
+  const start = text.indexOf(openTag);
+  if (start === -1) return null;
+  const contentStart = start + openTag.length;
+  const end = text.indexOf(closeTag, contentStart);
+  // If no closing tag, return whatever was generated so far (handles truncation)
+  return end === -1
+    ? text.substring(contentStart).trim()
+    : text.substring(contentStart, end).trim();
+};
+
+const MODERNIZE_DIRECT_SYSTEM_PROMPT = `You are a senior frontend engineer. Modernize a website screenshot into a modern, premium design.
+
+RULES:
+1. Include <!-- SECTION: Name --> comments in HTML to mark each section (Navbar, Hero, etc.)
+2. Use the user's specified theme and color palette
+3. Premium aesthetic: glassmorphism, excellent typography, smooth gradients
+4. DO NOT use .body or * as classnames — use semantic names only
+5. DO NOT add any border-radius (NO ROUND EDGES)
+6. Main container: NO margin, padding, border, or max-width
+7. USE a timestamp suffix for all classnames to avoid collisions (e.g. .nav-1708123456)
+8. BE CONCISE with CSS — use variables and shorthand to minimize token usage
+
+RESPONSE FORMAT — use exactly these XML tags, nothing else before or after:
+<MESSAGE>
+Brief description of changes made
+</MESSAGE>
+<HTML>
+...full HTML body content here...
+</HTML>
+<CSS>
+...full CSS here...
+</CSS>
+<JAVASCRIPT>
+...JS here or leave empty...
+</JAVASCRIPT>`;
+
+app.post("/api/modernize-direct", async (req, res) => {
+  try {
+    const { image, theme, color } = req.body;
+    console.log(`🎨 Modernizing direct: theme=${theme}, color=${color}`);
+
+    const base64Image = image.replace(/^data:image\/(png|jpeg|webp);base64,/, "");
+    const mediaType = image.match(/^data:image\/(png|jpeg|webp);base64,/)?.[1] || "jpeg";
+
+    const prompt = `Modernize this website screenshot.
+Theme: ${theme}
+Primary Color: ${color}
+Incorporate the ${theme} theme with ${color} as the primary color. Use state-of-the-art aesthetics.`;
+
+    const msg = await anthropic.messages.create({
+      model: "claude-sonnet-4-5-20250929",
+      max_tokens: 16000,
+      temperature: 0.1,
+      system: MODERNIZE_DIRECT_SYSTEM_PROMPT,
+      messages: [{
+        role: "user",
+        content: [
+          {
+            type: "image",
+            source: { type: "base64", media_type: `image/${mediaType}`, data: base64Image }
+          },
+          { type: "text", text: prompt }
+        ]
+      }]
+    });
+
+    const responseText = msg.content[0].text;
+    console.log(`📄 Raw response length: ${responseText.length} chars`);
+
+    // Use XML-tag extraction — resilient to truncation
+    const html = extractTagContent(responseText, 'HTML');
+    const css = extractTagContent(responseText, 'CSS');
+    const javascript = extractTagContent(responseText, 'JAVASCRIPT');
+    const message = extractTagContent(responseText, 'MESSAGE');
+
+    if (!html && !css) {
+      console.error("❌ Could not extract HTML or CSS from response");
+      return res.status(500).json({ error: "AI response did not contain valid HTML/CSS tags. Try again." });
+    }
+
+    console.log(`✅ Extracted: HTML(${(html || '').length}), CSS(${(css || '').length}), JS(${(javascript || '').length})`);
+
+    res.json({ message: message || "Modernization complete.", html, css, javascript });
+  } catch (err) {
+    console.error("❌ Error in /api/modernize-direct:", err);
+    res.status(500).json({ error: "Failed to modernize website" });
+  }
+});
+
+app.post("/api/factor-components", async (req, res) => {
+  try {
+    const { html, css, javascript } = req.body;
+    console.log(`✂️ Factoring components...`);
+
+    const prompt = `I have a full webpage's code. Please break it down into modular, standalone components. 
+    The code contains comments like "<!-- SECTION: Name -->" to help you identify where each section begins and ends.
+    
+    HTML:
+    ${html}
+    
+    CSS:
+    ${css}
+    
+    JavaScript:
+    ${javascript}
+    
+    Return a JSON object with a "components" field which is an array of objects:
+    {
+      "components": [
+        {
+          "name": "Component Name",
+          "html": "...",
+          "css": "...",
+          "js": "..."
+        }
+      ]
+    }
+    
+    For each component:
+    1. Extract the corresponding HTML for that section.
+    2. Extract ONLY the CSS relevant to that section's HTML.
+    3. Ensure each component is fully functional on its own (contains all necessary styles).`;
+
+    const msg = await anthropic.messages.create({
+      model: "claude-sonnet-4-5-20250929",
+      max_tokens: 16000,
+      temperature: 0,
+      messages: [{ role: "user", content: prompt }]
+    });
+
+    const responseText = msg.content[0].text;
+    const extractedText = cleanJSON(responseText);
+    const parsedResponse = JSON.parse(extractedText);
+
+    res.json(parsedResponse);
+  } catch (err) {
+    console.error("❌ Error in /api/factor-components:", err);
+    res.status(500).json({ error: "Failed to factor components" });
+  }
+});
+
 app.post("/api/screenshot-website-file", async (req, res) => {
   let browser;
   try {
@@ -864,12 +1028,72 @@ app.post("/api/screenshot-website-file", async (req, res) => {
 
     browser = await puppeteer.launch({
       headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      executablePath: '/usr/bin/google-chrome',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+
+        // 🔥 Important ones:
+        '--disable-features=SafeBrowsing,IsolateOrigins,site-per-process',
+        '--disable-site-isolation-trials',
+        '--disable-client-side-phishing-detection',
+        '--disable-component-update',
+        '--disable-default-apps',
+        '--disable-popup-blocking',
+        '--disable-extensions',
+      ],
     });
+
+
     const page = await browser.newPage();
 
+    // 👇 1️⃣ Set user agent FIRST
+    await page.setUserAgent(
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    );
+
+    // 👇 2️⃣ Set headers BEFORE navigation
+    await page.setExtraHTTPHeaders({
+      'accept-language': 'en-US,en;q=0.9'
+    });
+
+    // 👇 3️⃣ Set viewport BEFORE navigation
     await page.setViewport({ width: 1920, height: 1080 });
-    await page.goto(url, { waitUntil: 'networkidle2' });
+
+    // 👇 3.5 Enable request interception to block junk that fails anyway
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      const url = request.url();
+      const isJunk = /google-analytics|doubleclick|recaptcha|facebook\.com|track|analytics/i.test(url);
+      if (isJunk) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+
+    page.on('requestfailed', req => {
+      // Silence noisy aborted logs for non-essential resources
+      if (req.failure()?.errorText === 'net::ERR_ABORTED') return;
+      console.log('Resource Failed:', req.url(), req.failure());
+    });
+
+    // 👇 4️⃣ NOW navigate
+    try {
+      await page.goto(url, {
+        waitUntil: 'networkidle2', // Wait for most network activity to stop
+        timeout: 45000
+      });
+    } catch (e) {
+      console.warn('⚠️ Navigation timeout or warning, attempting to proceed anyway...', e.message);
+      // If it times out but we have content, we still try to take the screenshot
+    }
+
+    // Give a small buffer for layouts to settle
+    await new Promise(r => setTimeout(r, 2000));
+
+
 
     // Generate filename
     const timestamp = Date.now();

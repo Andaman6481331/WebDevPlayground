@@ -127,29 +127,93 @@ function checkCSSSyntax(css) {
     return errors;
 }
 
+// Maps common CSS properties to their shorthands and related properties for robust validation
+const PROPERTY_NORMALIZATION = {
+    'background-color': ['background', 'background-color', 'bg-color', 'bg'],
+    'background-image': ['background', 'background-image', 'bg-image', 'bg'],
+    'color': ['color'],
+    'border-color': ['border', 'border-color', 'border-bottom', 'border-top', 'border-left', 'border-right'],
+    'font-size': ['font', 'font-size'],
+    'font-family': ['font', 'font-family'],
+    'margin': ['margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left'],
+    'padding': ['padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left'],
+    'gap': ['gap', 'row-gap', 'column-gap'],
+    'border-radius': ['border-radius', 'border-top-left-radius', 'border-top-right-radius', 'border-bottom-left-radius', 'border-bottom-right-radius']
+};
+
 function checkPropertyApplied(intent, originalCode, mutatedCode) {
-    const property = intent.property?.toLowerCase();
-    const value = intent.value?.toLowerCase();
+    const rawProperty = intent.property?.toLowerCase() || '';
+    const rawValue = intent.value?.toLowerCase() || '';
 
-    if (!property) return true; // Can't check without a property
+    if (!rawProperty) return true;
 
-    // Check if the property appears in the CSS
-    const css = mutatedCode.css || originalCode.css || '';
+    // 1. Extract candidate values from intent.value (Hex, RGB, Colors, Keywords)
+    const valueKeywords = [];
 
-    // Look for the property in the CSS
-    const propertyRegex = new RegExp(`${escapeRegex(property)}\\s*:`, 'i');
-    if (propertyRegex.test(css)) {
-        // If we also have a value, check that too
-        if (value) {
-            const valueRegex = new RegExp(`${escapeRegex(property)}\\s*:\\s*[^;]*${escapeRegex(value)}`, 'i');
-            return valueRegex.test(css);
-        }
-        return true;
+    // Hex codes
+    const hexCodes = rawValue.match(/#[A-Fa-f0-9]{3,6}/g) || [];
+    valueKeywords.push(...hexCodes);
+
+    // RGB/RGBA
+    const rgbCodes = rawValue.match(/rgba?\(.*?\)/g) || [];
+    valueKeywords.push(...rgbCodes);
+
+    // Filtered words (ignoring common descriptive tokens)
+    const words = rawValue.match(/[a-z0-9-]+/gi) || [];
+    const ignoreList = ['theme', 'primary', 'secondary', 'accent', 'background', 'color', 'text', 'border', 'colors', 'palette', 'custom', 'style', 'mode'];
+    const filteredWords = words.filter(w =>
+        w.length > 2 &&
+        !ignoreList.includes(w.toLowerCase()) &&
+        !w.includes(':') // Avoid "primary:" text
+    );
+    valueKeywords.push(...filteredWords);
+
+    // Fallback: the whole thing if it's very short (e.g. "10px")
+    if (valueKeywords.length === 0 && rawValue.length > 0 && rawValue.length < 15) {
+        valueKeywords.push(rawValue);
     }
 
-    // Also check HTML for inline styles or attribute changes
+    // 2. Identify target properties (including shorthands)
+    const rawProperties = rawProperty.split(/[,/]/).map(p => p.trim()).filter(Boolean);
+    const targetProperties = new Set();
+    rawProperties.forEach(p => {
+        targetProperties.add(p);
+        if (PROPERTY_NORMALIZATION[p]) {
+            PROPERTY_NORMALIZATION[p].forEach(np => targetProperties.add(np));
+        }
+    });
+
+    const css = mutatedCode.css || originalCode.css || '';
     const html = mutatedCode.html || originalCode.html || '';
-    if (html.includes(property) || (value && html.includes(value))) {
+
+    // 3. Check if any assigned value in the CSS matches any descriptive intent keyword
+    // This handles "theme" changes where the intent value is a summary, not a literal code
+    const anyKeywordApplied = Array.from(targetProperties).some(prop => {
+        // Find property declaration in CSS
+        const propRegex = new RegExp(`${escapeRegex(prop)}\\s*:`, 'i');
+        if (propRegex.test(css)) {
+            if (valueKeywords.length === 0) return true; // Found property, no specific value expected
+
+            // Found the property, check if its assigned value contains any of our intent's hex/keywords
+            return valueKeywords.some(keyword => {
+                const valueRegex = new RegExp(`${escapeRegex(prop)}\\s*:\\s*[^;]*${escapeRegex(keyword)}`, 'i');
+                return valueRegex.test(css);
+            });
+        }
+        return false;
+    });
+
+    if (anyKeywordApplied) return true;
+
+    // 4. Fallback search (just check if keywords exist anywhere in the code)
+    // For broad "Apply X theme" requests
+    if (valueKeywords.length > 0) {
+        const foundGlobally = valueKeywords.some(kw => css.includes(kw) || html.includes(kw));
+        if (foundGlobally) return true;
+    }
+
+    // If we have no keywords but it's a known property that was assigned in CSS, count it as a pass
+    if (valueKeywords.length === 0 && Array.from(targetProperties).some(prop => new RegExp(`${escapeRegex(prop)}\\s*:`, 'i').test(css))) {
         return true;
     }
 

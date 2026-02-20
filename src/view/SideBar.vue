@@ -1,6 +1,4 @@
 <script setup>
-import { computed } from 'vue';
-
 const props = defineProps({
     isCollapsed: Boolean,
     currentModel: String,
@@ -135,13 +133,23 @@ const selectedColor = ref('Blue');
 
 const themes = [
     'Professional', 'Flowery', 'Machinery', 'Medical', 'Retail', 
-    'Minimalist', 'Cyberpunk', 'Playful', 'Brutalist', 'Luxury'
+    'Minimalist', 'Cyberpunk', 'Playful', 'Brutalist', 'Luxury',
+    'Vintage', 'Futuristic', 'Corporate', 'Industrial', 'Artistic',
+    'Boho', 'Gothic', 'Steampunk', 'Retro', 'Modern','Neon'
 ];
 
 const colors = [
-    'Blue', 'Red', 'Green', 'Purple', 'Orange', 
-    'Pink', 'Teal', 'Gold', 'Slate', 'Rose'
+    'White', 'Gray', 'Slate', 'Black',  // Monochrome
+    'Brown',                            // Earth tones
+    'Rose', 'Red', 'Pink',              // Reds/Pinks
+    'Light Orange', 'Orange',           // Oranges
+    'Gold', 'Yellow',                   // Yellows
+    'Light Green', 'Lime', 'Green',     // Greens
+    'Teal', 'Cyan',                     // Cyans/Teals
+    'Light Blue', 'Blue',               // Blues
+    'Indigo', 'Light Purple', 'Purple', 'Magenta' // Purples
 ];
+
 
 const openModernizeModal = () => {
     modernizeModal.value?.showModal();
@@ -154,7 +162,7 @@ const closeModernizeModal = () => {
 
 const handleModernizeWeb = async () => {
     if (!modernizeUrl.value.trim()) return;
-    
+
     isTakingScreenshot.value = true;
     try {
         const response = await fetch('/api/screenshot-website-file', {
@@ -165,9 +173,9 @@ const handleModernizeWeb = async () => {
         
         if (!response.ok) throw new Error('Failed to capture website');
         
-        const data = await response.json();
+        const result = await response.json();
         
-        capturedScreenshot.value = data.screenshotUrl;
+        capturedScreenshot.value = result.screenshotUrl;
         modernizeModal.value?.close();
         confirmModernizeModal.value?.showModal();
     } catch (error) {
@@ -239,12 +247,12 @@ const cancelModernization = () => {
                 </button>
             </div>
             <div class="secondary-tools">
-                <button class="tool-btn" @click="openDissectionModal" title="Dissect Website">
+                <!-- <button class="tool-btn" @click="openDissectionModal" title="Dissect Website">
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.631.316a6 6 0 01-3.86.517l-2.387-.477a2 2 0 00-2.12 1.414l-.5 2V21h18v-4l-.5-1.572zM2 12V7a5 5 0 015-5h10a5 5 0 015 5v5M7 8V5M17 8V5M3 12h18"></path>
                     </svg>
                     <span>Dissect</span>
-                </button>
+                </button> -->
                 <button class="tool-btn" @click="openModernizeModal" title="Modernize Website">
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h14a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -333,7 +341,7 @@ const cancelModernization = () => {
         </div>
 
         <!-- Dissection Modal -->
-        <dialog ref="dissectionModal" class="sidebar-modal">
+        <!-- <dialog ref="dissectionModal" class="sidebar-modal">
             <div class="sidebar-modal-content">
                 <h3>Dissect Website</h3>
                 <p>AI will analyze the website and break it down into modular sections.</p>
@@ -353,7 +361,7 @@ const cancelModernization = () => {
                     </button>
                 </div>
             </div>
-        </dialog>
+        </dialog> -->
 
         <!-- Modernize Modal -->
         <dialog ref="modernizeModal" class="sidebar-modal">
@@ -410,7 +418,6 @@ const cancelModernization = () => {
                             </option>
                         </select>
                     </div>
-
                     <div class="sidebar-input-group">
                         <label>Primary Color</label>
                         <div class="color-bubbles">
@@ -617,9 +624,8 @@ const cancelModernization = () => {
 }
 
 .secondary-tools {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    display: flex;
+    
 }
 
 .tool-btn {
@@ -636,6 +642,7 @@ const cancelModernization = () => {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    width: 100%;
 }
 
 .tool-btn:hover {
@@ -1006,6 +1013,19 @@ const cancelModernization = () => {
 .color-bubble.gold { background-color: #eab308; }
 .color-bubble.slate { background-color: #64748b; }
 .color-bubble.rose { background-color: #f43f5e; }
+.color-bubble.white { background-color: #ffffff; }
+.color-bubble.black { background-color: #000000; }
+.color-bubble.yellow { background-color: #ffff00; }
+.color-bubble.gray { background-color: #808080; }
+.color-bubble.brown { background-color: #a52a2a; }
+.color-bubble.cyan { background-color: #00ffff; }
+.color-bubble.magenta { background-color: #ff00ff; }
+.color-bubble.lime { background-color: #00ff00; }
+.color-bubble.indigo { background-color: #4b0082; }
+.color-bubble.light-blue { background-color: #add8e6; }
+.color-bubble.light-green { background-color: #90ee90; }
+.color-bubble.light-purple { background-color: #d8bfd8; }
+.color-bubble.light-orange { background-color: #ffb347; }
 
 /* ========== TOKEN DETAILS MODAL ========== */
 .modal-overlay {

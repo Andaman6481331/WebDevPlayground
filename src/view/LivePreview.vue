@@ -564,18 +564,32 @@ const toggleImageEditMode = () => {
 const setupImageEditListeners = () => {
     if (!previewFrame.value) return;
     const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
+    const iframeWin = previewFrame.value.contentWindow;
     
-    // Add visual feedback class to all images
+    // Inject highlight styles for both <img> and background-image elements
     const style = iframeDoc.createElement('style');
     style.id = 'img-edit-styles';
     style.textContent = `
         img { cursor: pointer !important; outline: 2px dashed #667eea !important; }
         img:hover { outline: 2px solid #667eea !important; background: rgba(102, 126, 234, 0.1) !important; }
+        .bg-img-editable { cursor: pointer !important; outline: 2px dashed #f97316 !important; }
+        .bg-img-editable:hover { outline: 2px solid #f97316 !important; }
     `;
     iframeDoc.head.appendChild(style);
     
+    // Attach click listener to all <img> elements
     iframeDoc.querySelectorAll('img').forEach(img => {
         img.addEventListener('click', handleImageClick);
+    });
+
+    // Find and attach click listener to all elements with a background-image (from inline or computed style)
+    iframeDoc.querySelectorAll('*').forEach(el => {
+        const computed = iframeWin.getComputedStyle(el);
+        const bg = el.style.backgroundImage || computed.backgroundImage;
+        if (bg && bg !== 'none' && bg.includes('url(')) {
+            el.classList.add('bg-img-editable');
+            el.addEventListener('click', handleImageClick);
+        }
     });
 };
 
@@ -589,26 +603,51 @@ const removeImageEditListeners = () => {
     iframeDoc.querySelectorAll('img').forEach(img => {
         img.removeEventListener('click', handleImageClick);
     });
+
+    iframeDoc.querySelectorAll('.bg-img-editable').forEach(el => {
+        el.classList.remove('bg-img-editable');
+        el.removeEventListener('click', handleImageClick);
+    });
 };
+
+const editingBgElement = ref(null); // tracks element being edited if it's a bg-image
 
 const handleImageClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    editingImgElement.value = e.target;
-    selectedImgUrl.value = e.target.src;
-    imageSources.value = [];
 
-    // Check if within a <picture> tag
-    const pictureEl = e.target.closest('picture');
-    if (pictureEl) {
-        const sources = Array.from(pictureEl.querySelectorAll('source'));
-        imageSources.value = sources.map((s, index) => ({
-            id: index,
-            element: s,
-            srcset: s.srcset,
-            type: s.type || ''
-        }));
+    const target = e.currentTarget;
+
+    // Determine if this is a background-image element or a regular <img>
+    if (target.tagName === 'IMG') {
+        // Regular <img> tag
+        editingImgElement.value = target;
+        editingBgElement.value = null;
+        selectedImgUrl.value = target.src;
+        imageSources.value = [];
+
+        // Check if within a <picture> tag
+        const pictureEl = target.closest('picture');
+        if (pictureEl) {
+            const sources = Array.from(pictureEl.querySelectorAll('source'));
+            imageSources.value = sources.map((s, index) => ({
+                id: index,
+                element: s,
+                srcset: s.srcset,
+                type: s.type || ''
+            }));
+        }
+    } else {
+        // Background-image element — extract the URL from the computed/inline style
+        const iframeWin = previewFrame.value.contentWindow;
+        const computed = iframeWin.getComputedStyle(target);
+        const bgValue = target.style.backgroundImage || computed.backgroundImage || '';
+        // Extract bare URL from url('...') or url("...")
+        const match = bgValue.match(/url\(["']?([^"')]+)["']?\)/);
+        selectedImgUrl.value = match ? match[1] : '';
+        editingBgElement.value = target;
+        editingImgElement.value = null;
+        imageSources.value = [];
     }
     
     if (imageEditModal.value) {
@@ -617,39 +656,54 @@ const handleImageClick = (e) => {
 };
 
 const saveImageURL = () => {
+    const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
+
     if (editingImgElement.value) {
+        // --- Save for a regular <img> element ---
         editingImgElement.value.src = selectedImgUrl.value;
         
-        // Update <source> elements if they exist
         imageSources.value.forEach(s => {
-            if (s.element) {
-                s.element.srcset = s.srcset;
-            }
+            if (s.element) s.element.srcset = s.srcset;
         });
+    } else if (editingBgElement.value) {
+        // --- Save for a CSS background-image element ---
+        // Update the inline style directly in the live DOM
+        editingBgElement.value.style.backgroundImage = `url('${selectedImgUrl.value}')`;
 
-        // Extract updated HTML
-        const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
-        
-        // Remove our temporary styles before saving
-        const style = iframeDoc.getElementById('img-edit-styles');
-        if (style) style.remove();
-        
-        // If part of a picture, we want to make sure the picture structure is preserved
-        // We emit the body.innerHTML which will contain the updated picture/sources
-        let newHtml = iframeDoc.body.innerHTML;
-        
-        // Clean up scripts
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = newHtml;
-        tempDiv.querySelectorAll('script').forEach(s => s.remove());
-        
-        const cleanedHtml = tempDiv.innerHTML.trim();
-        emit('direct-update-code', cleanedHtml);
-        
-        imageEditModal.value.close();
-        isImageEditMode.value = false;
-        removeImageEditListeners();
+        // Also patch the <style> tags in the iframe to persist through re-renders
+        const tagName = editingBgElement.value.tagName.toLowerCase();
+        const classList = Array.from(editingBgElement.value.classList).map(c => `.${c}`).join('');
+        const idStr = editingBgElement.value.id ? `#${editingBgElement.value.id}` : '';
+        const selector = idStr || classList || tagName;
+
+        iframeDoc.querySelectorAll('style').forEach(styleEl => {
+            if (styleEl.id === 'img-edit-styles') return; // Skip our injected style
+            // Simple text replacement of the bg url in stylesheet
+            styleEl.textContent = styleEl.textContent.replace(
+                /background-image\s*:\s*url\(["']?[^"')]+["']?\)/g,
+                `background-image: url('${selectedImgUrl.value}')`
+            );
+        });
     }
+
+    // Extract updated HTML
+    // Remove our temporary styles before saving
+    const style = iframeDoc.getElementById('img-edit-styles');
+    if (style) style.remove();
+    
+    let newHtml = iframeDoc.body.innerHTML;
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = newHtml;
+    tempDiv.querySelectorAll('script').forEach(s => s.remove());
+    
+    const cleanedHtml = tempDiv.innerHTML.trim();
+    emit('direct-update-code', cleanedHtml);
+    
+    imageEditModal.value.close();
+    isImageEditMode.value = false;
+    editingBgElement.value = null;
+    removeImageEditListeners();
 };
 
 const closeImageModal = () => {
@@ -851,7 +905,15 @@ const applyResponsiveness = (type) => {
         <!-- Image URL Edit Modal -->
         <dialog ref="imageEditModal" class="modal">
             <div class="modal-content">
-                <h3>Edit Image / Picture Sources</h3>
+                <h3>Edit Image Source</h3>
+                <p style="font-size:12px; color:#aaa; margin:0 0 12px;"
+                   v-if="editingBgElement">
+                    🖼️ Editing <strong>CSS background-image</strong>
+                </p>
+                <p style="font-size:12px; color:#aaa; margin:0 0 12px;"
+                   v-else>
+                    🖼️ Editing <strong>&lt;img&gt; src</strong>
+                </p>
                 <div class="image-preview-container" v-if="selectedImgUrl">
                     <img :src="selectedImgUrl" class="img-edit-preview" alt="Preview">
                 </div>
@@ -865,12 +927,12 @@ const applyResponsiveness = (type) => {
                 </div>
 
                 <div class="input-group">
-                    <label>Fallback Image Source (img src)</label>
+                    <label>{{ editingBgElement ? 'background-image URL' : 'Fallback Image Source (img src)' }}</label>
                     <input v-model="selectedImgUrl" type="text" placeholder="https://example.com/image.jpg">
                 </div>
                 <div class="modal-actions">
                     <button @click="closeImageModal" class="modal-btn secondary">Cancel</button>
-                    <button @click="saveImageURL" class="modal-btn primary">Update All Sources</button>
+                    <button @click="saveImageURL" class="modal-btn primary">Update</button>
                 </div>
             </div>
         </dialog>

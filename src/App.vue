@@ -79,7 +79,7 @@ watch(currentModel, (newModel) => {
 // History State
 const codeHistory = ref([]);
 const historyIndex = ref(-1);
-const MAX_HISTORY = 50;
+const MAX_HISTORY = 20;
 
 // ========== LIFECYCLE ==========
 onMounted(() => {
@@ -122,11 +122,41 @@ const loadConversationsData = () => {
 
 const saveConversations = () => {
     try {
-        localStorage.setItem('webdev_conversations', JSON.stringify(conversations.value));
+        // Create a deep copy to avoid modifying the reactive state
+        const dataToSave = JSON.parse(JSON.stringify(conversations.value));
+        
+        // Optimization: Strip large base64 data from attachments before saving
+        dataToSave.forEach(conv => {
+            if (conv.messages) {
+                conv.messages.forEach(msg => {
+                    if (msg.attachment && msg.attachment.dataUrl && msg.attachment.dataUrl.startsWith('data:')) {
+                        // Keep a placeholder or the URL if we have it, but remove the huge base64
+                        msg.attachment.dataUrl = msg.attachment.url || '(Large image removed to save space)';
+                    }
+                });
+            }
+        });
+
+        localStorage.setItem('webdev_conversations', JSON.stringify(dataToSave));
     } catch (error) {
         console.error('Failed to save conversations to localStorage:', error);
         if (error.name === 'QuotaExceededError') {
-            console.warn('Storage quota exceeded. Some history might not be saved.');
+            console.warn('Storage quota exceeded. Pruning old histories and trying again...');
+            // Emergency prune: Keep only the most recent state for all but the current conversation
+            conversations.value.forEach(conv => {
+                if (conv.id !== currentConversationId.value) {
+                    if (conv.history && conv.history.length > 2) {
+                        conv.history = conv.history.slice(-2);
+                        conv.historyIndex = 1;
+                    }
+                }
+            });
+            // Try saving again after pruning
+            try {
+                localStorage.setItem('webdev_conversations', JSON.stringify(conversations.value));
+            } catch (retryError) {
+                console.error('Pruning failed to free enough space.');
+            }
         }
     }
 };
@@ -250,6 +280,8 @@ const saveToHistory = () => {
         if (conv) {
             conv.history = [...codeHistory.value];
             conv.historyIndex = historyIndex.value;
+            // CRITICAL: Also update the primary code fields so they're saved for refresh
+            conv.code = { ...currentState }; 
             saveConversations();
         }
     }
@@ -486,10 +518,13 @@ const handleSendMessage = async ({ text, attachment, intent, type }) => {
         
         // Sync to reactive state if current
         if (currentConversationId.value === targetConversationId && updates.length > 0) {
-            if (data.html !== undefined) htmlCode.value = data.html;
-            if (data.css !== undefined) cssCode.value = data.css;
-            if (newJs !== undefined) jsCode.value = newJs;
+            if (data.html !== undefined && data.html !== null) htmlCode.value = data.html;
+            if (data.css !== undefined && data.css !== null) cssCode.value = data.css;
+            if (newJs !== undefined && newJs !== null) jsCode.value = newJs;
             console.log(`✅ Applied updates to: ${updates.join(', ')}`);
+            
+            // Force history save immediately for AI updates to ensure it's captured in undo/redo stack
+            saveToHistory();
         }
         
         // Update token usage
@@ -596,47 +631,93 @@ const handleDissectResult = (sections) => {
 const handleModernizeResult = async ({ screenshotUrl, theme, color }) => {
     if (!screenshotUrl) return;
     
-    // 1. Create a new conversation first and switch to it
-    initializeConversation();
+    isChatLoading.value = true;
     
-    // Update the title of the new conversation
-    const newConv = conversations.value[0];
-    if (newConv) {
-        newConv.title = `Modernize: ${theme} - ${color}`;
-        saveConversations();
-    }
-    
-    // 2. Fetch the image and convert to base64
     try {
-        const response = await fetch(screenshotUrl);
-        const blob = await response.blob();
+        // 1. Fetch the image and convert to base64
+        const imgResponse = await fetch(screenshotUrl);
+        const blob = await imgResponse.blob();
         
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const base64data = reader.result;
-            
-            // 3. Add as a new message with attachment
-            const prompt = `Analyze this website screenshot and regenerate it into a more modern, premium design. 
-            
-            USER PREFERENCES:
-            - Theme Style: ${theme}
-            - Primary Color: ${color}
-            
-            Maintain the logical structure but use a state-of-the-art aesthetic that incorporates the ${theme} theme and ${color} as the primary color. Focus on glassmorphism, excellent typography, smooth gradients, and cleaner layouts.`;
+        const base64data = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
 
-            handleSendMessage({
-                text: prompt,
-                attachment: {
-                    type: 'image',
-                    dataUrl: base64data,
-                    name: 'target-website.png'
-                }
+        console.log('🚀 Starting direct modernization...');
+        
+        // 2. Direct modernization call
+        const modernizeRes = await fetch('/api/modernize-direct', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64data, theme, color })
+        });
+        
+        if (!modernizeRes.ok) throw new Error('Direct modernization failed');
+        const modernizedData = await modernizeRes.json();
+        
+        console.log('✂️ Modernization complete. Factoring into components...');
+
+        // 3. Factor into components
+        const factorRes = await fetch('/api/factor-components', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                html: modernizedData.html, 
+                css: modernizedData.css, 
+                javascript: modernizedData.javascript 
+            })
+        });
+        
+        if (!factorRes.ok) throw new Error('Dismantling into components failed');
+        const factoredData = await factorRes.json();
+        
+        // 4. Update the component system and automatically create a page
+        if (factoredData.components && factoredData.components.length > 0) {
+            const newComponentIds = [];
+            
+            factoredData.components.forEach(comp => {
+                const component = {
+                    id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                    name: comp.name || 'Modernized Section',
+                    html: comp.html,
+                    css: comp.css,
+                    js: comp.js || '',
+                    dateCreated: new Date().toISOString(),
+                    thumbnail: comp.html.substring(0, 50)
+                };
+                savedComponents.value.unshift(component);
+                newComponentIds.push(component.id);
             });
-        };
-        reader.readAsDataURL(blob);
+            
+            // Persist components
+            localStorage.setItem('webdev_saved_components', JSON.stringify(savedComponents.value));
+            
+            // 5. Create a new page automatically
+            const pageId = Date.now().toString();
+            const page = {
+                id: pageId,
+                title: `${theme} Modernized Page`,
+                components: newComponentIds,
+                dateCreated: new Date().toISOString(),
+                dateModified: new Date().toISOString()
+            };
+            pages.value.unshift(page);
+            savePages();
+            
+            // Load the page
+            loadPage(pageId);
+            
+            console.log(`✅ Flow complete! Processed ${factoredData.components.length} components.`);
+        } else {
+            throw new Error('No components were extracted');
+        }
+
     } catch (error) {
-        console.error('Error processing screenshot for modernization:', error);
-        alert('Failed to process screenshot: ' + error.message);
+        console.error('Error in modernization flow:', error);
+        alert('Modernization process failed: ' + error.message);
+    } finally {
+        isChatLoading.value = false;
     }
 };
 
@@ -745,6 +826,35 @@ const closePage = () => {
     currentPageId.value = null;
 };
 
+const handleOpenComponentInConversation = (component) => {
+    // 1. Create a fresh conversation
+    initializeConversation();
+
+    // 2. Set its title and code to this component's content
+    const conv = conversations.value[0];
+    if (conv) {
+        conv.title = component.name || 'Component';
+        conv.code = {
+            html: component.html || '',
+            css: component.css || '',
+            js: component.js || ''
+        };
+        // Seed its history with the initial state
+        conv.history = [{ ...conv.code }];
+        conv.historyIndex = 0;
+        saveConversations();
+    }
+
+    // 3. Sync reactive code refs
+    htmlCode.value = component.html || '';
+    cssCode.value = component.css || '';
+    jsCode.value = component.js || '';
+    saveToHistory();
+
+    // 4. Close Page Builder so editor becomes visible
+    closePage();
+};
+
 const openPageInNewTab = (page) => {
     const fullHTML = generateFullHTML(page);
     const blob = new Blob([fullHTML], { type: 'text/html' });
@@ -820,6 +930,7 @@ const generateFullHTML = (page) => {
             @close-page="closePage"
             @open-in-tab="openPageInNewTab"
             @delete-component="deleteComponent"
+            @open-in-conversation="handleOpenComponentInConversation"
         />
 
         <!-- Main Content (Editor Mode) -->

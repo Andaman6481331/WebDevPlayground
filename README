@@ -1,2 +1,23 @@
 to-do list
-- add token tracking    
+- time counter
+
+
+test cases
+- change image from url ---------- n
+- change image from png,jpeg ---------- n
+- switch position-------- y
+- remove element -------- y
+- change image size
+- attrachment image as an product
+- 
+
+assignment
+- initialize keyframe animation 
+
+
+
+
+
+### Example Prompt ###
+"สร้างการ์ดสินค้าแบบ e-commerce ที่มีรูปสินค้าหมุนได้ 360 องศา ด้านล่างมีปุ่มเลือกสี เลือกแล้วรูปสินค้าเปลี่ยนตาม มีปุ่ม wishlist รูปหัวใจที่กดแล้วเด้งๆ แล้วก็มี countdown timer สำหรับโปรโมชั่น"
+
