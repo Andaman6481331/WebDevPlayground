@@ -139,7 +139,7 @@ function extractSelectionContext(message) {
  * Parse user intent using Claude Haiku
  * Returns structured intent object
  */
-export async function parseIntent(anthropic, message, hasImage = false) {
+export async function parseIntent(anthropic, message, hasImage = false, history = []) {
     const { cleanedMessage, hasSelection, selectionContext } = extractSelectionContext(message);
     const normalizedMessage = normalizeThaiText(cleanedMessage);
 
@@ -150,6 +150,15 @@ export async function parseIntent(anthropic, message, hasImage = false) {
         let prompt = `Analyze this user request for a web development code editor. Extract the structured intent.
         
 User request: "${normalizedMessage}"`;
+
+        if (history && history.length > 0) {
+            prompt += `\n\n📜 RECENT CONVERSATION HISTORY:\n`;
+            history.slice(-3).forEach(msg => {
+                const content = typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '');
+                prompt += `${msg.role.toUpperCase()}: ${content.substring(0, 300)}${content.length > 300 ? '...' : ''}\n`;
+            });
+            prompt += `\nUse the history above to resolve references like "it", "that", "this part", or "previous" in the user request.`;
+        }
 
         if (hasSelection) {
             prompt += `\n\nCONTEXT: The user has explicitly selected specific elements on the page. The selection data is:\n${selectionContext}\n\nTASK: Determine if the user's request applies ONLY to the selected elements (local) or requires changes to the surrounding/global context (global).`;

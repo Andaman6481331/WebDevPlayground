@@ -8,6 +8,10 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { processAdaptiveRequest } from './services/claudeService.js';
 import { fileURLToPath } from 'url';
+import * as cheerio from 'cheerio';
+import axios from 'axios';
+import iconv from 'iconv-lite';
+import chardet from 'chardet';
 
 dotenv.config();
 
@@ -159,7 +163,11 @@ app.post("/api/adaptive-chat", async (req, res) => {
     conversationData.timestamp = Date.now();
 
     // Run the adaptive pipeline
-    const result = await processAdaptiveRequest(anthropic, message, currentCode, { image, model: selectedModel });
+    const result = await processAdaptiveRequest(anthropic, message, currentCode, {
+      image,
+      model: selectedModel,
+      conversationMessages: conversationData.messages
+    });
 
     // Update state with result
     const newCode = {
@@ -624,250 +632,303 @@ app.post("/api/responsive", async (req, res) => {
 });
 
 
-app.post("/api/dissect-website", async (req, res) => {
-  let browser;
+app.post("/api/fetch-website-content", async (req, res) => {
   try {
     const { url } = req.body;
+    console.log(`🌐 Fetching website content: ${url}`);
 
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    // Use arraybuffer to handle different encodings (like windows-874)
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      },
+      responseType: 'arraybuffer',
+      timeout: 10000
     });
 
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
-    await page.goto(url, { waitUntil: 'networkidle2' });
+    // Detect encoding strategy:
+    // 1. Check meta tags in the first few bytes of the buffer
+    // 2. Check Content-Type header
+    // 3. Fallback to chardet
+    const initialBuffer = response.data.slice(0, 10000).toString('ascii');
+    // More robust regex for meta tags
+    let charsetMatch = initialBuffer.match(/charset=["']?([^"'; >]+)["']?/i);
+    let charset = charsetMatch ? charsetMatch[1] : null;
 
-    // 1. Take full-page screenshot
-    const screenshot = await page.screenshot({
-      fullPage: true,
-      encoding: 'base64'
+    if (!charset) {
+      const contentType = response.headers['content-type'] || '';
+      charsetMatch = contentType.match(/charset=([^;]+)/i);
+      charset = charsetMatch ? charsetMatch[1] : null;
+    }
+
+    if (!charset) {
+      charset = chardet.detect(response.data);
+    }
+
+    // Special case for Thai: if charset is detected as Western but site is likely Thai
+    if (charset === 'windows-1252' || charset === 'ISO-8859-1' || !charset) {
+      if (initialBuffer.toLowerCase().includes('windows-874') || initialBuffer.toLowerCase().includes('tis-620')) {
+        charset = initialBuffer.toLowerCase().includes('windows-874') ? 'windows-874' : 'tis-620';
+        console.log(`💡 Overriding to Thai charset found in meta/text: ${charset}`);
+      }
+    }
+
+    console.log(`🔤 Detected charset: ${charset}`);
+
+    let body;
+    try {
+      if (charset && iconv.encodingExists(charset)) {
+        body = iconv.decode(response.data, charset);
+      } else {
+        body = response.data.toString('utf-8');
+      }
+    } catch (e) {
+      console.warn(`Charset decoding failed for ${charset}, falling back to utf-8`);
+      body = response.data.toString('utf-8');
+    }
+
+    const $ = cheerio.load(body);
+
+    // 1) Find <td class="side"> component (inside tr valign="top")
+    const sideTd = $('tr[valign="top"] td.side');
+    const navigation = [];
+
+    // 2.1) For "side", go inside it and retrieve only the <td> that is inside <tbody>
+    sideTd.find('tbody td').each((i, el) => {
+      const $el = $(el);
+      const text = $el.text().trim();
+
+      // Look for links or significant text inside these TDs
+      const link = $el.find('a').first();
+      if (text || link.length) {
+        navigation.push({
+          id: `nav-${i}`,
+          text: text || link.text().trim() || 'Link',
+          type: link.length ? 'link' : 'text',
+          href: link.attr('href') || null,
+          selected: true
+        });
+      }
     });
 
-    // 2. Get simplified DOM structure
-    const domStructure = await page.evaluate(() => {
-      function getSelector(element) {
-        if (element.id) return `#${element.id}`;
-        if (element.className) return `.${element.className.split(' ')[0]}`;
-        return element.tagName.toLowerCase();
+    // Fallback if no specific tbody/td found
+    if (navigation.length === 0) {
+      sideTd.find('a, p, span, div').each((i, el) => {
+        const $el = $(el);
+        const text = $el.text().trim();
+        if (text && $el.children().length === 0) {
+          navigation.push({
+            id: `nav-${i}`,
+            text: text,
+            type: el.name === 'a' ? 'link' : 'text',
+            href: $el.attr('href') || null,
+            selected: true
+          });
+        }
+      });
+    }
+
+    // 2) Find content next to side component
+    let mainArea = sideTd.next('td');
+    if (mainArea.length === 0) {
+      mainArea = sideTd.parent().find('td').eq(1);
+    }
+
+    const mainContent = [];
+
+    // 2.2) Retreive only element that inside <td> that is specifially inside TWO <tbody>, 
+    // find and retrieve elements (excluding <br>)
+    mainArea.find('td').each((i, td) => {
+      let tbodyCount = 0;
+      let curr = $(td).parent();
+      while (curr.length && !curr.is(mainArea)) {
+        if (curr.get(0).tagName.toLowerCase() === 'tbody') {
+          tbodyCount++;
+        }
+        curr = curr.parent();
       }
 
-      function analyzeElement(el, depth = 0) {
-        if (depth > 5) return null; // Increased depth for better section identification
+      if (tbodyCount >= 2) {
+        $(td).contents().each((j, el) => {
+          if (el.type === 'tag' && el.name !== 'br') {
+            const $el = $(el);
+            if (el.name === 'img') {
+              let src = $el.attr('src') || $el.attr('data-src') || $el.attr('data-lazy-src') || $el.attr('original');
+              const srcset = $el.attr('srcset');
+              if (!src && srcset) src = srcset.split(',')[0].trim().split(' ')[0];
 
-        const rect = el.getBoundingClientRect();
-        const computedStyle = window.getComputedStyle(el);
-
-        return {
-          tag: el.tagName.toLowerCase(),
-          selector: getSelector(el),
-          text: el.innerText?.substring(0, 100),
-          bounds: {
-            top: rect.top,
-            height: rect.height,
-            width: rect.width
-          },
-          style: {
-            position: computedStyle.position,
-            display: computedStyle.display,
-            backgroundColor: computedStyle.backgroundColor
-          },
-          children: Array.from(el.children)
-            .map(child => analyzeElement(child, depth + 1))
-            .filter(Boolean)
-        };
+              if (src) {
+                try {
+                  src = src.startsWith('http') || src.startsWith('data:') ? src : new URL(src, url).href;
+                  mainContent.push({ id: `main-${i}-${j}`, type: 'image', src, alt: $el.attr('alt') || '', selected: true });
+                } catch (e) { }
+              }
+            } else {
+              const text = $el.text().trim();
+              if (text && text.length > 2) {
+                mainContent.push({ id: `main-${i}-${j}`, type: 'text', content: text, tag: el.name, selected: true });
+              }
+            }
+          } else if (el.type === 'text') {
+            const text = el.data.trim();
+            if (text && text.length > 2) {
+              mainContent.push({ id: `main-${i}-${j}`, type: 'text', content: text, tag: 'span', selected: true });
+            }
+          }
+        });
       }
-
-      return analyzeElement(document.body);
     });
 
-    // 3. Ask Claude to identify sections
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    // Fallback if no nested table content found
+    if (mainContent.length === 0) {
+      let contentContainer = mainArea.find('#lazyimg');
+      if (contentContainer.length === 0) {
+        contentContainer = mainArea.hasClass('content') ? mainArea : mainArea.find('.content');
+      }
+      if (contentContainer.length === 0) contentContainer = mainArea;
+
+      contentContainer.find('img, p, h1, h2, h3, h4, h5, h6, span, li, div').each((i, el) => {
+        const $el = $(el);
+        if (el.name === 'img') {
+          let src = $el.attr('src') || $el.attr('data-src') || $el.attr('data-lazy-src') || $el.attr('original');
+          if (src) {
+            try {
+              src = src.startsWith('http') || src.startsWith('data:') ? src : new URL(src, url).href;
+              mainContent.push({ id: `main-fb-${i}`, type: 'image', src, alt: $el.attr('alt') || '', selected: true });
+            } catch (e) { }
+          }
+        } else {
+          const text = $el.text().trim();
+          if (text && text.length > 2 && $el.children('p, h1, h2, h3, h4, h5, h6, li, div, span').length === 0) {
+            mainContent.push({ id: `main-fb-${i}`, type: 'text', content: text, tag: el.name, selected: true });
+          }
+        }
+      });
+    }
+
+    const extractedData = {
+      title: $('title').text().trim(),
+      navigation: navigation.filter((v, i, a) => a.findIndex(t => (t.text === v.text && t.href === v.href)) === i),
+      mainContent: mainContent.filter((v, i, a) => a.findIndex(t => (t.type === 'text' ? t.content === v.content : t.src === v.src)) === i)
+    };
+
+    res.json({ success: true, url, data: extractedData });
+  } catch (err) {
+    console.error("❌ Error fetching website:", err);
+    res.status(500).json({ error: "Failed to fetch website content", details: err.message });
+  }
+});
+
+app.post("/api/dissect-website", async (req, res) => {
+  try {
+    const { url, extractedData, primaryColor, secondaryColor } = req.body;
+
+    if (!extractedData || (!extractedData.navigation && !extractedData.mainContent)) {
+      return res.status(400).json({ error: "No selected content provided for dissection" });
+    }
+
+    console.log(`📝 Processing selected content from ${url}, sending to AI...`);
+
+    // Format the items for the AI
+    const navItemsList = (extractedData.navigation || []).filter(item => item.selected);
+    const contentItemsList = (extractedData.mainContent || []).filter(item => item.selected);
+
+    const navItems = navItemsList.map(item => `- ${item.text}${item.href ? ` (${item.href})` : ''}`).join('\n');
+    const contentItems = contentItemsList.map(item => {
+      if (item.type === 'image') {
+        return `- [IMAGE] URL: ${item.src}${item.alt ? `, Alt: ${item.alt}` : ''}`;
+      }
+      return `- [TEXT] ${item.tag ? `<${item.tag}>` : ''}: ${item.content}`;
+    }).join('\n');
+
+    console.log(`✅ AI will receive ${navItemsList.length} nav items and ${contentItemsList.length} content items.`);
+    console.log(`🎨 Theme Colors: Primary=${primaryColor}, Secondary=${secondaryColor}`);
 
     const aiResponse = await anthropic.messages.create({
       model: "claude-sonnet-4-5-20250929",
-      max_tokens: 4096,
+      max_tokens: 8000,
+      temperature: 0, // Absolute minimum randomness
+      system: `You are an expert web strategist and frontend designer. 
+      Your task is to analyze selected content from a website and reconstruct it into a MODERN, PREMIUM design.
+      
+      CRITICAL DATA INTEGRITY RULES (ZERO HALLUCINATION):
+      1. ONLY USE THE DATA PROVIDED IN THE USER MESSAGE. 
+      2. IGNORE ANY PRE-TRAINED KNOWLEDGE YOU HAVE ABOUT THE URL "${url}". DO NOT USE DATA FROM THE REAL WEBSITE IF IT IS NOT IN THE SELECTED LIST BELOW.
+      3. YOU MUST USE EVERY SELECTED NAVIGATION LINK PROVIDED.
+      4. YOU MUST USE EVERY SELECTED IMAGE AND TEXT BLOCK PROVIDED.
+      5. YOUR PRIMARY GOAL IS TO PORT THE *USER'S SELECTED CONTENT* INTO A SUPERIOR DESIGN.
+      
+      DESIGN RULES:
+      - Use modern UI trends: glassmorphism, clean typography (Inter/Roboto), ample whitespace.
+      - Ensure responsiveness.
+      - NO border-radius (as per user preference).
+      - Dark mode premium aesthetic by default unless otherwise specified.
+      - THEME COLORS: Use Primary Color: ${primaryColor || '#3b82f6'} and Secondary Color: ${secondaryColor || '#10b981'}.
+      
+      RESPONSE FORMAT:
+      You MUST wrap your response sections in the following XML tags:
+      <CSS> ... specific CSS styles ... </CSS>
+      <HTML> ... updated HTML body content ... </HTML>
+      <CHECKLIST> ... bullet points of what you included ... </CHECKLIST>
+      <MESSAGE> ... short summary of changes ... </MESSAGE>
+      <JAVASCRIPT> ... any required JS ... </JAVASCRIPT>
+      
+      Do NOT explain anything outside these tags.`,
       messages: [
         {
           role: "user",
-          content: [
-            {
-              type: "image",
-              source: {
-                type: "base64",
-                media_type: "image/png",
-                data: screenshot
-              }
-            },
-            {
-              type: "text",
-              text: `Analyze this website screenshot and identify the main sections.
-
-DOM Structure:
-${JSON.stringify(domStructure, null, 2)}
-
-Return ONLY raw JSON (no markdown backticks) for a JSON array of sections with this exact structure:
-{
-  "sections": [
-    {
-      "name": "navbar|hero|features|testimonials|footer|etc",
-      "description": "Brief description",
-      "selector": "CSS selector to target this section",
-      "bounds": {"top": 0, "height": 80}
-    }
-  ]
-}
-
-Important:
-- Your response must be valid JSON and nothing else.
-- Identify sections by visual appearance AND DOM structure
-- Common sections: navbar, hero, features, about, testimonials, pricing, footer
-- Provide accurate CSS selectors to extract each section
-- Order sections from top to bottom`
-            }
-          ]
+          content: `Here is the ONLY data you are allowed to use for the website reconstruction:
+          
+          TITLE (Project Name): ${extractedData.title}
+          
+          SPECIFIC NAVIGATION LINKS (Strictly use these for your menu):
+          ${navItems || 'None provided'}
+          
+          Final Instruction: 
+          - Do not add "sample" data. 
+          - Do not invent "demo" products. 
+          - Use the real URLs and real text provided above.
+          - FOR IMAGES: YOU MUST USE THE REAL [IMAGE] URLs provided in the "SPECIFIC MAIN CONTENT" list. Do not replace them with emojis, icons, or placeholders. If the list contains an image for a product or category, use that exact <img src="..."> in your HTML.
+          - If a text block looks like a product name/price, treat it as such.
+          - YOU MUST INCLUDE A COMPREHENSIVE <CSS> BLOCK USING THE REQUESTED COLORS. DO NOT LEAVE IT EMPTY.`
         }
       ]
     });
 
-    const aiContent = aiResponse.content[0].text;
-    // Strip markdown code blocks if present
-    const cleanJson = aiContent.replace(/```json/g, '').replace(/```/g, '').trim();
-    const sections = JSON.parse(cleanJson).sections;
+    const responseText = aiResponse.content[0].text;
 
-    // 4. Extract HTML/CSS for each identified section
-    const rawSections = await Promise.all(
-      sections.map(async (section) => {
-        const sectionData = await page.evaluate((selector) => {
-          const mainElement = document.querySelector(selector);
-          if (!mainElement) return null;
-
-          const interestingProps = [
-            'background-color', 'background-image', 'color', 'font-family', 'font-size', 'font-weight',
-            'padding', 'margin', 'display', 'flex-direction', 'justify-content', 'align-items',
-            'gap', 'grid-template-columns', 'position', 'top', 'left', 'right', 'bottom',
-            'width', 'height', 'max-width', 'border', 'border-radius', 'box-shadow', 'opacity', 'z-index',
-            'text-align', 'flex-wrap', 'object-fit'
-          ];
-
-          function getStyles(el) {
-            const styles = window.getComputedStyle(el);
-            let css = '';
-            interestingProps.forEach(prop => {
-              const val = styles.getPropertyValue(prop);
-              if (val && val !== 'normal' && val !== 'none' && val !== '0px' && val !== 'auto' && val !== 'rgba(0, 0, 0, 0)') {
-                css += `${prop}: ${val}; `;
-              }
-            });
-            return css;
-          }
-
-          // Recursively extract HTML and inline the CRITICAL computed styles
-          function extractWithStyles(el) {
-            if (el.nodeType !== 1) return el.textContent; // Text node
-
-            const clone = el.cloneNode(false);
-            const styles = getStyles(el);
-            if (styles) clone.setAttribute('style', styles);
-
-            Array.from(el.childNodes).forEach(child => {
-              if (child.nodeType === 1 || child.nodeType === 3) {
-                const processed = extractWithStyles(child);
-                if (typeof processed === 'string') {
-                  clone.appendChild(document.createTextNode(processed));
-                } else {
-                  clone.appendChild(processed);
-                }
-              }
-            });
-
-            return clone;
-          }
-
-          const styledElement = extractWithStyles(mainElement);
-          const html = styledElement.outerHTML;
-
-          // Return a simplified CSS block just for the container
-          const containerCss = `${selector} { ${getStyles(mainElement)} }`;
-
-          return { html, css: containerCss };
-        }, section.selector);
-
-        if (!sectionData) return null;
-
-        return {
-          ...section,
-          ...sectionData
-        };
-      })
-    );
-
-    await browser.close();
-
-    // 5. Modernize and Refactor each section using AI
-    console.log(`✨ Modernizing ${rawSections.filter(Boolean).length} sections...`);
-
-    const modernizedSections = await Promise.all(
-      rawSections.filter(Boolean).map(async (section) => {
-        try {
-          const modernizationResponse = await anthropic.messages.create({
-            model: "claude-sonnet-4-5-20250929",
-            max_tokens: 6000,
-            temperature: 0,
-            system: "You are a senior frontend engineer. Your task is to refactor raw, extracted website snippets into clean, modern, human-like, and standalone HTML/CSS components. Use semantic HTML and modern CSS (Flexbox/Grid). Remove site-specific junk attributes. Don't afriad to use full screen width component, and use flexbox or grid to make it responsive.",
-            messages: [
-              {
-                role: "user",
-                content: `Refactor and modernize this extracted component.
-Section Type: ${section.name}
-Description: ${section.description}
-
-RAW HTML:
-${section.html}
-
-RAW COMPUTED CSS:
-${section.css}
-
-REQUIREMENTS:
-1. Clean the HTML: Remove redundant classes (if they look like framework junk), data attributes, and unnecessary nesting.
-2. Distill the CSS: Convert the verbose computed styles into clean, modular CSS. Use the provided styles as a reference to keep the look identical, but use cleaner selectors.
-3. Standalone: Ensure all styles needed for this section are included.
-4. Output: Return ONLY raw JSON with "html" and "css" fields.
-
-CSS extra rule!!!(follow strictly):
-1. DO NOT create .body or * classname, MUST use semantic classname instead
-2. DO NOT add any border-radius(NO ROUND EDGE)
-3. Main Container MUST NOT have margin, padding, border, and max-width`
-              }
-            ]
-          });
-
-          const rawText = modernizationResponse.content[0].text;
-          const cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-          const refactored = JSON.parse(cleanText);
-
-          return {
-            ...section,
-            html: refactored.html,
-            css: refactored.css
-          };
-        } catch (e) {
-          console.error(`Failed to modernize section ${section.name}:`, e);
-          return section; // Fallback to raw if AI fails
-        }
-      })
-    );
+    // Extract using the tag helper
+    const result = {
+      checklist: (extractTagContent(responseText, 'CHECKLIST') || "").split('\n').filter(l => l.trim()).map(l => l.replace(/^- /, '')),
+      message: extractTagContent(responseText, 'MESSAGE') || "Website modernized successfully.",
+      html: extractTagContent(responseText, 'HTML') || "<div>Error parsing HTML</div>",
+      css: extractTagContent(responseText, 'CSS') || `
+        /* Fallback Modern Base */
+        :root { --primary: #764ba2; --bg: #0f172a; --text: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 2rem; }
+        nav { display: flex; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
+        a { color: #38bdf8; text-decoration: none; }
+        .hero { text-align: center; padding: 4rem 0; }
+        img { max-width: 100%; border-radius: 0; }
+      `.trim(),
+      javascript: extractTagContent(responseText, 'JAVASCRIPT') || ""
+    };
 
     res.json({
       url,
-      sections: modernizedSections,
-      message: `Modernized and extracted ${modernizedSections.length} sections`
+      checklist: result.checklist,
+      message: result.message,
+      usage: aiResponse.usage, // Added usage stats for tracking
+      sections: [{
+        name: "Modernized Website",
+        description: "A complete reconstruction based on your selected items",
+        html: result.html,
+        css: result.css,
+        javascript: result.javascript
+      }]
     });
 
   } catch (err) {
-    if (browser) await browser.close();
     console.error("❌ Error dissecting website:", err);
     res.status(500).json({
       error: "Failed to dissect website",
@@ -878,21 +939,34 @@ CSS extra rule!!!(follow strictly):
 
 // XML-tag based extractor — works even if AI response is truncated
 const extractTagContent = (text, tag) => {
-  const openTag = `<${tag}>`;
-  const closeTag = `</${tag}>`;
-  const start = text.indexOf(openTag);
-  if (start === -1) return null;
-  const contentStart = start + openTag.length;
-  const end = text.indexOf(closeTag, contentStart);
+  const openTagRegex = new RegExp(`<${tag}>`, 'i');
+  const closeTagRegex = new RegExp(`</${tag}>`, 'i');
+
+  const openMatch = text.match(openTagRegex);
+  if (!openMatch) return null;
+
+  const contentStart = openMatch.index + openMatch[0].length;
+  const closeMatch = text.match(closeTagRegex);
+
   // If no closing tag, return whatever was generated so far (handles truncation)
-  return end === -1
+  return !closeMatch
     ? text.substring(contentStart).trim()
-    : text.substring(contentStart, end).trim();
+    : text.substring(contentStart, closeMatch.index).trim();
 };
 
-const MODERNIZE_DIRECT_SYSTEM_PROMPT = `You are a senior frontend engineer. Modernize a website screenshot into a modern, premium design.
+const MODERNIZE_DIRECT_SYSTEM_PROMPT = `You are a senior frontend engineer. 
 
-RULES:
+Modernize a website screenshot into a modern, premium design.
+
+Steps:
+  1. Analyze the screenshot and identify the main sections (Navbar, Hero, etc.)
+  2. Extract the content from each section, you must know what is the essential content of each section
+  3. Refactor the content into clean, professional, modern HTML (NO NEED TO USE SAME STRUCTURE AS THE SCREENSHOT)
+  4. Apply the user's specified theme and color palette
+  5. Carefully check if all essential content is included in the refactored HTML
+  6. If not, add the missing content to the refactored HTML
+
+  RULES:
 1. Include <!-- SECTION: Name --> comments in HTML to mark each section (Navbar, Hero, etc.)
 2. Use the user's specified theme and color palette
 3. Premium aesthetic: glassmorphism, excellent typography, smooth gradients
@@ -1046,22 +1120,14 @@ app.post("/api/screenshot-website-file", async (req, res) => {
 
 
     const page = await browser.newPage();
-
-    // 👇 1️⃣ Set user agent FIRST
     await page.setUserAgent(
       'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 ' +
       '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     );
-
-    // 👇 2️⃣ Set headers BEFORE navigation
     await page.setExtraHTTPHeaders({
       'accept-language': 'en-US,en;q=0.9'
     });
-
-    // 👇 3️⃣ Set viewport BEFORE navigation
     await page.setViewport({ width: 1920, height: 1080 });
-
-    // 👇 3.5 Enable request interception to block junk that fails anyway
     await page.setRequestInterception(true);
     page.on('request', (request) => {
       const url = request.url();
@@ -1079,7 +1145,6 @@ app.post("/api/screenshot-website-file", async (req, res) => {
       console.log('Resource Failed:', req.url(), req.failure());
     });
 
-    // 👇 4️⃣ NOW navigate
     try {
       await page.goto(url, {
         waitUntil: 'networkidle2', // Wait for most network activity to stop
@@ -1107,11 +1172,24 @@ app.post("/api/screenshot-website-file", async (req, res) => {
       fs.mkdirSync(dir, { recursive: true });
     }
 
+    // Check page height and cap it to prevent Anthropic API errors (8000px limit)
+    const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+    const MAX_HEIGHT = 7500; // Leaving some buffer
+
     // Save screenshot to file
-    await page.screenshot({
-      path: filepath,
-      fullPage: true
-    });
+    if (pageHeight > MAX_HEIGHT) {
+      console.log(`📏 Page height (${pageHeight}px) exceeds limit. Capping at ${MAX_HEIGHT}px.`);
+      await page.setViewport({ width: 1920, height: MAX_HEIGHT });
+      await page.screenshot({
+        path: filepath,
+        fullPage: false // Take only the viewport since we set it to MAX_HEIGHT
+      });
+    } else {
+      await page.screenshot({
+        path: filepath,
+        fullPage: true
+      });
+    }
 
     await browser.close();
 
@@ -1125,8 +1203,99 @@ app.post("/api/screenshot-website-file", async (req, res) => {
 
   } catch (err) {
     if (browser) await browser.close();
-    console.error("❌ Error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("❌ Screenshot Error:", err);
+    res.status(500).json({ error: "Failed to take screenshot", details: err.message });
+  }
+});
+
+app.post("/api/scrape-images", async (req, res) => {
+  let browser;
+  try {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ error: "URL is required" });
+
+    console.log(`🕵️ Scraping images from: ${url}`);
+
+    browser = await puppeteer.launch({
+      headless: "new",
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    await page.setViewport({ width: 1280, height: 800 });
+
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+
+    // Scroll to bottom to trigger lazy loading
+    await page.evaluate(async () => {
+      await new Promise((resolve) => {
+        let totalHeight = 0;
+        let distance = 100;
+        let timer = setInterval(() => {
+          let scrollHeight = document.body.scrollHeight;
+          window.scrollBy(0, distance);
+          totalHeight += distance;
+          if (totalHeight >= scrollHeight) {
+            clearInterval(timer);
+            resolve();
+          }
+        }, 100);
+      });
+    });
+
+    const images = await page.evaluate((baseUrl) => {
+      const imgElements = Array.from(document.querySelectorAll('img, [style*="background-image"], source'));
+      const urls = new Set();
+      imgElements.forEach(el => {
+        let src = '';
+        if (el.tagName === 'IMG') {
+          src = el.src || el.dataset.src || el.dataset.lazySrc;
+        } else if (el.tagName === 'SOURCE') {
+          src = el.srcset ? el.srcset.split(' ')[0] : (el.src || '');
+        } else {
+          const bg = window.getComputedStyle(el).backgroundImage;
+          if (bg && bg !== 'none') {
+            const match = bg.match(/url\(['"]?(.*?)['"]?\)/);
+            if (match) src = match[1];
+          }
+        }
+        if (src && !src.startsWith('data:')) {
+          try { urls.add(new URL(src, baseUrl).href); } catch (e) { }
+        }
+      });
+      return Array.from(urls);
+    }, url);
+
+    await browser.close();
+    res.json({ success: true, count: images.length, images });
+  } catch (err) {
+    if (browser) await browser.close();
+    console.error("❌ Scraping Error:", err);
+    res.status(500).json({ error: "Failed to scrape images", details: err.message });
+  }
+});
+
+// Proxy endpoint to bypass CORS when fetching images for canvas
+app.get("/api/proxy-image", async (req, res) => {
+  try {
+    const imageUrl = req.query.url;
+    if (!imageUrl) return res.status(400).send("No URL provided");
+
+    const response = await axios.get(imageUrl, {
+      responseType: 'arraybuffer',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
+
+    const contentType = response.headers['content-type'];
+    res.set('Content-Type', contentType);
+    res.set('Access-Control-Allow-Origin', '*');
+    res.send(response.data);
+  } catch (err) {
+    console.error("❌ Proxy Error:", err.message);
+    res.status(500).send("Failed to fetch image");
   }
 });
 

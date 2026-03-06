@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Morph Pro | Ultimate Multi-Format Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #a855f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--text-dim);
+            padding: 0.6rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .config-section h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .format-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .chip {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .chip input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .chip-label {
+            display: block;
+            padding: 0.5rem 1.25rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 99px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: var(--text-dim);
+        }
+
+        .chip input:checked+.chip-label {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .upload-section {
+            display: none;
+        }
+
+        .upload-section.active {
+            display: block;
+        }
+
+        .upload-section-inner {
+            border: 2px dashed var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .upload-section-inner:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-section-inner.dragover {
+            border-color: var(--accent);
+            background: rgba(168, 85, 247, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        #folder-input {
+            display: none;
+        }
+
+        .scraper-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .scraper-section.active {
+            display: block;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .url-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .url-input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.85rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: var(--glass);
+            border-color: var(--text-dim);
+        }
+
+        .processing-list {
+            margin-top: 2rem;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .processing-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .processing-list::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 10px;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            border: 1px solid transparent;
+        }
+
+        .file-item.success {
+            border-color: #22c55e22;
+        }
+
+        .file-item.error {
+            border-color: #ef444422;
+        }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            background: var(--glass);
+            font-weight: 600;
+        }
+
+        .status-badge.pending {
+            color: var(--text-dim);
+        }
+
+        .status-badge.working {
+            color: var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-badge.done {
+            color: #22c55e;
+            background: #22c55e11;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .controls {
+            margin-top: 2rem;
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: var(--glass);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s ease;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 640px) {
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Image Morph Pro</h1>
+            <p class="subtitle">Ultimate Multi-Format Batch Converter</p>
+        </header>
+
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="switchTab('local')">Local Folder</button>
+            <button class="tab-btn" onclick="switchTab('web')">Web Scraper</button>
+        </div>
+
+        <div class="config-grid" id="config-grid">
+            <div class="config-section">
+                <h3><span>📥</span> Select Inputs</h3>
+                <div class="format-options">
+                    <label class="chip"><input type="checkbox" class="input-fmt" value="jpg" checked><span
+                            class="chip-label">JPG</span></label>
+                    <label class="chip"><input type="checkbox" class="input-fmt" value="png" checked><span
+                            class="chip-label">PNG</span></label>
+                    <label class="chip"><input type="checkbox" class="input-fmt" value="webp"><span
+                            class="chip-label">WebP</span></label>
+                    <label class="chip"><input type="checkbox" class="input-fmt" value="avif"><span
+                            class="chip-label">AVIF</span></label>
+                </div>
+            </div>
+            <div class="config-section">
+                <h3><span>📤</span> Select Outputs</h3>
+                <div class="format-options">
+                    <label class="chip"><input type="checkbox" class="output-fmt" value="webp" checked><span
+                            class="chip-label">WebP</span></label>
+                    <label class="chip"><input type="checkbox" class="output-fmt" value="avif"><span
+                            class="chip-label">AVIF</span></label>
+                    <label class="chip"><input type="checkbox" class="output-fmt" value="png"><span
+                            class="chip-label">PNG</span></label>
+                    <label class="chip"><input type="checkbox" class="output-fmt" value="jpg"><span
+                            class="chip-label">JPG</span></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section active" id="local-section">
+            <div class="upload-section-inner" id="drop-zone" onclick="document.getElementById('folder-input').click()">
+                <span class="upload-icon">📁</span>
+                <div class="label">
+                    <p style="font-size: 1.1rem; font-weight: 500; margin-bottom: 0.5rem;">Click to select a folder</p>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">Processes chosen formats into organized
+                        subfolders</p>
+                </div>
+            </div>
+            <input type="file" id="folder-input" webkitdirectory directory multiple>
+        </div>
+
+        <div class="scraper-section" id="web-section">
+            <p style="margin-bottom: 1.5rem; color: var(--text-dim);">Enter a website URL to extract all images for
+                conversion</p>
+            <div class="url-input-group">
+                <input type="url" id="web-url" class="url-input" placeholder="https://example.com" value="https://">
+                <button class="btn" id="scrape-btn">Fetch Images</button>
+            </div>
+            <p id="scrape-status" style="margin-top: 1rem; font-size: 0.85rem; color: var(--primary);"></p>
+        </div>
+
+        <div class="controls" id="controls">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="stats">
+                <span id="progress-text">Ready to transform...</span>
+                <span id="file-count">0 files</span>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn" id="start-btn">Start Batch Conversion</button>
+                <button class="btn btn-outline" id="download-btn" disabled>Download Package (.zip)</button>
+                <button class="btn btn-outline" id="reset-btn">Reset</button>
+            </div>
+        </div>
+
+        <div class="processing-list" id="processing-list"></div>
+
+        <footer>
+            Precision Morphing &bull; Hyper-Fast Browser Processing
+        </footer>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const folderInput = document.getElementById('folder-input');
+        const controls = document.getElementById('controls');
+        const startBtn = document.getElementById('start-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const processingList = document.getElementById('processing-list');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const fileCountText = document.getElementById('file-count');
+        const configGrid = document.getElementById('config-grid');
+        const scrapeBtn = document.getElementById('scrape-btn');
+        const webUrlInput = document.getElementById('web-url');
+        const scrapeStatus = document.getElementById('scrape-status');
+
+        let selectedFiles = [];
+        let zip = new JSZip();
+        const API_BASE = "http://localhost:3009/api";
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.upload-section, .scraper-section').forEach(s => s.classList.remove('active'));
+
+            if (tab === 'local') {
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('local-section').classList.add('active');
+            } else {
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+                document.getElementById('web-section').classList.add('active');
+            }
+        }
+
+        // Helper to get selected formats
+        const getSelectedFormats = (selector) => {
+            return Array.from(document.querySelectorAll(selector))
+                .filter(i => i.checked)
+                .map(i => i.value);
+        };
+
+        // File handling
+        const handleFiles = (files) => {
+            const allowedInputs = getSelectedFormats('.input-fmt');
+            const filtered = Array.from(files).filter(f => {
+                const ext = f.name.split('.').pop().toLowerCase();
+                return allowedInputs.includes(ext) || (ext === 'jpeg' && allowedInputs.includes('jpg'));
+            });
+
+            if (filtered.length === 0) {
+                alert('No files matching selected input formats found.');
+                return;
+            }
+
+            setupProcessing(filtered);
+        };
+
+        const setupProcessing = (files) => {
+            selectedFiles = files;
+            zip = new JSZip();
+
+            document.getElementById('local-section').style.display = 'none';
+            document.getElementById('web-section').style.display = 'none';
+            document.querySelector('.tabs-header').style.display = 'none';
+            configGrid.style.opacity = '0.5';
+            configGrid.style.pointerEvents = 'none';
+
+            controls.style.display = 'flex';
+            processingList.style.display = 'block';
+            fileCountText.innerText = `${files.length} matching files`;
+
+            processingList.innerHTML = '';
+            files.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.id = `file-${index}`;
+                item.innerHTML = `<span>${file.name}</span><span class="status-badge pending">Waiting</span>`;
+                processingList.appendChild(item);
+            });
+
+            downloadBtn.disabled = true;
+            startBtn.disabled = false;
+        };
+
+        // Scraper logic
+        scrapeBtn.addEventListener('click', async () => {
+            const url = webUrlInput.value.trim();
+            if (!url || url === 'https://') return alert('Please enter a valid URL');
+
+            scrapeBtn.disabled = true;
+            scrapeStatus.innerText = "🕵️ Launching Puppeteer... this may take a few seconds";
+
+            try {
+                const response = await fetch(`${API_BASE}/scrape-images`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const result = await response.json();
+                if (result.error) throw new Error(result.error);
+
+                scrapeStatus.innerText = `✅ Found ${result.images.length} images! Preparing conversion...`;
+
+                // Convert URLs to pseudo-file objects
+                const files = result.images.map((imgUrl, i) => {
+                    const name = imgUrl.split('/').pop().split('?')[0] || `web_image_${i}.jpg`;
+                    return {
+                        name: name.includes('.') ? name : `${name}.jpg`,
+                        url: imgUrl,
+                        isRemote: true
+                    };
+                });
+
+                setupProcessing(files);
+
+            } catch (err) {
+                alert(`Error scraping: ${err.message}`);
+                scrapeStatus.innerText = "";
+            } finally {
+                scrapeBtn.disabled = false;
+            }
+        });
+
+        // UI Events
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+        folderInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        resetBtn.addEventListener('click', () => {
+            location.reload(); // Simplest way to reset all states correctly
+        });
+
+        startBtn.addEventListener('click', async () => {
+            const outputs = getSelectedFormats('.output-fmt');
+            if (outputs.length === 0) {
+                alert('Please select at least one output format.');
+                return;
+            }
+
+            startBtn.disabled = true;
+            const folders = {};
+            outputs.forEach(fmt => folders[fmt] = zip.folder(fmt));
+
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const item = document.getElementById(`file-${i}`);
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                item.querySelector('.status-badge').innerText = 'Morphing...';
+                item.querySelector('.status-badge').className = 'status-badge working';
+
+                try {
+                    const canvas = await fileToCanvas(file);
+                    const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+
+                    for (const fmt of outputs) {
+                        const mime = fmt === 'jpg' ? 'image/jpeg' : `image/${fmt}`;
+                        const blob = await canvasToBlob(canvas, mime, 0.85);
+                        folders[fmt].file(`${baseName}.${fmt}`, blob);
+                    }
+
+                    item.querySelector('.status-badge').innerText = 'Complete';
+                    item.querySelector('.status-badge').className = 'status-badge done';
+                    item.classList.add('success');
+                } catch (err) {
+                    console.error(err);
+                    item.querySelector('.status-badge').innerText = 'Fail';
+                    item.querySelector('.status-badge').className = 'status-badge error';
+                    item.classList.add('error');
+                }
+
+                const percent = Math.round(((i + 1) / selectedFiles.length) * 100);
+                progressBar.style.width = `${percent}%`;
+                progressText.innerText = `Processing: ${percent}%`;
+            }
+
+            progressText.innerText = 'Transformation Finished!';
+            downloadBtn.disabled = false;
+        });
+
+        // Core conversion logic
+        async function fileToCanvas(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d', { alpha: true });
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas);
+                    if (file.isRemote) {
+                        // Clean up if needed
+                    } else {
+                        URL.revokeObjectURL(img.src);
+                    }
+                };
+                img.onerror = () => reject('Load Error');
+
+                if (file.isRemote) {
+                    // Use the proxy to avoid CORS
+                    img.src = `${API_BASE}/proxy-image?url=${encodeURIComponent(file.url)}`;
+                } else {
+                    img.src = URL.createObjectURL(file);
+                }
+            });
+        }
+
+        async function canvasToBlob(canvas, type, quality = 1) {
+            return new Promise((resolve) => canvas.toBlob(b => resolve(b), type, quality));
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            zip.generateAsync({ type: "blob" }).then(c => saveAs(c, "morphed_assets.zip"));
+        });
+    </script>
+</body>
+
+</html>

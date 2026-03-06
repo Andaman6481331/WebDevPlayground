@@ -135,6 +135,15 @@ export function resolveContext(intent, currentCode) {
         console.log(`📈 Strategy elevated: simple → medium (layout-sensitive action: ${action})`);
     }
 
+    // Strategy Elevation: upgrade to 'full' when no specific element was found.
+    // Fragment merges on 'body' selector ALWAYS fail because the code editor
+    // stores body content only (no <body> tags), so mergeHTMLFragment can't 
+    // find the target element and just appends, producing broken output.
+    if (resolvedBy === 'absolute-fallback' && finalStrategy !== 'full') {
+        console.log(`📈 Strategy elevated: ${finalStrategy} → full (absolute-fallback: no specific element to merge into)`);
+        finalStrategy = 'full';
+    }
+
     // Extract surrounding context
     const surroundingHTML = extractSurroundingHTML(html, resolved.selector);
     const surroundingCSS = extractSurroundingCSS(css, resolved.selector, resolved.matchedTag);

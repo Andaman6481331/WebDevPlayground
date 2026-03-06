@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* ============================================
+   OKretails - Category Section
+   ============================================ */
+
+        /* ===== Section Wrapper ===== */
+        .okretails-category-section {
+            width: 100%;
+            padding: 80px 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ===== Container ===== */
+        .okretails-category-container {
+            width: 100%;
+            max-width: 1440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ===== Section Header ===== */
+        .okretails-category-header {
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 900px;
+        }
+
+        .okretails-category-title {
+            font-size: 40px;
+            font-weight: 700;
+            color: #000;
+            margin: 0 0 16px;
+        }
+
+        .okretails-category-subtitle {
+            font-size: 20px;
+            font-weight: 500;
+            color: #505050;
+            margin: 0;
+        }
+
+        /* ===== Grid Layout: 2 rows × 3 columns ===== */
+        .okretails-category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            justify-content: space-between;
+            row-gap: 46px;
+            column-gap: 20px;
+        }
+
+        /* ===== Card ===== */
+        .okretails-category-card {
+            width: 387px;
+            min-height: 377px;
+            position: relative;
+            border-radius: 12px;
+            overflow: visible;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            background: #F4F4F4;
+            border: 1px #F8F8F8 solid;
+        }
+
+        /* ===== Badge (คลิกดู) — top-right corner via CSS pseudo-element ===== */
+        .okretails-category-card::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: 15px;
+            width: 100px;
+            height: 100px;
+            z-index: 10;
+            background-image: image-set(url('https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a509744b44432392c7ebb0.avif') type('image/avif'),
+                    url('https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a509744b44432392c7ebb0.webp') type('image/webp'),
+                    url('https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a509744b44432392c7ebb0.png') type('image/png'));
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+        }
+
+        /* ===== Image Section ===== */
+        .okretails-category-card-image {
+            width: 100%;
+            height: 268px;
+            overflow: hidden;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .okretails-category-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ===== Info Section (bottom) ===== */
+        .okretails-category-card-info {
+            background: #F4F4F4;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .okretails-category-card:hover .okretails-category-card-info {
+            background-color: #224093
+        }
+
+        /* ===== Card Text ===== */
+        .okretails-category-card-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .okretails-category-card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #000;
+            margin: 0 0 4px;
+        }
+
+        .okretails-category-card:hover .okretails-category-card-title {
+            color: #FFFFFF;
+        }
+
+        .okretails-category-card-desc {
+            font-size: 17px;
+            font-weight: 400;
+            color: #505050;
+            margin: 0;
+        }
+
+        .okretails-category-card:hover .okretails-category-card-desc {
+            color: #FFFFFF;
+        }
+
+        /* ===== Arrow Icon (right side) via CSS pseudo-element ===== */
+        .okretails-category-card-info::after {
+            content: '';
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            background-image: image-set(url('https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/20/69981217f44455a487a29588.avif') type('image/avif'),
+                    url('https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/20/69981217f44455a487a29588.webp') type('image/webp'),
+                    url('https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/20/69981217f44455a487a29588.png') type('image/png'));
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* ============================================
+   Responsive
+   ============================================ */
+
+        /* Tablet: 2 columns */
+        @media (max-width: 1240px) {
+            .okretails-category-grid {
+                grid-template-columns: repeat(2, 387px);
+            }
+        }
+
+        /* Mobile: 1 column, full width */
+        @media (max-width: 840px) {
+            .okretails-category-section {
+                padding: 60px 30px;
+            }
+
+            .okretails-category-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .okretails-category-card {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .okretails-category-card-image {
+                height: 220px;
+            }
+
+            .okretails-category-card::before {
+                width: 80px;
+                height: 80px;
+                top: -10px;
+                right: -10px;
+            }
+
+            .okretails-category-title {
+                font-size: 28px;
+            }
+
+            /* ลดขนาด hover font บน mobile */
+            .okretails-category-card:hover .okretails-category-card-title {
+                font-size: 24px;
+            }
+
+            .okretails-category-card:hover .okretails-category-card-desc {
+                font-size: 18px;
+            }
+        }
+    </style>
+    <section class="okretails-category-section">
+        <div class="okretails-category-container"><!-- ===== Section Header ===== -->
+            <div class="okretails-category-header">
+                <h2 class="okretails-category-title">หมวดหมู่สินค้า</h2>
+                <p class="okretails-category-subtitle">เลือกชมหมวดหมู่สินค้าและอุปกรณ์สำหรับร้านค้าปลีกครบวงจรจาก Ok
+                    retails ทั้งชั้นวางสินค้ามินิมาร์ท เคาน์เตอร์แคชเชียร์ ตู้โชว์สินค้า และอุปกรณ์เสริมคุณภาพสูง</p>
+            </div>
+            <!-- ===== Category Grid: 2 rows × 3 columns ===== -->
+            <div class="okretails-category-grid"><!-- Card 1: ชั้นวางสินค้า --><a class="okretails-category-card"
+                    href="../../okretails-shelves">
+                    <div class="okretails-category-card-image">
+                        <picture>
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50be64b44432392c7ebc8.avif"
+                                type="image/avif">
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50be64b44432392c7ebc8.webp"
+                                type="image/webp"> <img
+                                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50be64b44432392c7ebc8.png"
+                                alt="ชั้นวางสินค้า" loading="lazy">
+                        </picture>
+                    </div>
+                    <div class="okretails-category-card-info">
+                        <div class="okretails-category-card-text">
+                            <p class="okretails-category-card-title">ชั้นวางสินค้า</p>
+                            <p class="okretails-category-card-desc">จัดวางสินค้าได้เป็นระบบ แข็งแรง</p>
+                        </div>
+                    </div>
+                </a><!-- Card 2: อุปกรณ์เสริมชั้นวางสินค้า --><a class="okretails-category-card"
+                    href="../../accessories">
+                    <div class="okretails-category-card-image">
+                        <picture>
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a509f94b44432392c7ebb4.avif"
+                                type="image/avif">
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a509f94b44432392c7ebb4.webp"
+                                type="image/webp"> <img
+                                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a509f94b44432392c7ebb4.png"
+                                alt="อุปกรณ์เสริมชั้นวางสินค้า" loading="lazy">
+                        </picture>
+                    </div>
+                    <div class="okretails-category-card-info">
+                        <div class="okretails-category-card-text">
+                            <p class="okretails-category-card-title">อุปกรณ์เสริมชั้นวางสินค้า</p>
+                            <p class="okretails-category-card-desc">เพิ่มฟังก์ชั่นในการใช้งานให้ชั้นวาง</p>
+                        </div>
+                    </div>
+                </a><!-- Card 3: สินค้าเฉพาะอย่าง --><a class="okretails-category-card" href="../../special-products">
+                    <div class="okretails-category-card-image">
+                        <picture>
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50ace4b44432392c7ebb8.avif"
+                                type="image/avif">
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50ace4b44432392c7ebb8.webp"
+                                type="image/webp"> <img
+                                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50ace4b44432392c7ebb8.png"
+                                alt="สินค้าเฉพาะอย่าง" loading="lazy">
+                        </picture>
+                    </div>
+                    <div class="okretails-category-card-info">
+                        <div class="okretails-category-card-text">
+                            <p class="okretails-category-card-title">สินค้าเฉพาะอย่าง</p>
+                            <p class="okretails-category-card-desc">ตอบโจทย์การใช้งานเฉพาะทาง</p>
+                        </div>
+                    </div>
+                </a><!-- Card 4: ตู้โชว์กระจก --><a class="okretails-category-card" href="../../display-cabinets">
+                    <div class="okretails-category-card-image">
+                        <picture>
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50ad74b44432392c7ebbc.avif"
+                                type="image/avif">
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50ad74b44432392c7ebbc.webp"
+                                type="image/webp"> <img
+                                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50ad74b44432392c7ebbc.png"
+                                alt="ตู้โชว์กระจก" loading="lazy">
+                        </picture>
+                    </div>
+                    <div class="okretails-category-card-info">
+                        <div class="okretails-category-card-text">
+                            <p class="okretails-category-card-title">ตู้โชว์กระจก</p>
+                            <p class="okretails-category-card-desc">โชว์สินค้าอย่างเป็นระเบียบและปลอดภัย</p>
+                        </div>
+                    </div>
+                </a><!-- Card 5: เฟอร์นิเจอร์ค้าปลีก --><a class="okretails-category-card"
+                    href="../../retail-furniture">
+                    <div class="okretails-category-card-image">
+                        <picture>
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50bb74b44432392c7ebc4.avif"
+                                type="image/avif">
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50bb74b44432392c7ebc4.webp"
+                                type="image/webp"> <img
+                                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50bb74b44432392c7ebc4.png"
+                                alt="เฟอร์นิเจอร์ค้าปลีก" loading="lazy">
+                        </picture>
+                    </div>
+                    <div class="okretails-category-card-info">
+                        <div class="okretails-category-card-text">
+                            <p class="okretails-category-card-title">เฟอร์นิเจอร์ค้าปลีก</p>
+                            <p class="okretails-category-card-desc">ออกแบบพื้นที่ร้านให้ใช้งานได้จริง แข็งแรง</p>
+                        </div>
+                    </div>
+                </a><!-- Card 6: ชั้นโฆษณาสินค้า --><a class="okretails-category-card" href="../../advertising-shelves">
+                    <div class="okretails-category-card-image">
+                        <picture>
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50b144b44432392c7ebc0.avif"
+                                type="image/avif">
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50b144b44432392c7ebc0.webp"
+                                type="image/webp"> <img
+                                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/2/69a50b144b44432392c7ebc0.png"
+                                alt="ชั้นโฆษณาสินค้า" loading="lazy">
+                        </picture>
+                    </div>
+                    <div class="okretails-category-card-info">
+                        <div class="okretails-category-card-text">
+                            <p class="okretails-category-card-title">ชั้นโฆษณาสินค้า</p>
+                            <p class="okretails-category-card-desc">ดึงสายตา เพิ่มโอกาสขาย แข็งแรง</p>
+                        </div>
+                    </div>
+                </a></div>
+        </div>
+    </section>
+    <style>
+        /* ============================================
+   OKretails - Services Section
+   ============================================ */
+
+        /* ===== Section Wrapper ===== */
+        .okretails-services-section {
+            width: 100%;
+            padding: 80px 20px;
+            background-color: #224093;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            display: flex;
+            justify-content: center;
+        }
+
+        .okretails-services-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        /* ===== Header Row ===== */
+        .okretails-services-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 24px;
+        }
+
+        .okretails-services-header-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .okretails-services-title {
+            color: #FFFFFF;
+            font-size: 40px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .okretails-services-subtitle {
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        /* ===== CTA Button ===== */
+        .okretails-services-cta {
+            flex-shrink: 0;
+            height: 54px;
+            padding: 0 24px;
+            border-radius: 12px;
+            border: 1px solid #FFFFFF;
+            background: transparent;
+            color: #FFFFFF;
+            font-size: 18px;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .okretails-services-cta:hover {
+            background-color: #FFFFFF;
+            color: #F58620;
+        }
+
+        /* ===== Grid: 4 columns ===== */
+        .okretails-services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 17px;
+        }
+
+        /* ===== Service Card ===== */
+        .okretails-services-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 40px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            box-shadow:
+                0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+                0px 1px 2px rgba(0, 0, 0, 0.30);
+        }
+
+        /* ===== Card Icon ===== */
+        .okretails-services-card-icon {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+
+        .okretails-services-card-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ===== Card Text ===== */
+        .okretails-services-card-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .okretails-services-card-title {
+            color: #000000;
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 30px;
+            margin: 0;
+        }
+
+        .okretails-services-card-desc {
+            color: #000000;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 22px;
+            margin: 0;
+        }
+
+        /* ============================================
+   Responsive
+   ============================================ */
+
+        /* Tablet: 2 columns */
+        @media (max-width: 1024px) {
+            .okretails-services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .okretails-services-title {
+                font-size: 32px;
+            }
+        }
+
+        /* Mobile: 1 column */
+        @media (max-width: 640px) {
+            .okretails-services-section {
+                padding: 60px 30px;
+            }
+
+            .okretails-services-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .okretails-services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .okretails-services-title {
+                font-size: 28px;
+            }
+
+            .okretails-services-cta {
+                align-self: flex-start;
+            }
+        }
+    </style>
+    <section class="okretails-services-section">
+        <div class="okretails-services-container"><!-- ===== Header ===== -->
+            <div class="okretails-services-header">
+                <div class="okretails-services-header-text">
+                    <h2 class="okretails-services-title">บริการและความเชี่ยวชาญ</h2>
+                    <p class="okretails-services-subtitle">บริการครบวงจรจาก OKretails ตั้งแต่การออกแบบ จัดวาง
+                        จนถึงติดตั้งอุปกรณ์ร้านค้า เพื่อการใช้งานที่ลงตัว</p>
+                </div>
+                <a class="okretails-services-cta" href="#contact">คุยกับผู้เชี่ยวชาญ</a>
+            </div>
+            <!-- ===== Service Cards Grid: 4 columns ===== -->
+            <div class="okretails-services-grid"><!-- Card 1: รับผลิตตามแบบ -->
+                <div class="okretails-services-card">
+                    <div class="okretails-services-card-icon">
+                        <picture>
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf5cff44455a487a295ac.avif"
+                                type="image/avif">
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf5cff44455a487a295ac.webp"
+                                type="image/webp"> <img
+                                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf5cff44455a487a295ac.png"
+                                alt="รับผลิตตามแบบ" loading="lazy">
+                        </picture>
+                    </div>
+                    <div class="okretails-services-card-text">
+                        <p class="okretails-services-card-title">รับผลิตตามแบบ</p>
+                        <p class="okretails-services-card-desc">ผลิตตามสเปกและการใช้งานจริง<br>ของร้านค้า</p>
+                    </div>
+                </div>
+                <!-- Card 2: ออกแบบตามแบบร้านค้า -->
+                <div class="okretails-services-card">
+                    <div class="okretails-services-card-icon"><img
+                            src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf61df44455a487a295b0.png"
+                            alt="ออกแบบตามแบบร้านค้า" loading="lazy"></div>
+                    <div class="okretails-services-card-text">
+                        <p class="okretails-services-card-title">ออกแบบตามแบบร้านค้า</p>
+                        <p class="okretails-services-card-desc">ออกแบบให้เหมาะกับพื้นที่<br>และรูปแบบร้าน</p>
+                    </div>
+                </div>
+                <!-- Card 3: ลงพื้นที่วัดหน้างานจริง -->
+                <div class="okretails-services-card">
+                    <div class="okretails-services-card-icon">
+                        <picture>
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf668f44455a487a295b4.avif"
+                                type="image/avif">
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf668f44455a487a295b4.webp"
+                                type="image/webp"> <img
+                                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf668f44455a487a295b4.png"
+                                alt="ลงพื้นที่วัดหน้างานจริง" loading="lazy">
+                        </picture>
+                    </div>
+                    <div class="okretails-services-card-text">
+                        <p class="okretails-services-card-title">ลงพื้นที่วัดหน้างานจริง</p>
+                        <p class="okretails-services-card-desc">เก็บขนาดหน้างาน<br>เพื่อความแม่นยำในการผลิต</p>
+                    </div>
+                </div>
+                <!-- Card 4: ทีมงานผู้เชี่ยวชาญ -->
+                <div class="okretails-services-card">
+                    <div class="okretails-services-card-icon">
+                        <picture>
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf69af44455a487a295b8.avif"
+                                type="image/avif">
+                            <source
+                                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf69af44455a487a295b8.webp"
+                                type="image/webp"> <img
+                                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699bf69af44455a487a295b8.png"
+                                alt="ทีมงานผู้เชี่ยวชาญ" loading="lazy">
+                        </picture>
+                    </div>
+                    <div class="okretails-services-card-text">
+                        <p class="okretails-services-card-title">ทีมงานผู้เชี่ยวชาญ</p>
+                        <p class="okretails-services-card-desc">ให้คำปรึกษา<br>ด้านระบบร้านค้าโดยตรง</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <style>
+        /* ============================================
+   OKretails - Banner Section
+   ============================================ */
+
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
+
+        /* ===== Section Wrapper ===== */
+        .okretails-banner-section {
+            width: 100%;
+            position: relative;
+            overflow: visible;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+        }
+
+        /* ===== Background Image ===== */
+        .okretails-banner-background {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .okretails-banner-background img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ===== Inner Container ===== */
+        .okretails-banner-inner {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            min-height: 456px;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        /* ===== Product Left ===== */
+        .okretails-banner-product-left {
+            width: 456px;
+            position: absolute;
+            left: 0;
+            top: 60px;
+            z-index: 1;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .okretails-banner-product-left picture {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .okretails-banner-product-left img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ===== Product Right ===== */
+        .okretails-banner-product-right {
+            width: 456px;
+            position: absolute;
+            right: 0;
+            top: 80px;
+            z-index: 1;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .okretails-banner-product-right picture {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .okretails-banner-product-right img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ===== Center Content ===== */
+        .okretails-banner-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 100px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* ===== Logo ===== */
+        .okretails-banner-logo {
+            margin-bottom: 12px;
+        }
+
+        .okretails-banner-logo picture {
+            display: block;
+        }
+
+        .okretails-banner-logo img {
+            height: auto;
+            width: auto;
+            max-width: 120px;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* ===== Logo Label (มอก. number) ===== */
+        .okretails-banner-logo-label {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            margin: 0 0 8px;
+        }
+
+        /* ===== Text Block ===== */
+        .okretails-banner-text {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .okretails-banner-text-sub {
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .okretails-banner-text-main {
+            color: #FFFFFF;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* ===== Divider Info ===== */
+        .okretails-banner-info {
+            padding-top: 16px;
+            border-top: 1px solid #224093;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            font-weight: 400;
+            margin-bottom: 16px;
+        }
+
+        .okretails-banner-info-text {
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        /* ===== QR Buttons — overlap bottom edge ===== */
+        .okretails-banner-qr {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            transform: translateY(50%);
+        }
+
+        .okretails-banner-qr picture {
+            display: block;
+        }
+
+        .okretails-banner-qr img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ============================================
+   Responsive
+   ============================================ */
+
+        @media (max-width: 1024px) {
+
+            .okretails-banner-product-left img,
+            .okretails-banner-product-right img {
+                height: 350px;
+            }
+
+            .okretails-banner-text-main {
+                font-size: 26px;
+            }
+
+            .okretails-banner-text-sub {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .okretails-banner-product-left,
+            .okretails-banner-product-right {
+                display: none;
+            }
+
+            .okretails-banner-content {
+                padding-top: 60px;
+                padding-left: 30px;
+                padding-right: 30px;
+            }
+
+            .okretails-banner-text-main {
+                font-size: 24px;
+            }
+
+            .okretails-banner-info {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+
+        /* ===== Banner Spacer ===== */
+        .okretails-banner-spacer {
+            width: 100%;
+            min-height: 197px;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+    <section class="okretails-banner-section"><!-- ===== Background ===== -->
+        <picture class="okretails-banner-background">
+            <source
+                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d744df44455a487a29600.avif"
+                type="image/avif">
+            <source
+                srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d744df44455a487a29600.webp"
+                type="image/webp"> <img
+                src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d744df44455a487a29600.png"
+                alt="OKretails Banner Background" loading="lazy">
+        </picture> <!-- ===== Inner Container (max 1460px) ===== -->
+        <div class="okretails-banner-inner"><!-- ===== Product Left ===== -->
+            <div class="okretails-banner-product-left">
+                <picture>
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d74def44455a487a29604.avif"
+                        type="image/avif">
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d74def44455a487a29604.webp"
+                        type="image/webp"> <img
+                        src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d74def44455a487a29604.png"
+                        alt="product left" loading="lazy">
+                </picture>
+            </div>
+            <!-- ===== Product Right ===== -->
+            <div class="okretails-banner-product-right">
+                <picture>
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d7518f44455a487a29608.avif"
+                        type="image/avif">
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d7518f44455a487a29608.webp"
+                        type="image/webp"> <img
+                        src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d7518f44455a487a29608.png"
+                        alt="product right" loading="lazy">
+                </picture>
+            </div>
+            <!-- ===== Center Content ===== -->
+            <div class="okretails-banner-content"><!-- Logo -->
+                <div class="okretails-banner-logo">
+                    <picture>
+                        <source
+                            srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d753bf44455a487a2960c.avif"
+                            type="image/avif">
+                        <source
+                            srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d753bf44455a487a2960c.webp"
+                            type="image/webp"> <img
+                            src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d753bf44455a487a2960c.png"
+                            alt="OKretails Logo" loading="lazy">
+                    </picture>
+                </div>
+                <p class="okretails-banner-logo-label">มอก. 1316-2562</p>
+                <!-- Text -->
+                <div class="okretails-banner-text">
+                    <p class="okretails-banner-text-sub">ชั้นโลหะวางของมาตรฐาน มอก.</p>
+                    <p class="okretails-banner-text-main">รายแรกในประเทศไทย</p>
+                </div>
+                <!-- Info -->
+                <div class="okretails-banner-info"><span class="okretails-banner-info-text">บ.แคนนอน บอล แมนูแฟคเจอริ่ง
+                        จก.</span> <span class="okretails-banner-info-text">โทร. 02 645 2841-3</span></div>
+                <!-- QR Buttons -->
+                <div class="okretails-banner-qr">
+                    <picture>
+                        <source
+                            srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d7569f44455a487a29610.avif"
+                            type="image/avif">
+                        <source
+                            srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d7569f44455a487a29610.webp"
+                            type="image/webp"> <img
+                            src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d7569f44455a487a29610.png"
+                            alt="OKretails QR" loading="lazy">
+                    </picture>
+                    <picture>
+                        <source
+                            srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d7593f44455a487a29614.avif"
+                            type="image/avif">
+                        <source
+                            srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d7593f44455a487a29614.webp"
+                            type="image/webp"> <img
+                            src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/24/699d7593f44455a487a29614.png"
+                            alt="OKretails QR" loading="lazy">
+                    </picture>
+                </div>
+            </div>
+        </div>
+    </section>
+    <style>
+        /* ============================================
+   OKretails - Gallery Section
+   ============================================ */
+
+        /* ===== Section Wrapper ===== */
+        .okretails-gallery-section {
+            margin-top: 240px;
+            width: 100%;
+            padding: 46px 120px;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            display: flex;
+            justify-content: center;
+        }
+
+        .okretails-gallery-container {
+            width: 100%;
+            max-width: 1238px;
+        }
+
+        /* ===== Grid: 3 columns × 2 rows ===== */
+        .okretails-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        /* ===== Gallery Card ===== */
+        .okretails-gallery-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0px 4px 40px rgba(0, 0, 0, 0.10);
+            aspect-ratio: 389 / 228;
+            display: block;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Background image */
+        .okretails-gallery-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Gradient overlay */
+        .okretails-gallery-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            background:
+                linear-gradient(219deg, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.3) 100%),
+                linear-gradient(235deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.80) 100%);
+            background-blend-mode: multiply, normal, normal;
+            pointer-events: none;
+        }
+
+        /* Catalog card variant — different gradient */
+        .okretails-gallery-card--catalog::after {
+            background:
+                linear-gradient(219deg, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.3) 100%),
+                linear-gradient(235deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.80) 100%);
+            background-blend-mode: multiply, normal, normal;
+        }
+
+        /* Card text label */
+        .okretails-gallery-card-label {
+            position: absolute;
+            top: 45%;
+            left: 10%;
+            z-index: 1;
+            color: #FFFFFF;
+            font-size: 32px;
+            font-family: 'Prompt', 'IBM Plex Sans Thai', sans-serif;
+            font-weight: 600;
+            line-height: 38px;
+            margin: 0;
+        }
+
+        /* Catalog floating image */
+        .okretails-gallery-card-float {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 55%;
+            height: auto;
+            z-index: 1;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* ============================================
+   Gallery Responsive
+   ============================================ */
+
+        @media (max-width: 1024px) {
+            .okretails-gallery-section {
+                padding: 40px 40px;
+                margin-top: 32px;
+            }
+
+            .okretails-gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .okretails-gallery-card-label {
+                font-size: 24px;
+                line-height: 30px;
+                left: 24px;
+                bottom: 18px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .okretails-gallery-section {
+                padding: 32px 30px;
+                margin-top: 16px;
+            }
+
+            .okretails-gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .okretails-gallery-card-label {
+                font-size: 22px;
+                line-height: 28px;
+            }
+        }
+    </style>
+</head>
+<!-- ============================================
+     OKretails - Gallery Section
+     ============================================ -->
+<section class="okretails-gallery-section">
+    <div class="okretails-gallery-container">
+        <div class="okretails-gallery-grid"><!-- Card 1: โปรโมชั่น --><a class="okretails-gallery-card"
+                href="/harvyrack-promotions">
+                <picture>
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c0ddef44455a487a295cc.avif"
+                        type="image/avif">
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c0ddef44455a487a295cc.webp"
+                        type="image/webp"> <img class="okretails-gallery-card-image"
+                        src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c0ddef44455a487a295cc.png"
+                        alt="โปรโมชัน" loading="lazy">
+                </picture>
+                <p class="okretails-gallery-card-label">โปรโมชัน</p>
+            </a><!-- Card 2: ผลงานของเรา --><a class="okretails-gallery-card" href="#">
+                <picture>
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c2267f44455a487a295d0.avif"
+                        type="image/avif">
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c2267f44455a487a295d0.webp"
+                        type="image/webp"> <img class="okretails-gallery-card-image"
+                        src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c2267f44455a487a295d0.png"
+                        alt="ผลงานของเรา" loading="lazy">
+                </picture>
+                <p class="okretails-gallery-card-label">ผลงานของเรา</p>
+            </a><!-- Card 3: แคตตาล็อคสินค้า --><a class="okretails-gallery-card okretails-gallery-card--catalog"
+                href="#">
+                <picture>
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c22f4f44455a487a295d4.avif"
+                        type="image/avif">
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c22f4f44455a487a295d4.webp"
+                        type="image/webp"> <img class="okretails-gallery-card-image"
+                        src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c22f4f44455a487a295d4.png"
+                        alt="แคตตาล็อคสินค้า" loading="lazy">
+                </picture>
+                <p class="okretails-gallery-card-label">แคตตาล็อค<br>สินค้า</p>
+                <picture>
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c23d8f44455a487a295d8.avif"
+                        type="image/avif">
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c23d8f44455a487a295d8.webp"
+                        type="image/webp"> <img class="okretails-gallery-card-float"
+                        src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c23d8f44455a487a295d8.png"
+                        alt="แคตตาล็อค" loading="lazy">
+                </picture>
+            </a><!--<a href="#" class="okretails-gallery-card okretails-gallery-card--catalog">
+        <img class="okretails-gallery-card-image" src="https://placehold.co/389x228" alt="แคตตาล็อคสินค้า">
+        <p class="okretails-gallery-card-label">แคตตาล็อค<br>สินค้า</p>
+        <img class="okretails-gallery-card-float" src="https://placehold.co/209x221" alt="แคตตาล็อค">
+      </a>--> <!-- Card 4: ตัวอย่างประเภทร้านค้า --><a class="okretails-gallery-card" href="#">
+                <picture>
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c242cf44455a487a295dc.avif"
+                        type="image/avif">
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c242cf44455a487a295dc.webp"
+                        type="image/webp"> <img class="okretails-gallery-card-image"
+                        src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c242cf44455a487a295dc.png"
+                        alt="ตัวอย่างประเภทร้านค้า" loading="lazy">
+                </picture>
+                <p class="okretails-gallery-card-label">ตัวอย่าง<br>ประเภทร้านค้า</p>
+            </a><!-- Card 5: ตัวอย่างภาพ 3D ร้านค้า --><a class="okretails-gallery-card" href="#">
+                <picture>
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c2462f44455a487a295e0.avif"
+                        type="image/avif">
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c2462f44455a487a295e0.webp"
+                        type="image/webp"> <img class="okretails-gallery-card-image"
+                        src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c2462f44455a487a295e0.png"
+                        alt="ตัวอย่างภาพ 3D ร้านค้า" loading="lazy">
+                </picture>
+                <p class="okretails-gallery-card-label">ตัวอย่าง<br>ภาพ 3D ร้านค้า</p>
+            </a><!-- Card 6: ตัวอย่างพาโนแกรมร้านค้า --><a class="okretails-gallery-card" href="../../store-panogram">
+                <picture>
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c248ef44455a487a295e4.avif"
+                        type="image/avif">
+                    <source
+                        srcset="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c248ef44455a487a295e4.webp"
+                        type="image/webp"> <img class="okretails-gallery-card-image"
+                        src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/23/699c248ef44455a487a295e4.png"
+                        alt="ตัวอย่างพาโนแกรมร้านค้า" loading="lazy">
+                </picture>
+                <p class="okretails-gallery-card-label">ตัวอย่าง<br>พาโนแกรมร้านค้า</p>
+            </a></div>
+    </div>
+</section>
+
+</html>

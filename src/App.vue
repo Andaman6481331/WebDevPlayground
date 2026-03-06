@@ -593,28 +593,66 @@ const handleUpdateAllCode = ({ html, css, js }) => {
     saveToHistory();
 };
 
-const handleDissectResult = (sections) => {
-    if (!sections || sections.length === 0) return;
+const handleDissectResult = (data) => {
+    console.log('📬 Received dissection result:', data);
+    if (!data.sections || data.sections.length === 0) {
+        console.warn('⚠️ No sections found in dissection result');
+        return;
+    }
     
-    // Create a new conversation for each section
+    const { sections, checklist, message, usage } = data;
+
+    // Track token usage for dissection
+    if (usage) {
+        console.log('💎 Tracking dissection usage:', usage);
+        const billed = calculateBilledTokens(usage);
+        totalTokens.value += billed;
+        
+        totalUsageStats.value.input_tokens += (usage.input_tokens || 0);
+        totalUsageStats.value.output_tokens += (usage.output_tokens || 0);
+        totalUsageStats.value.cache_creation_input_tokens += (usage.cache_creation_input_tokens || 0);
+        totalUsageStats.value.cache_read_input_tokens += (usage.cache_read_input_tokens || 0);
+        totalUsageStats.value.billed_tokens += billed;
+
+        localStorage.setItem('total-tokens', totalTokens.value);
+        localStorage.setItem('total-usage-stats', JSON.stringify(totalUsageStats.value));
+        
+        console.log(`📊 Dissection usage tracked: ${billed} billed tokens`);
+    }
+    
+    // Create a new conversation for the modernized website
     sections.forEach(section => {
         const conversationId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+        
+        // Construct the intro message with checklist
+        let introText = `I've analyzed the website and reconstructed it based on this core information checklist:\n\n`;
+        if (checklist && checklist.length > 0) {
+            checklist.forEach(item => {
+                introText += `- ${item}\n`;
+            });
+        }
+        introText += `\n**Design Strategy:** ${message || section.description}`;
+
         const conversation = {
             id: conversationId,
-            title: `Extracted: ${section.name}`,
+            title: section.name === "Modernized Website" ? `Site: ${data.url.replace(/^https?:\/\//, '').split('/')[0]}` : `Extracted: ${section.name}`,
             date: new Date().toISOString(),
             messages: [{
                 id: Date.now().toString(),
                 role: 'assistant',
-                text: `I've extracted the **${section.name}** section for you.\n\n**Description:** ${section.description}`,
+                content: introText,
                 timestamp: new Date().toISOString()
             }],
             code: {
                 html: section.html || '',
                 css: section.css || '',
-                js: ''
+                js: section.javascript || section.js || ''
             },
-            history: [{ html: section.html || '', css: section.css || '', js: '' }],
+            history: [{ 
+                html: section.html || '', 
+                css: section.css || '', 
+                js: section.javascript || section.js || '' 
+            }],
             historyIndex: 0
         };
         conversations.value.unshift(conversation);
@@ -722,14 +760,33 @@ const handleModernizeResult = async ({ screenshotUrl, theme, color }) => {
 };
 
 const resetChat = () => {
-    if (confirm('Clear chat history for this conversation?')) {
+    if (confirm('Clear chat and reset code for this conversation?')) {
+        // 1. Reset chat messages
         chatMessages.value = [
             { role: 'assistant', content: "Welcome! I'm your coding assistant. Ask me anything about web development." }
         ];
         
+        // 2. Reset code state
+        const defaultHtml = '<p>Hello World</p>';
+        const defaultCss = '';
+        const defaultJs = '';
+        
+        htmlCode.value = defaultHtml;
+        cssCode.value = defaultCss;
+        jsCode.value = defaultJs;
+
+        // 3. Reset history
+        const initialState = { html: defaultHtml, css: defaultCss, js: defaultJs };
+        codeHistory.value = [initialState];
+        historyIndex.value = 0;
+        
+        // 4. Update the active conversation object
         const conv = conversations.value.find(c => c.id === currentConversationId.value);
         if (conv) {
             conv.messages = [];
+            conv.code = { ...initialState };
+            conv.history = [...codeHistory.value];
+            conv.historyIndex = 0;
             saveConversations();
         }
     }

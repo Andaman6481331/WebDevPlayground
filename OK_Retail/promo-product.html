@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com');
+
+        .promo-product-section {
+            padding: 40px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+
+        /* Nav Bar Tabs */
+        .nav-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: left;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 10px 24px;
+            border-radius: 100px;
+            border: 1px solid #ddd;
+            background: rgb(243, 243, 243);
+            color: #505050;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-tab:hover,
+        .nav-tab.active {
+            background: #F58620;
+            color: white;
+            border-color: #F58620;
+        }
+
+        /* Grid System */
+        .promo-product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        /* Product Card */
+        .promo-product-card {
+            position: relative;
+            background: #fff;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            padding: 8px 20px 20px 20px;
+            transition: transform 0.3s ease;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .promo-product-card::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            bottom: -2px;
+            left: -2px;
+            right: -2px;
+            z-index: -1;
+            margin: 0;
+            border-radius: inherit;
+            background: linear-gradient(to bottom, #e4e4e4, #fab370);
+        }
+
+        .promo-product-card:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Badge Hot Deal */
+        .badge-hot {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #F58620;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .promo-product-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .product-title {
+            font-size: 25px;
+            font-weight: 700;
+            color: #F58620;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .product-desc {
+            font-size: 20px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Card Button */
+        .btn-card {
+            width: 70%;
+            padding: 12px;
+            background: #F58620;
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 100px;
+            margin: 0 auto;
+        }
+
+        .btn-card:hover {
+            background: #d46f1a;
+        }
+
+        /* Bottom Controls */
+        .bottom-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+        }
+
+        .btn-view-all {
+            padding: 15px 40px;
+            border-radius: 100px;
+            border: 2px solid #F58620;
+            background: transparent;
+            color: #F58620;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-view-all:hover {
+            background: #F58620;
+            color: white;
+        }
+
+        .slider-nav {
+            display: flex;
+            position: absolute;
+            right: 0;
+            gap: 10px;
+        }
+
+        .nav-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #F58620;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: 0.3s;
+        }
+
+        .nav-circle:hover {
+            background: #ffffff;
+            border: 1px solid #F58620;
+            color: #F58620;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+
+<body>
+    <section class="promo-product-section">
+        <!-- Tab Navigation -->
+        <div class="nav-bar">
+            <button class="nav-tab">HOT DEAL!! ส่วนลดสูงสุด 50%</button>
+            <button class="nav-tab">Bundle DEAL ซื้อครบชุดถูกกว่า</button>
+            <button class="nav-tab">Clearance Sale ลดล้างสต็อก</button>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="promo-product-grid">
+            <!-- Card 1 -->
+            <div class="promo-product-card">
+                <div class="badge-hot">Hot Deal</div>
+                <img src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/26/69a00cf9f44455a487a29654.webp"
+                    alt="product">
+                <div class="card-content">
+                    <div class="product-title">ชั้นวางสินค้า รุ่น ริชชี่เอ็กตร้า (Richy Extra)</div>
+                    <div class="product-desc">
+                        หน้ากว้าง 90 ซม.</br>แบบ 1หน้าลึก 40 ซม. </br>แบบ 2หน้าลึก 80 ซม. </br>ความสูง 120-180 ซม.
+                        </br>รับน้ำหนักได้ 40
+                        กก./ชั้น
+                    </div>
+                </div>
+                <button class="btn-card">รายละเอียดสินค้า</button>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="promo-product-card">
+                <div class="badge-hot">Hot Deal</div>
+                <img src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/26/69a00f79f44455a487a2965c.webp"
+                    alt="product">
+                <div class="card-content">
+                    <div class="product-title">ชั้นวางสินค้า รุ่น ริชชี่เอ็กตร้า (Richy Extra)</div>
+                    <div class="product-desc">
+                        หน้ากว้าง 90 ซม.</br>แบบ 1หน้าลึก 40 ซม. </br>แบบ 2หน้าลึก 80 ซม. </br>ความสูง 120-180 ซม.
+                        </br>รับน้ำหนักได้
+                        40
+                        กก./ชั้น
+                    </div>
+                </div>
+                <button class="btn-card">รายละเอียดสินค้า</button>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="promo-product-card">
+                <div class="badge-hot">Hot Deal</div>
+                <img src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/26/69a00f81f44455a487a29660.webp"
+                    alt="product">
+                <div class="card-content">
+                    <div class="product-title">ชั้นวางสินค้า รุ่น ริชชี่เอ็กตร้า (Richy Extra)</div>
+                    <div class="product-desc">
+                        หน้ากว้าง 90 ซม.</br>แบบ 1หน้าลึก 40 ซม.</br>แบบ 2หน้าลึก 80 ซม. </br>ความสูง 120-180 ซม.
+                        </br>รับน้ำหนักได้ 40
+                        กก./ชั้น
+                    </div>
+                </div>
+                <button class="btn-card">รายละเอียดสินค้า</button>
+            </div>
+            <div class="promo-product-card">
+                <div class="badge-hot">Hot Deal</div>
+                <img src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/26/69a00ceef44455a487a29650.webp"
+                    alt="product">
+                <div class="card-content">
+                    <div class="product-title">ชั้นวางสินค้า รุ่น ริชชี่เอ็กตร้า (Richy Extra)</div>
+                    <div class="product-desc">
+                        หน้ากว้าง 90 ซม.</br>แบบ 1หน้าลึก 40 ซม. </br>แบบ 2หน้าลึก 80 ซม. </br>ความสูง 120-180 ซม.
+                        </br>รับน้ำหนักได้ 40
+                        กก./ชั้น
+                    </div>
+                </div>
+                <button class="btn-card">รายละเอียดสินค้า</button>
+            </div>
+        </div>
+
+
+        <!-- Footer Actions -->
+        <div class="bottom-actions">
+            <button class="btn-view-all">ดูสินค้าทั้งหมด</button>
+
+            <div class="slider-nav">
+                <button class="nav-circle">&lt;</button>
+                <button class="nav-circle">&gt;</button>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

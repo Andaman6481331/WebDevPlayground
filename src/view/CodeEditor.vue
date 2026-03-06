@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onUnmounted } from 'vue';
 
 const props = defineProps({
     htmlCode: String,
@@ -95,13 +95,38 @@ const importPaste = () => {
     }
 };
 
+const isFullscreen = ref(false);
+
+const toggleFullscreen = () => {
+    isFullscreen.value = !isFullscreen.value;
+    if (isFullscreen.value) {
+        window.addEventListener('keydown', handleEsc);
+    } else {
+        window.removeEventListener('keydown', handleEsc);
+    }
+};
+
+const handleEsc = (e) => {
+    if (e.key === 'Escape' && isFullscreen.value) {
+        isFullscreen.value = false;
+        window.removeEventListener('keydown', handleEsc);
+    }
+};
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleEsc);
+});
+
 </script>
 
 <template>
-    <aside class="editor-panel">
+    <aside class="editor-panel" :class="{ fullscreen: isFullscreen }">
         <div class="panel-header editor-header">
             <h2>CODE EDITOR</h2>
             <div class="header-actions">
+                <button class="action-btn" @click="toggleFullscreen" :title="isFullscreen ? 'Exit Fullscreen' : 'Open Fullscreen'">
+                    {{ isFullscreen ? '🗗 Exit' : '🗖 Full' }}
+                </button>
                 <button class="action-btn" @click="copyFullCode" title="Copy full HTML code">
                     {{ copyButtonText }}
                 </button>
@@ -181,6 +206,16 @@ const importPaste = () => {
     overflow: hidden;
     border-left: 1px solid #2a2a2a;
     height: 100%; /* Ensure it takes full height */
+    transition: all 0.3s ease;
+}
+
+.editor-panel.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
 }
 
 .editor-header {

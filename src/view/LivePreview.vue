@@ -840,12 +840,6 @@ const applyResponsiveness = (type) => {
                     </svg>
                 </button>
             </div>
-
-            <div class="traffic-lights">
-                <span class="light red"></span>
-                <span class="light yellow"></span>
-                <span class="light green"></span>
-            </div>
         </div>
 
         <div class="preview-wrapper" ref="previewWrapper">

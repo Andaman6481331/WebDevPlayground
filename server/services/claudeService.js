@@ -37,7 +37,7 @@ export async function processAdaptiveRequest(anthropic, message, currentCode, op
         console.log(`🧠 ADAPTIVE PIPELINE START: "${message.substring(0, 60)}..."`);
         console.log(`${'='.repeat(60)}`);
 
-        const intent = await parseIntent(anthropic, message, !!options.image);
+        const intent = await parseIntent(anthropic, message, !!options.image, options.conversationMessages);
         addUsage(totalUsage, intent.usage);
         pipelineSteps.push({ stage: 'intent', strategy: intent.strategy, action: intent.action, hasImage: !!options.image });
 
@@ -73,6 +73,7 @@ export async function processAdaptiveRequest(anthropic, message, currentCode, op
         let mutationResult;
         try {
             // Pass the model selection down
+            intent.conversationHistory = options.conversationMessages;
             mutationResult = await executeMutation(anthropic, intent, context, currentCode, null, options.model);
             addUsage(totalUsage, mutationResult.usage);
             pipelineSteps.push({ stage: 'mutation', type: mutationResult.mutationType, success: true });

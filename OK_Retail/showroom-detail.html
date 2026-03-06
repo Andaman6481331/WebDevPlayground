@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showroom Details</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600&family=Inter:wght@400;600&display=swap');
+
+        .showroom-container {
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+            /* Spacing between multiple cards */
+            padding: 40px 0;
+        }
+
+        .contact-card {
+            display: flex;
+            gap: 40px;
+            margin: 0 auto;
+            max-width: 1400px;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        .info-panel {
+            border-radius: 16px;
+            background: linear-gradient(0deg, #9D9D9C 0%, #9D9D9C 100%), #F6F6F6;
+            background-blend-mode: color, normal;
+            display: flex;
+            padding: 30px;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .text-content {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .header-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .label {
+            color: #373737;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .title {
+            color: #373737;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .contact-details {
+            color: #505050;
+            font-family: 'Inter', 'IBM Plex Sans Thai', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .address-group {
+            color: #505050;
+            font-family: 'Inter', 'IBM Plex Sans Thai', sans-serif;
+            font-size: 24px;
+            font-weight: 400;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .contact-item img {
+            width: 20px;
+            height: 20px;
+            margin-top: 3px;
+        }
+
+        .media-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            width: 45%;
+        }
+
+        .video-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            width: 100%;
+            aspect-ratio: 1/1;
+        }
+
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            display: flex;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.2);
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #F58620;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .map-panel {
+            flex: 1;
+        }
+
+        .map-panel img {
+            border-radius: 16px;
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .contact-card {
+                padding: 0 20px;
+                flex-direction: column;
+                align-items: center;
+                box-sizing: border-box;
+            }
+
+            .info-panel {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .map-panel {
+                width: 100%;
+            }
+
+            .map-panel img {
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .info-panel {
+                flex-direction: column;
+                padding: 30px;
+                gap: 30px;
+            }
+
+            .title {
+                font-size: 32px;
+            }
+
+            .media-panel {
+                width: 100%;
+            }
+
+            .video-container {
+                aspect-ratio: 16/9;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .info-panel {
+                padding: 20px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .address-group {
+                font-size: 18px;
+            }
+
+            .contact-details {
+                font-size: 14px;
+            }
+
+            .map-panel img {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="showroom-list" class="showroom-container">
+        <!-- Showroom cards will be rendered here -->
+    </div>
+
+    <script>
+        const showrooms = [
+            {
+                label: "Showroom",
+                title: "สาขา รัชดา",
+                address: "90/1 ถนนรัชดาภิเษก แขวงห้วยขวาง<br>เขตห้วยขวาง กรุงเทพฯ 10310",
+                workingDays: "จันทร์ - เสาร์",
+                workingHours: "8.00 น. - 17.00 น.",
+                line: "@okretails",
+                phone: "02 645 2841 - 3, 084 534 5714,<br>082 599 5701, 080 782 1458",
+                email: "okretails@hotmail.com<br>okretails@gmail.com",
+                videoThumb: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a118d9f44455a487a2970c.webp",
+                downloadUrl: "#",
+                mapImage: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11903f44455a487a29724.webp",
+                icons: {
+                    line: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a9cf44455a487a29773.webp",
+                    phone: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a93f44455a487a2976c.webp",
+                    email: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a8bf44455a487a29767.webp"
+                }
+            },
+            {
+                label: "Showroom",
+                title: "สาขา บางบอน",
+                address: "90/1 ถนนรัชดาภิเษก แขวงห้วยขวาง<br>เขตห้วยขวาง กรุงเทพฯ 10310",
+                workingDays: "จันทร์ - เสาร์",
+                workingHours: "8.00 น. - 17.00 น.",
+                line: "@okretails",
+                phone: "02 645 2841 - 3, 084 534 5714,<br>082 599 5701, 080 782 1458",
+                email: "okretails@hotmail.com<br>okretails@gmail.com",
+                videoThumb: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a118e8f44455a487a29714.webp",
+                downloadUrl: "#",
+                mapImage: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11903f44455a487a29724.webp",
+                icons: {
+                    line: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a9cf44455a487a29773.webp",
+                    phone: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a93f44455a487a2976c.webp",
+                    email: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a8bf44455a487a29767.webp"
+                }
+            },
+            {
+                label: "Showroom",
+                title: "สาขา รังสิต",
+                address: "90/1 ถนนรัชดาภิเษก แขวงห้วยขวาง<br>เขตห้วยขวาง กรุงเทพฯ 10310",
+                workingDays: "จันทร์ - เสาร์",
+                workingHours: "8.00 น. - 17.00 น.",
+                line: "@okretails",
+                phone: "02 645 2841 - 3, 084 534 5714,<br>082 599 5701, 080 782 1458",
+                email: "okretails@hotmail.com<br>okretails@gmail.com",
+                videoThumb: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a118f0f44455a487a2971c.webp",
+                downloadUrl: "#",
+                mapImage: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11903f44455a487a29724.webp",
+                icons: {
+                    line: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a9cf44455a487a29773.webp",
+                    phone: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a93f44455a487a2976c.webp",
+                    email: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a8bf44455a487a29767.webp"
+                }
+            },
+            {
+                label: "Showroom",
+                title: "สาขา ศรีนครินทร์",
+                address: "90/1 ถนนรัชดาภิเษก แขวงห้วยขวาง<br>เขตห้วยขวาง กรุงเทพฯ 10310",
+                workingDays: "จันทร์ - เสาร์",
+                workingHours: "8.00 น. - 17.00 น.",
+                line: "@okretails",
+                phone: "02 645 2841 - 3, 084 534 5714,<br>082 599 5701, 080 782 1458",
+                email: "okretails@hotmail.com<br>okretails@gmail.com",
+                videoThumb: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a118faf44455a487a29720.webp",
+                downloadUrl: "#",
+                mapImage: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11903f44455a487a29724.webp",
+                icons: {
+                    line: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a9cf44455a487a29773.webp",
+                    phone: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a93f44455a487a2976c.webp",
+                    email: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/2/27/69a11a8bf44455a487a29767.webp"
+                }
+            }
+            // Add more showrooms here
+        ];
+
+        function renderShowrooms() {
+            const container = document.getElementById('showroom-list');
+            container.innerHTML = showrooms.map(shop => `
+                <section class="contact-card">
+                    <div class="info-panel">
+                        <div class="text-content">
+                            <div class="header-group">
+                                <span class="label">${shop.label}</span>
+                                <span class="title">${shop.title}</span>
+                            </div>
+
+                            <div class="address-group">
+                                ${shop.address}<br><br>
+                                <strong>วันทำการ:</strong> ${shop.workingDays}<br>
+                                <strong>เวลาทำการ:</strong> ${shop.workingHours}
+                            </div>
+
+                            <div class="contact-details">
+                                <div class="contact-item">
+                                    <img src="${shop.icons.line}" alt="line">
+                                    <span>${shop.line}</span>
+                                </div>
+                                <div class="contact-item">
+                                    <img src="${shop.icons.phone}" alt="phone">
+                                    <span>${shop.phone}</span>
+                                </div>
+                                <div class="contact-item">
+                                    <img src="${shop.icons.email}" alt="email">
+                                    <span>${shop.email}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="media-panel">
+                            <div class="video-container">
+                                <img src="${shop.videoThumb}" alt="${shop.title}">
+                                <div class="video-overlay">
+                                    <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
+                                        <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                    <span>ดูวิดีโอภายใน</span>
+                                </div>
+                            </div>
+
+                            <a href="${shop.downloadUrl}" class="download-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                                </svg>
+                                Download แผนที่
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="map-panel">
+                        <img src="${shop.mapImage}" alt="map">
+                    </div>
+                </section>
+            `).join('');
+        }
+
+        renderShowrooms();
+    </script>
+</body>
+
+</html>

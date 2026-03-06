@@ -151,14 +151,15 @@ RULES:
  * @param {Object} currentCode - { html, css, javascript }
  * @param {string} feedbackPrompt - Optional feedback from validation retry
  * @param {string} userModel - The model selected by the user
+ * @param {Array} history - The conversation history
  * @returns {Object} { html, css, javascript, message, usage, mutationType }
  */
-export async function executeMutation(anthropic, intent, context, currentCode, feedbackPrompt = null, userModel) {
+export async function executeMutation(anthropic, intent, context, currentCode, feedbackPrompt = null, userModel, history) {
     const strategy = context.strategy;
 
     // Highest Priority: Selection-Driven Mutation
     if (intent.hasSelection) {
-        return executeSelectionMutation(anthropic, intent, context, currentCode, feedbackPrompt, userModel);
+        return executeSelectionMutation(anthropic, intent, context, currentCode, feedbackPrompt, userModel, history);
     }
 
     if (strategy === 'full') {
@@ -353,6 +354,15 @@ function buildFragmentPrompt(intent, context, currentCode, feedbackPrompt) {
         prompt += `\n\n🎯 SELECTION CONTEXT: The user selected these elements:\n${intent.selectionContext}\n\nIMPORTANT: Focus your changes on these selected elements. ${intent.scope === 'local' ? 'Do NOT modify external layout.' : 'You may modify surrounding layout if needed.'}`;
     }
 
+    if (intent.history && intent.history.length > 0) {
+        prompt += `\n\n📜 RECENT CONVERSATION HISTORY:\n`;
+        intent.history.slice(-3).forEach(msg => {
+            const content = typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '');
+            prompt += `${msg.role.toUpperCase()}: ${content.substring(0, 300)}${content.length > 300 ? '...' : ''}\n`;
+        });
+        prompt += `\nUse history to maintain context and remember previous instructions if applicable (e.g. "don't forget that").`;
+    }
+
     prompt += `\n\nTARGET ELEMENT: ${context.selector} (resolved by: ${context.resolvedBy})
     ACTION: ${intent.action}
     ${intent.property ? `PROPERTY: ${intent.property}` : ''}
@@ -376,7 +386,46 @@ function buildSelectionPrompt(intent, context, currentCode, feedbackPrompt) {
 
     prompt += `🎯 SELECTION CONTEXT (Priority Targets):\n${intent.selectionContext}\n\n`;
 
+    if (intent.history && intent.history.length > 0) {
+        prompt += `📜 RECENT CONVERSATION HISTORY:\n`;
+        intent.history.slice(-3).forEach(msg => {
+            const content = typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '');
+            prompt += `${msg.role.toUpperCase()}: ${content.substring(0, 300)}${content.length > 300 ? '...' : ''}\n`;
+        });
+        prompt += `\nUse history to maintain context for the selected elements.`;
+    }
+
     prompt += `INSTRUCTION: Modify the elements listed above as requested. You have access to the full code below to ensure layout consistency, but the focus is SURGICAL editing of the selected areas.\n\n`;
+
+    prompt += `CURRENT CODE:\n`;
+    prompt += `HTML:\n${currentCode.html}\n\n`;
+    prompt += `CSS:\n${currentCode.css}\n\n`;
+    if (currentCode.javascript) prompt += `JavaScript:\n${currentCode.javascript}\n\n`;
+
+    if (feedbackPrompt) {
+        prompt += `\n⚠️ RETRY — PREVIOUS ATTEMPT FAILED:\n${feedbackPrompt}`;
+    }
+
+    return prompt;
+}
+
+function buildFullPrompt(intent, context, currentCode, feedbackPrompt) {
+    let prompt = `TASK: ${intent.normalizedMessage || intent.action}\n\n`;
+
+    if (intent.hasSelection) {
+        prompt += `🎯 SELECTION CONTEXT: The user selected these elements:\n${intent.selectionContext}\n\n`;
+    }
+
+    if (intent.history && intent.history.length > 0) {
+        prompt += `📜 CONVERSATION HISTORY (Most Recent 3 Turns):\n`;
+        intent.history.slice(-3).forEach(msg => {
+            const content = typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '');
+            prompt += `${msg.role.toUpperCase()}: ${content.substring(0, 500)}${content.length > 500 ? '...' : ''}\n`;
+        });
+        prompt += `\n`;
+    }
+
+    prompt += `INSTRUCTION: Update the full code to fulfill the request. Preserve existing names and structure.\n\n`;
 
     prompt += `CURRENT CODE:\n`;
     prompt += `HTML:\n${currentCode.html}\n\n`;
@@ -493,9 +542,12 @@ async function executeImageReferenceMutation(anthropic, imageDataUrl, message, i
         },
         {
             type: "text",
-            text: `${message || 'Recreate this design as HTML/CSS code.'}\n\n${currentCode.html && currentCode.html.trim()
-                ? `EXISTING CODE (preserve structure where possible):\nHTML:\n${currentCode.html}\n\nCSS:\n${currentCode.css}`
-                : 'There is no existing code. Create from scratch.'
+            text: `${message || 'Recreate this design as HTML/CSS code.'}\n\n${intent.history && intent.history.length > 0
+                    ? `📜 RECENT CONVERSATION HISTORY:\n${intent.history.slice(-3).map(m => `${m.role.toUpperCase()}: ${typeof m.content === 'string' ? m.content : (m.content?.[0]?.text || '')}`).join('\n')}\n\n`
+                    : ''
+                }${currentCode.html && currentCode.html.trim()
+                    ? `EXISTING CODE (preserve structure where possible):\nHTML:\n${currentCode.html}\n\nCSS:\n${currentCode.css}`
+                    : 'There is no existing code. Create from scratch.'
                 }`
         }
     ];
@@ -543,7 +595,10 @@ async function executeImageEmbedMutation(anthropic, imageDataUrl, message, inten
             type: "text",
             text: `USER REQUEST: ${message || 'Insert this image into the page.'}
 
-INSTRUCTION: 
+${intent.history && intent.history.length > 0
+                    ? `📜 RECENT CONVERSATION HISTORY:\n${intent.history.slice(-3).map(m => `${m.role.toUpperCase()}: ${typeof m.content === 'string' ? m.content : (m.content?.[0]?.text || '')}`).join('\n')}\n\n`
+                    : ''
+                }INSTRUCTION: 
 1. Identify the best place to insert the attached image.
 2. Use the exact string "https://placehold.co/600x400?text=Attached+Image" as the placeholder for the image URL in the code.
 3. Replace existing <img> src or CSS background-image values with this placeholder.
