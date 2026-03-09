@@ -182,19 +182,17 @@ const deleteComponentFromLibrary = (componentId) => {
                             <html>
                             <head>
                                 <style>
-                                    body { margin: 0; padding: 20px; font-family: sans-serif; }`
-                                    +`${component.css || ''}`+
-                                    `
+                                    body { margin: 0; padding: 20px; font-family: sans-serif; }
+                                    ${component.css || ''}
                                 </style>
                             </head>
-                            <body>`
-                            +`${component.html || ''}`+
-                            `<script>
+                            <body>
+                                ${component.html || ''}
+                                <script>
                                     // Handle internal script errors or prevent them from bubbing up
-                                    window.onerror = function(msg) { console.error('Preview error:', msg); return true; };`
-                                    +`${component.js || ''}`+
-                                    `
-                                </script>
+                                    window.onerror = function(msg) { console.error('Preview error:', msg); return true; };
+                                    ${component.js || ''}
+                                <\/script>
                             </body>
                             </html>
                         `"

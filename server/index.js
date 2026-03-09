@@ -12,6 +12,7 @@ import * as cheerio from 'cheerio';
 import axios from 'axios';
 import iconv from 'iconv-lite';
 import chardet from 'chardet';
+import setupModernizeWeb from './modernizeWeb.js';
 
 dotenv.config();
 
@@ -131,10 +132,12 @@ CRITICAL JAVASCRIPT SAFETY RULES:
   ;
 // Map frontend model names to Anthropic model IDs
 const modelMap = {
-  'sonnet': "claude-sonnet-4-5-20250929",
-  'haiku': "claude-haiku-4-5-20251001",
-  'opus': "claude-opus-4-5-20251101"
+  'sonnet': 'claude-sonnet-4-6',
+  'haiku': 'claude-haiku-4-5-20251001',
+  'opus': 'claude-opus-4-6'
 };
+
+setupModernizeWeb(app, anthropic, modelMap);
 
 // ========== ADAPTIVE PIPELINE ENDPOINT ==========
 app.post("/api/adaptive-chat", async (req, res) => {
@@ -145,7 +148,7 @@ app.post("/api/adaptive-chat", async (req, res) => {
 
     // Default to Sonnet for adaptive pipeline if not specified, 
     // but the pipeline might choose lighter models for simple tasks
-    const selectedModel = modelMap[model] || "claude-sonnet-4-5-20250929";
+    const selectedModel = modelMap[model] || "claude-sonnet-4-6";
 
     // Get or initialize conversation state
     let currentCode = conversationStates.get(conversationId) || { html: '', css: '', javascript: '' };
@@ -821,7 +824,7 @@ app.post("/api/fetch-website-content", async (req, res) => {
 
 app.post("/api/dissect-website", async (req, res) => {
   try {
-    const { url, extractedData, primaryColor, secondaryColor } = req.body;
+    const { url, extractedData, primaryColor, secondaryColor, model } = req.body;
 
     if (!extractedData || (!extractedData.navigation && !extractedData.mainContent)) {
       return res.status(400).json({ error: "No selected content provided for dissection" });
@@ -844,36 +847,49 @@ app.post("/api/dissect-website", async (req, res) => {
     console.log(`✅ AI will receive ${navItemsList.length} nav items and ${contentItemsList.length} content items.`);
     console.log(`🎨 Theme Colors: Primary=${primaryColor}, Secondary=${secondaryColor}`);
 
+    const safePrimary = primaryColor || '#3b82f6';
+    const safeSecondary = secondaryColor || '#10b981';
+
     const aiResponse = await anthropic.messages.create({
-      model: "claude-sonnet-4-5-20250929",
-      max_tokens: 8000,
-      temperature: 0, // Absolute minimum randomness
-      system: `You are an expert web strategist and frontend designer. 
-      Your task is to analyze selected content from a website and reconstruct it into a MODERN, PREMIUM design.
-      
-      CRITICAL DATA INTEGRITY RULES (ZERO HALLUCINATION):
-      1. ONLY USE THE DATA PROVIDED IN THE USER MESSAGE. 
-      2. IGNORE ANY PRE-TRAINED KNOWLEDGE YOU HAVE ABOUT THE URL "${url}". DO NOT USE DATA FROM THE REAL WEBSITE IF IT IS NOT IN THE SELECTED LIST BELOW.
-      3. YOU MUST USE EVERY SELECTED NAVIGATION LINK PROVIDED.
-      4. YOU MUST USE EVERY SELECTED IMAGE AND TEXT BLOCK PROVIDED.
-      5. YOUR PRIMARY GOAL IS TO PORT THE *USER'S SELECTED CONTENT* INTO A SUPERIOR DESIGN.
-      
-      DESIGN RULES:
-      - Use modern UI trends: glassmorphism, clean typography (Inter/Roboto), ample whitespace.
-      - Ensure responsiveness.
-      - NO border-radius (as per user preference).
-      - Dark mode premium aesthetic by default unless otherwise specified.
-      - THEME COLORS: Use Primary Color: ${primaryColor || '#3b82f6'} and Secondary Color: ${secondaryColor || '#10b981'}.
-      
-      RESPONSE FORMAT:
-      You MUST wrap your response sections in the following XML tags:
-      <CSS> ... specific CSS styles ... </CSS>
-      <HTML> ... updated HTML body content ... </HTML>
-      <CHECKLIST> ... bullet points of what you included ... </CHECKLIST>
-      <MESSAGE> ... short summary of changes ... </MESSAGE>
-      <JAVASCRIPT> ... any required JS ... </JAVASCRIPT>
-      
-      Do NOT explain anything outside these tags.`,
+      model: modelMap[model] || "claude-sonnet-4-6",
+      max_tokens: 24000,
+      temperature: 0,
+      system: `You are an expert frontend designer reconstructing websites from extracted content.
+
+DATA RULES:
+- Use ONLY the data provided in the user message. No invented content.
+- Every [IMAGE] URL must appear as an exact <img src="url"> tag. No placeholders or emojis.
+- Every navigation link provided must appear in the menu.
+
+COLOR RULES:
+- Primary ${safePrimary} = main background (body, nav, hero, cards). Never default to black.
+- Secondary ${safeSecondary} = buttons, links, accents only.
+- Auto-select white or dark text based on primary color brightness.
+- Use shades of primary for depth.
+
+LAYOUT THINKING — before writing any code, mentally:
+1. Classify each content item: is it navigation, hero/discovery, or reference?
+   - Navigation → sticky top nav
+   - First image + main headline → hero banner with overlay
+   - Product/service items → card grid with hover effects
+   - Policy/contact/FAQ text → info blocks or footer
+2. Consolidate — if the same information appears twice, keep it once in its best location
+3. Pick the layout pattern that fits the content type:
+   - Products/portfolio → image card grid
+   - Services → feature blocks with icons
+   - Articles/blog → editorial list or masonry
+   - Single landing page → hero → features → CTA → footer
+
+DESIGN: Modern, premium, responsive. No border-radius.
+Typography: pick Google Fonts suited to the site's niche.
+Components: sticky nav, hero with overlay text, card hover lift effects, trust/info bar if relevant.
+
+RESPOND ONLY in these XML tags — no text outside them:
+<CSS>...</CSS>
+<HTML>...</HTML>
+<CHECKLIST>...</CHECKLIST>
+<MESSAGE>...</MESSAGE>
+<JAVASCRIPT>...</JAVASCRIPT>`,
       messages: [
         {
           role: "user",
@@ -884,16 +900,27 @@ app.post("/api/dissect-website", async (req, res) => {
           SPECIFIC NAVIGATION LINKS (Strictly use these for your menu):
           ${navItems || 'None provided'}
           
+          SPECIFIC MAIN CONTENT (Strictly use these for the page body — every image URL must be embedded as <img src="...">):
+          ${contentItems || 'None provided'}
+          
           Final Instruction: 
-          - Do not add "sample" data. 
-          - Do not invent "demo" products. 
+          - Do not add "sample" data or invent "demo" products.
           - Use the real URLs and real text provided above.
-          - FOR IMAGES: YOU MUST USE THE REAL [IMAGE] URLs provided in the "SPECIFIC MAIN CONTENT" list. Do not replace them with emojis, icons, or placeholders. If the list contains an image for a product or category, use that exact <img src="..."> in your HTML.
-          - If a text block looks like a product name/price, treat it as such.
-          - YOU MUST INCLUDE A COMPREHENSIVE <CSS> BLOCK USING THE REQUESTED COLORS. DO NOT LEAVE IT EMPTY.`
+          - FOR IMAGES: Every [IMAGE] URL above MUST appear as <img src="that_exact_url"> in your HTML. No emojis or placeholders.
+          - The background of the page MUST use PRIMARY COLOR ${safePrimary}. Do NOT default to black/dark.
+          - Use SECONDARY COLOR ${safeSecondary} for buttons and accents.
+          - YOU MUST INCLUDE A COMPREHENSIVE <CSS> BLOCK. DO NOT LEAVE IT EMPTY.`
         }
       ]
+
     });
+
+    if (aiResponse.stop_reason === 'max_tokens') {
+      console.warn('⚠️ Response was truncated — increase max_tokens');
+      return res.status(500).json({
+        error: "AI response was cut off. Try selecting fewer content items."
+      });
+    }
 
     const responseText = aiResponse.content[0].text;
 
@@ -904,12 +931,13 @@ app.post("/api/dissect-website", async (req, res) => {
       html: extractTagContent(responseText, 'HTML') || "<div>Error parsing HTML</div>",
       css: extractTagContent(responseText, 'CSS') || `
         /* Fallback Modern Base */
-        :root { --primary: #764ba2; --bg: #0f172a; --text: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 2rem; }
-        nav { display: flex; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
-        a { color: #38bdf8; text-decoration: none; }
+        :root { --primary: ${safePrimary}; --secondary: ${safeSecondary}; --text: #ffffff; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary); color: var(--text); line-height: 1.6; padding: 2rem; }
+        nav { display: flex; gap: 1rem; padding: 1rem; background: rgba(0,0,0,0.15); backdrop-filter: blur(10px); }
+        a { color: var(--secondary); text-decoration: none; }
         .hero { text-align: center; padding: 4rem 0; }
         img { max-width: 100%; border-radius: 0; }
+        button, .btn { background: var(--secondary); color: #fff; padding: 0.5rem 1.5rem; border: none; cursor: pointer; }
       `.trim(),
       javascript: extractTagContent(responseText, 'JAVASCRIPT') || ""
     };

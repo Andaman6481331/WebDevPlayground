@@ -42,6 +42,20 @@ const emit = defineEmits([
 ]);
 
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import ModernizeWebsite from './ModernizeWebsite.vue';
+
+const handleModernizeResult = (data) => {
+  emit('dissect-website', {
+    ...data,
+    sections: [{
+      name: 'Modernized Website',
+      description: data.analysis,
+      html: data.html,
+      css: '',
+      javascript: ''
+    }]
+  });
+};
 
 // Similarity Helper (Levenshtein Distance)
 const getSimilarity = (s1, s2) => {
@@ -415,6 +429,7 @@ const cancelModernization = () => {
     modernizeUrl.value = '';
 };
 
+
 </script>
 
 <template>
@@ -452,14 +467,17 @@ const cancelModernization = () => {
                     <span>New Page</span>
                 </button>
             </div>
-            <div class="secondary-tools">
+            <!-- <div class="secondary-tools">
                 <button class="tool-btn" @click="openModernizeModal" title="Modernize Website">
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h14a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
                     <span>Modernize</span>
                 </button>
-            </div>
+            </div> -->
+            <div class="secondary-tools">
+                <ModernizeWebsite @modernize-website="handleModernizeResult" />
+            </div> 
             <div class="secondary-tools">
                 <button class="tool-btn" @click="openDissectionModal" title="Dissect Website">
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -715,7 +733,7 @@ const cancelModernization = () => {
         </dialog>
 
         <!-- Modernize Modal -->
-        <dialog ref="modernizeModal" class="sidebar-modal">
+        <!-- <dialog ref="modernizeModal" class="sidebar-modal">
             <div class="sidebar-modal-content">
                 <h3>Modernize Website</h3>
                 <p>Enter a URL to capture its design. AI will then regenerate it with a modern look.</p>
@@ -735,7 +753,7 @@ const cancelModernization = () => {
                     </button>
                 </div>
             </div>
-        </dialog>
+        </dialog> -->
 
         <!-- Confirmation Modal -->
         <dialog ref="confirmModernizeModal" class="sidebar-modal preview-modal">
@@ -876,7 +894,8 @@ const cancelModernization = () => {
     flex-direction: column;
     height: 100%;
     width: 280px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),  /* ✅ specific properties only */
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 }

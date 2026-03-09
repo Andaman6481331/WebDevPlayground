@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>[PAGE TITLE] | [BRAND NAME]</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --color-primary: #[PRIMARY_COLOR];
+            --color-secondary: #[SECONDARY_COLOR];
+            --color-accent: #[ACCENT_COLOR];
+            --color-text: #[TEXT_COLOR];
+            --color-text-muted: #[MUTED_TEXT_COLOR];
+            --color-bg: #[BACKGROUND_COLOR];
+            --color-bg-alt: #[ALT_BACKGROUND_COLOR];
+            --color-border: #[BORDER_COLOR];
+            --font-primary: '[PRIMARY_FONT]', sans-serif;
+            --font-secondary: '[SECONDARY_FONT]', serif;
+            --max-width: 1200px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            color: var(--color-text);
+            background: var(--color-bg);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* ─────────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────────── */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #fff;
+            border-bottom: 1px solid var(--color-border);
+            padding: 0 24px;
+        }
+
+        .nav__inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            height: 64px;
+            gap: 32px;
+        }
+
+        .nav__logo {
+            width: [LOGO_WIDTH]px;
+            height: [LOGO_HEIGHT]px;
+            background: #ccc;
+            flex-shrink: 0;
+            border-radius: 4px;
+        }
+
+        .nav__links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+
+        .nav__links a {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .nav__links a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ─────────────────────────────────────────────
+       BREADCRUMB
+    ───────────────────────────────────────────── */
+        .breadcrumb {
+            padding: 12px 24px;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
+
+        .breadcrumb a {
+            color: var(--color-text-muted);
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            margin: 0 6px;
+        }
+
+        /* ─────────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────────── */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: [HERO_HEIGHT]px;
+            overflow: hidden;
+            background: #d1d1d1;
+        }
+
+        .hero__media {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Replace with actual image/video */
+        }
+
+        .hero__overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.45));
+            display: flex;
+            align-items: flex-end;
+            padding: 48px;
+        }
+
+        .hero__title {
+            font-family: var(--font-secondary);
+            font-size: clamp(28px, 5vw, 52px);
+            color: #fff;
+            font-weight: 700;
+            line-height: 1.15;
+            max-width: 600px;
+        }
+
+        /* ─────────────────────────────────────────────
+       PAGE INTRO
+    ───────────────────────────────────────────── */
+        .page-intro {
+            max-width: var(--max-width);
+            margin: 40px auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: start;
+            gap: 40px;
+        }
+
+        .page-intro__text {
+            font-size: 16px;
+            line-height: 1.75;
+            color: var(--color-text);
+            max-width: 720px;
+        }
+
+        .page-intro__text h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .page-intro__rating {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .page-intro__rating-score {
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--color-primary);
+        }
+
+        .page-intro__rating-count {
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
+
+        /* ─────────────────────────────────────────────
+       FEATURED TRIPS SECTION (with filters)
+    ───────────────────────────────────────────── */
+        .trips-section {
+            max-width: var(--max-width);
+            margin: 0 auto 56px;
+            padding: 0 24px;
+        }
+
+        .trips-section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .trips-section__title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .trips-filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .trips-filter-bar__label {
+            font-size: 14px;
+            font-weight: 600;
+            align-self: center;
+            color: var(--color-text-muted);
+        }
+
+        .filter-pill {
+            padding: 6px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--color-border);
+            font-size: 13px;
+            cursor: pointer;
+            background: #fff;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .filter-pill:hover,
+        .filter-pill--active {
+            background: var(--color-primary);
+            color: #fff;
+            border-color: var(--color-primary);
+        }
+
+        /* Trip Cards Grid */
+        .trips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        /* Trip Card */
+        .trip-card {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+            background: #fff;
+            transition: box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .trip-card:hover {
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .trip-card__image {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #d1d1d1;
+            position: relative;
+        }
+
+        .trip-card__badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--color-accent);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .trip-card__body {
+            padding: 16px;
+        }
+
+        .trip-card__rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin-bottom: 8px;
+        }
+
+        .trip-card__rating-score {
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        .trip-card__title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .trip-card__meta {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin-bottom: 10px;
+        }
+
+        .trip-card__tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .trip-card__tag {
+            padding: 3px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--color-border);
+            font-size: 11px;
+            color: var(--color-text-muted);
+        }
+
+        .trip-card__price {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .trip-card__price-label {
+            font-size: 12px;
+            color: var(--color-text-muted);
+        }
+
+        .trip-card__price-was {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            text-decoration: line-through;
+        }
+
+        .trip-card__price-now {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--color-primary);
+        }
+
+        .trip-card__price-note {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* Show More + CTA row */
+        .trips-actions {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            text-align: center;
+        }
+
+        .trips-actions__showing {
+            font-size: 14px;
+            color: var(--color-text-muted);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.15s;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        .btn--outline {
+            background: transparent;
+            border: 2px solid var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .btn--primary {
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        .trips-actions__cta {
+            font-size: 14px;
+            color: var(--color-text-muted);
+        }
+
+        /* ─────────────────────────────────────────────
+       AT A GLANCE
+    ───────────────────────────────────────────── */
+        .at-a-glance {
+            background: var(--color-bg-alt);
+            padding: 48px 24px;
+        }
+
+        .at-a-glance__inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .at-a-glance__title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 28px;
+        }
+
+        .at-a-glance__grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .at-a-glance__item h4 {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            margin-bottom: 4px;
+        }
+
+        .at-a-glance__item p {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* ─────────────────────────────────────────────
+       LEARN MORE ACCORDION/TABS SECTION
+    ───────────────────────────────────────────── */
+        .learn-more {
+            max-width: var(--max-width);
+            margin: 56px auto;
+            padding: 0 24px;
+        }
+
+        .learn-more__title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 28px;
+        }
+
+        .accordion {
+            border-top: 1px solid var(--color-border);
+        }
+
+        .accordion__item {
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .accordion__trigger {
+            width: 100%;
+            text-align: left;
+            padding: 20px 0;
+            font-size: 16px;
+            font-weight: 600;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion__trigger::after {
+            content: '+';
+            font-size: 22px;
+            color: var(--color-text-muted);
+        }
+
+        .accordion__panel {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 32px;
+            padding-bottom: 28px;
+        }
+
+        .accordion__panel-text {
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .accordion__panel-image {
+            width: [ACCORDION_IMAGE_WIDTH]px;
+            height: [ACCORDION_IMAGE_HEIGHT]px;
+            background: #d1d1d1;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .accordion__panel-text h5 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 20px 0 6px;
+        }
+
+        .accordion__panel-text h5:first-child {
+            margin-top: 0;
+        }
+
+        /* ─────────────────────────────────────────────
+       FAQ SECTION
+    ───────────────────────────────────────────── */
+        .faq {
+            background: var(--color-bg-alt);
+            padding: 56px 24px;
+        }
+
+        .faq__inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .faq__title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 28px;
+        }
+
+        .faq__item {
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .faq__question {
+            width: 100%;
+            text-align: left;
+            padding: 18px 0;
+            font-size: 15px;
+            font-weight: 600;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq__question::after {
+            content: '▾';
+            font-size: 18px;
+            color: var(--color-text-muted);
+        }
+
+        .faq__answer {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--color-text);
+            padding-bottom: 18px;
+            max-width: 720px;
+        }
+
+        .faq__answer ul {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .faq__answer li {
+            margin-bottom: 4px;
+        }
+
+        .faq__answer a {
+            color: var(--color-primary);
+            text-decoration: underline;
+        }
+
+        /* ─────────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────────── */
+        .footer {
+            background: var(--color-text);
+            color: #fff;
+            padding: 56px 24px 32px;
+        }
+
+        .footer__inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 48px;
+        }
+
+        .footer__brand-logo {
+            width: [FOOTER_LOGO_WIDTH]px;
+            height: [FOOTER_LOGO_HEIGHT]px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .footer__brand-desc {
+            font-size: 14px;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .footer__col-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .footer__col-links {
+            list-style: none;
+        }
+
+        .footer__col-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer__col-links a {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .footer__col-links a:hover {
+            color: #fff;
+        }
+
+        .footer__bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer__bottom-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer__bottom-links a {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .footer__bottom-links a:hover {
+            color: #fff;
+        }
+
+        /* ─────────────────────────────────────────────
+       PLACEHOLDER UTILITIES
+    ───────────────────────────────────────────── */
+        .placeholder-img {
+            background: #d1d1d1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .placeholder-img::after {
+            content: attr(data-label);
+        }
+
+        /* ─────────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .page-intro {
+                grid-template-columns: 1fr;
+            }
+
+            .footer__inner {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .accordion__panel {
+                grid-template-columns: 1fr;
+            }
+
+            .accordion__panel-image {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .trips-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer__inner {
+                grid-template-columns: 1fr;
+            }
+
+            .at-a-glance__grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══════════════════════════════════════════
+       NAVIGATION
+  ══════════════════════════════════════════ -->
+    <nav class="nav">
+        <div class="nav__inner">
+            <!-- Logo -->
+            <div class="nav__logo placeholder-img" data-label="[LOGO]"></div>
+            <!-- Primary Nav Links -->
+            <ul class="nav__links">
+                <li><a href="#">[NAV LINK 1]</a></li>
+                <li><a href="#">[NAV LINK 2]</a></li>
+                <li><a href="#">[NAV LINK 3]</a></li>
+                <li><a href="#">[NAV LINK 4]</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ══════════════════════════════════════════
+       BREADCRUMB
+  ══════════════════════════════════════════ -->
+    <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="#">[CRUMB 1]</a>
+        <span>/</span>
+        <a href="#">[CRUMB 2]</a>
+        <span>/</span>
+        <a href="#">[CRUMB 3]</a>
+        <span>/</span>
+        <span>[CURRENT PAGE]</span>
+    </nav>
+
+    <main id="main-content">
+
+        <!-- ══════════════════════════════════════════
+         HERO — full-width image/video banner
+    ══════════════════════════════════════════ -->
+        <section class="hero">
+            <!-- Replace div below with <img> or <video> -->
+            <div class="hero__media placeholder-img" data-label="[HERO IMAGE / VIDEO]" style="width:100%;height:100%;">
+            </div>
+            <div class="hero__overlay">
+                <h1 class="hero__title">[DESTINATION] tours &amp; holidays</h1>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+         PAGE INTRO — tagline + rating
+    ══════════════════════════════════════════ -->
+        <section class="page-intro">
+            <div class="page-intro__text">
+                <h2>[DESTINATION TAGLINE HEADLINE]</h2>
+                <p>[DESTINATION INTRODUCTORY DESCRIPTION PARAGRAPH — 2–4 sentences summarising the destination's appeal,
+                    key experiences and cultural highlights.]</p>
+            </div>
+            <div class="page-intro__rating">
+                <span class="page-intro__rating-score">[X.X]</span>
+                <span class="page-intro__rating-count">[NNNN] reviews</span>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+         FEATURED TRIPS — filterable card grid
+    ══════════════════════════════════════════ -->
+        <section class="trips-section">
+            <div class="trips-section__header">
+                <h2 class="trips-section__title">[DESTINATION] trips</h2>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="trips-filter-bar">
+                <span class="trips-filter-bar__label">Filters</span>
+                <button class="filter-pill filter-pill--active">[Filter 1]</button>
+                <button class="filter-pill">[Filter 2]</button>
+                <button class="filter-pill">[Filter 3]</button>
+                <button class="filter-pill">[Filter 4]</button>
+            </div>
+
+            <!-- Trip Cards -->
+            <div class="trips-grid">
+
+                <!-- Trip Card 1 -->
+                <article class="trip-card">
+                    <div class="trip-card__image placeholder-img" data-label="[TRIP MAP/IMAGE]">
+                        <span class="trip-card__badge">[BADGE LABEL]</span>
+                    </div>
+                    <div class="trip-card__body">
+                        <div class="trip-card__rating">
+                            <span class="trip-card__rating-score">[X.X]</span>
+                            <span>([NNN])</span>
+                        </div>
+                        <h3 class="trip-card__title">[Trip Name]</h3>
+                        <p class="trip-card__meta">[N] days · [Country/Countries]</p>
+                        <div class="trip-card__tags">
+                            <span class="trip-card__tag">[Tag 1]</span>
+                            <span class="trip-card__tag">[Tag 2]</span>
+                            <span class="trip-card__tag">[Tag 3]</span>
+                        </div>
+                        <div class="trip-card__price">
+                            <div>
+                                <span class="trip-card__price-label">From Was</span>
+                                <span class="trip-card__price-was">[CURRENCY] $[XXXX]</span>
+                                <br>
+                                <span class="trip-card__price-label">Now</span>
+                                <span class="trip-card__price-now">[CURRENCY] $[XXXX]</span>
+                                <span class="trip-card__price-note">Lowest price [DATE]</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Trip Card 2 -->
+                <article class="trip-card">
+                    <div class="trip-card__image placeholder-img" data-label="[TRIP MAP/IMAGE]"></div>
+                    <div class="trip-card__body">
+                        <div class="trip-card__rating">
+                            <span class="trip-card__rating-score">[X.X]</span>
+                            <span>([NNN])</span>
+                        </div>
+                        <h3 class="trip-card__title">[Trip Name]</h3>
+                        <p class="trip-card__meta">[N] days · [Country/Countries]</p>
+                        <div class="trip-card__tags">
+                            <span class="trip-card__tag">[Tag 1]</span>
+                            <span class="trip-card__tag">[Tag 2]</span>
+                        </div>
+                        <div class="trip-card__price">
+                            <div>
+                                <span class="trip-card__price-label">From Was</span>
+                                <span class="trip-card__price-was">[CURRENCY] $[XXXX]</span>
+                                <br>
+                                <span class="trip-card__price-label">Now</span>
+                                <span class="trip-card__price-now">[CURRENCY] $[XXXX]</span>
+                                <span class="trip-card__price-note">Lowest price [DATE]</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Trip Card 3 -->
+                <article class="trip-card">
+                    <div class="trip-card__image placeholder-img" data-label="[TRIP MAP/IMAGE]"></div>
+                    <div class="trip-card__body">
+                        <div class="trip-card__rating">
+                            <span class="trip-card__rating-score">[X.X]</span>
+                            <span>([NNN])</span>
+                        </div>
+                        <h3 class="trip-card__title">[Trip Name]</h3>
+                        <p class="trip-card__meta">[N] days · [Country/Countries]</p>
+                        <div class="trip-card__tags">
+                            <span class="trip-card__tag">[Tag 1]</span>
+                            <span class="trip-card__tag">[Tag 2]</span>
+                        </div>
+                        <div class="trip-card__price">
+                            <div>
+                                <span class="trip-card__price-label">From</span>
+                                <span class="trip-card__price-now">[CURRENCY] $[XXXX]</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Tailor-Made CTA Card -->
+                <article class="trip-card"
+                    style="background: var(--color-bg-alt); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 32px; min-height: 260px;">
+                    <div class="placeholder-img" data-label="[TAILOR-MADE CARD IMAGE]"
+                        style="width:80px;height:80px;border-radius:50%;margin-bottom:16px;"></div>
+                    <h3 style="font-size:17px;font-weight:700;margin-bottom:8px;">[TAILOR-MADE CTA HEADLINE]</h3>
+                    <p style="font-size:14px;color:var(--color-text-muted);margin-bottom:16px;">[Short supporting
+                        sentence for custom/group trips]</p>
+                    <a href="#" class="btn btn--outline">[CTA Button Label]</a>
+                </article>
+
+                <!-- Repeat .trip-card blocks as needed for additional trips -->
+
+            </div><!-- /.trips-grid -->
+
+            <!-- Show More + Search CTA -->
+            <div class="trips-actions">
+                <p class="trips-actions__showing">Showing [N] of [TOTAL]</p>
+                <button class="btn btn--outline">Show more trips</button>
+                <p class="trips-actions__cta">With so many trips we have something for anyone</p>
+                <a href="#" class="btn btn--primary">Search all trips</a>
+            </div>
+
+        </section><!-- /.trips-section -->
+
+        <!-- ══════════════════════════════════════════
+         AT A GLANCE — destination stats grid
+    ══════════════════════════════════════════ -->
+        <section class="at-a-glance">
+            <div class="at-a-glance__inner">
+                <h2 class="at-a-glance__title">[DESTINATION] at a glance</h2>
+                <div class="at-a-glance__grid">
+                    <div class="at-a-glance__item">
+                        <h4>Capital City</h4>
+                        <p>[CAPITAL CITY NAME] (population approximately [N])</p>
+                    </div>
+                    <div class="at-a-glance__item">
+                        <h4>Population</h4>
+                        <p>Approximately [N] million</p>
+                    </div>
+                    <div class="at-a-glance__item">
+                        <h4>Currency</h4>
+                        <p>[CURRENCY NAME] ([CODE])</p>
+                    </div>
+                    <div class="at-a-glance__item">
+                        <h4>Language</h4>
+                        <p>[OFFICIAL LANGUAGE]</p>
+                    </div>
+                    <div class="at-a-glance__item">
+                        <h4>Time Zone</h4>
+                        <p>(GMT[OFFSET]) [ZONE NAME]</p>
+                    </div>
+                    <div class="at-a-glance__item">
+                        <h4>Calling Code</h4>
+                        <p>+[CODE]</p>
+                    </div>
+                    <div class="at-a-glance__item">
+                        <h4>Electricity</h4>
+                        <p>[PLUG TYPE A — description] [PLUG TYPE B — description]</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+         LEARN MORE — accordion tabs with image
+         (Best time to visit / Geography / History /
+          Top places / Eating & drinking / Money)
+    ══════════════════════════════════════════ -->
+        <section class="learn-more">
+            <h2 class="learn-more__title">Learn more about [DESTINATION]</h2>
+
+            <div class="accordion">
+
+                <!-- Accordion Item 1 -->
+                <div class="accordion__item">
+                    <button class="accordion__trigger">[SECTION TITLE — e.g. Best time to visit]</button>
+                    <div class="accordion__panel">
+                        <div class="accordion__panel-text">
+                            <p>[SECTION BODY PARAGRAPH 1 — seasonal or contextual information]</p>
+                            <p>[SECTION BODY PARAGRAPH 2 — additional detail or tips]</p>
+                            <a href="#"
+                                style="color:var(--color-primary);font-size:14px;text-decoration:underline;">[Learn more
+                                link text]</a>
+                        </div>
+                        <div class="accordion__panel-image placeholder-img" data-label="[SECTION IMAGE]"></div>
+                    </div>
+                </div>
+
+                <!-- Accordion Item 2 -->
+                <div class="accordion__item">
+                    <button class="accordion__trigger">[SECTION TITLE — e.g. Geography and environment]</button>
+                    <div class="accordion__panel">
+                        <div class="accordion__panel-text">
+                            <p>[SECTION BODY PARAGRAPH 1]</p>
+                            <p>[SECTION BODY PARAGRAPH 2]</p>
+                        </div>
+                        <div class="accordion__panel-image placeholder-img" data-label="[SECTION IMAGE]"></div>
+                    </div>
+                </div>
+
+                <!-- Accordion Item 3 -->
+                <div class="accordion__item">
+                    <button class="accordion__trigger">[SECTION TITLE — e.g. History and culture]</button>
+                    <div class="accordion__panel">
+                        <div class="accordion__panel-text">
+                            <p>[SECTION BODY PARAGRAPH 1]</p>
+                            <p>[SECTION BODY PARAGRAPH 2]</p>
+                        </div>
+                        <div class="accordion__panel-image placeholder-img" data-label="[SECTION IMAGE]"></div>
+                    </div>
+                </div>
+
+                <!-- Accordion Item 4 — numbered sub-items (Top places) -->
+                <div class="accordion__item">
+                    <button class="accordion__trigger">[SECTION TITLE — e.g. Top places to visit]</button>
+                    <div class="accordion__panel">
+                        <div class="accordion__panel-text">
+                            <h5>1. [Place Name]</h5>
+                            <p>[Place description paragraph]</p>
+                            <h5>2. [Place Name]</h5>
+                            <p>[Place description paragraph]</p>
+                            <h5>3. [Place Name]</h5>
+                            <p>[Place description paragraph]</p>
+                            <h5>4. [Place Name]</h5>
+                            <p>[Place description paragraph]</p>
+                            <h5>5. [Place Name]</h5>
+                            <p>[Place description paragraph]</p>
+                            <h5>6. [Place Name]</h5>
+                            <p>[Place description paragraph]</p>
+                        </div>
+                        <div class="accordion__panel-image placeholder-img" data-label="[SECTION IMAGE]"></div>
+                    </div>
+                </div>
+
+                <!-- Accordion Item 5 — named sub-items (Food) -->
+                <div class="accordion__item">
+                    <button class="accordion__trigger">[SECTION TITLE — e.g. Eating and drinking]</button>
+                    <div class="accordion__panel">
+                        <div class="accordion__panel-text">
+                            <h5>[Food/Drink Item 1]</h5>
+                            <p>[Description]</p>
+                            <h5>[Food/Drink Item 2]</h5>
+                            <p>[Description]</p>
+                            <h5>[Food/Drink Item 3]</h5>
+                            <p>[Description]</p>
+                            <!-- Repeat as needed -->
+                        </div>
+                        <div class="accordion__panel-image placeholder-img" data-label="[SECTION IMAGE]"></div>
+                    </div>
+                </div>
+
+                <!-- Accordion Item 6 -->
+                <div class="accordion__item">
+                    <button class="accordion__trigger">[SECTION TITLE — e.g. Money matters]</button>
+                    <div class="accordion__panel">
+                        <div class="accordion__panel-text">
+                            <p>[Section body paragraph about currency, ATMs, card acceptance, etc.]</p>
+                        </div>
+                        <div class="accordion__panel-image placeholder-img" data-label="[SECTION IMAGE]"></div>
+                    </div>
+                </div>
+
+            </div><!-- /.accordion -->
+        </section>
+
+        <!-- ══════════════════════════════════════════
+         ALL TRIPS (secondary grid — no filter bar)
+         Same card pattern as featured trips above
+    ══════════════════════════════════════════ -->
+        <section class="trips-section">
+            <div class="trips-section__header">
+                <h2 class="trips-section__title">Our [DESTINATION] trips</h2>
+                <a href="#" style="font-size:14px;color:var(--color-primary);text-decoration:underline;">Refine
+                    search</a>
+            </div>
+            <div class="trips-grid">
+                <!-- Repeat .trip-card components — same structure as featured grid above -->
+                <!-- [TRIP CARD PLACEHOLDER — copy .trip-card block from above] -->
+                <!-- [TRIP CARD PLACEHOLDER] -->
+                <!-- [TRIP CARD PLACEHOLDER] -->
+            </div>
+            <div class="trips-actions">
+                <p class="trips-actions__showing">Showing [N] of [TOTAL]</p>
+                <button class="btn btn--outline">Show more trips</button>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+         TRAVEL FAQS
+    ══════════════════════════════════════════ -->
+        <section class="faq">
+            <div class="faq__inner">
+                <h2 class="faq__title">[DESTINATION] travel FAQs</h2>
+
+                <!-- FAQ Item 1 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 1 — e.g. Do I need a visa?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH — include any sub-lists if needed]</p>
+                        <ul>
+                            <li>[Requirement bullet 1]</li>
+                            <li>[Requirement bullet 2]</li>
+                            <li>[Requirement bullet 3]</li>
+                        </ul>
+                        <a href="#">[Learn more link text]</a>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 2 — e.g. Do I need travel insurance?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH]</p>
+                        <a href="#">[Learn more link text]</a>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 3 — e.g. Is tipping customary?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH]</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 4 — e.g. What should I pack?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH]</p>
+                        <a href="#">[Learn more link text]</a>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 5 — e.g. Can I drink the water?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH]</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 6 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 6 — e.g. Internet access?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH]</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 7 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 7 — e.g. Mobile phone coverage?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH]</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 8 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 8 — e.g. Toilets?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH]</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 9 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 9 — e.g. LGBTQIA+ safety?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH — include external resource links]</p>
+                        <a href="#">[External resource link text]</a>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 10 -->
+                <div class="faq__item">
+                    <button class="faq__question">[FAQ QUESTION 10 — e.g. How do I stay safe?]</button>
+                    <div class="faq__answer">
+                        <p>[FAQ ANSWER PARAGRAPH]</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main><!-- /#main-content -->
+
+    <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+    <footer class="footer">
+        <div class="footer__inner">
+
+            <!-- Brand column -->
+            <div>
+                <div class="footer__brand-logo placeholder-img" data-label="[FOOTER LOGO]"></div>
+                <p class="footer__brand-desc">[Brand tagline or short mission statement — 1–2 sentences]</p>
+            </div>
+
+            <!-- Link column 1 -->
+            <div>
+                <h4 class="footer__col-title">[COLUMN HEADING 1]</h4>
+                <ul class="footer__col-links">
+                    <li><a href="#">[Link 1]</a></li>
+                    <li><a href="#">[Link 2]</a></li>
+                    <li><a href="#">[Link 3]</a></li>
+                    <li><a href="#">[Link 4]</a></li>
+                </ul>
+            </div>
+
+            <!-- Link column 2 -->
+            <div>
+                <h4 class="footer__col-title">[COLUMN HEADING 2]</h4>
+                <ul class="footer__col-links">
+                    <li><a href="#">[Link 1]</a></li>
+                    <li><a href="#">[Link 2]</a></li>
+                    <li><a href="#">[Link 3]</a></li>
+                    <li><a href="#">[Link 4]</a></li>
+                </ul>
+            </div>
+
+            <!-- Link column 3 -->
+            <div>
+                <h4 class="footer__col-title">[COLUMN HEADING 3]</h4>
+                <ul class="footer__col-links">
+                    <li><a href="#">[Link 1]</a></li>
+                    <li><a href="#">[Link 2]</a></li>
+                    <li><a href="#">[Link 3]</a></li>
+                    <li><a href="#">[Link 4]</a></li>
+                </ul>
+            </div>
+
+        </div><!-- /.footer__inner -->
+
+        <div class="footer__bottom">
+            <span>© [YEAR] [BRAND NAME]. All rights reserved.</span>
+            <div class="footer__bottom-links">
+                <a href="#">[Privacy Policy]</a>
+                <a href="#">[Terms &amp; Conditions]</a>
+                <a href="#">[Cookie Policy]</a>
+                <a href="#">[Sitemap]</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>[BRAND NAME] [BRAND TAGLINE] – [META TITLE]</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --color-primary: #[PRIMARY_COLOR];
+            --color-secondary: #[SECONDARY_COLOR];
+            --color-accent: #[ACCENT_COLOR];
+            --color-text: #[TEXT_COLOR];
+            --color-text-muted: #[MUTED_TEXT_COLOR];
+            --color-text-light: #[LIGHT_TEXT_COLOR];
+            --color-bg: #[BACKGROUND_COLOR];
+            --color-bg-dark: #[DARK_BACKGROUND_COLOR];
+            --color-border: #[BORDER_COLOR];
+            --font-display: '[DISPLAY_FONT]', serif;
+            --font-body: '[BODY_FONT]', sans-serif;
+            --font-label: '[LABEL_FONT]', sans-serif;
+            --max-width: 1400px;
+            --nav-height: 72px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background: var(--color-bg);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* ─── Placeholder utility ──────────────────── */
+        .ph {
+            background: #c8c4be;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-family: monospace;
+            font-size: 11px;
+            text-align: center;
+            padding: 4px;
+        }
+
+        .ph::after {
+            content: attr(data-label);
+        }
+
+        /* ─── Link with arrow ──────────────────────── */
+        .cta-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .cta-link::after {
+            content: '→';
+        }
+
+        .cta-link:hover {
+            opacity: 0.7;
+        }
+
+        /* ─── Section label ────────────────────────── */
+        .section-label {
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            margin-bottom: 8px;
+        }
+
+
+        /* ══════════════════════════════════════════
+       NAV — transparent overlay, sticky on scroll
+    ══════════════════════════════════════════ */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            height: var(--nav-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            /* Transparent over hero; becomes opaque on scroll via JS class */
+            background: transparent;
+            transition: background 0.3s;
+        }
+
+        .nav--scrolled {
+            background: var(--color-bg);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .nav__left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav__menu-btn {
+            background: none;
+            border: none;
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav__menu-btn .icon {
+            width: 20px;
+            height: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .nav__menu-btn .icon span {
+            display: block;
+            height: 1px;
+            background: currentColor;
+        }
+
+        .nav__logo {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .nav__logo img {
+            height: [LOGO_HEIGHT]px;
+            width: auto;
+        }
+
+        .nav__logo-ph {
+            width: [LOGO_WIDTH]px;
+            height: [LOGO_HEIGHT]px;
+        }
+
+        .nav__right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav__lang {
+            background: none;
+            border: none;
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .nav__reserve {
+            padding: 10px 24px;
+            border: 1px solid #fff;
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: transparent;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .nav__reserve:hover {
+            background: #fff;
+            color: var(--color-text);
+        }
+
+        /* ── MEGA MENU (full-screen overlay) ─────── */
+        .mega-menu {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            background: var(--color-bg-dark);
+            color: #fff;
+            display: none;
+            /* toggle with JS: display:grid */
+            grid-template-columns: 1fr 2fr;
+            overflow-y: auto;
+        }
+
+        .mega-menu__primary {
+            padding: 80px 48px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mega-menu__primary nav ul {
+            list-style: none;
+        }
+
+        .mega-menu__primary nav>ul>li {
+            font-size: clamp(20px, 2.5vw, 32px);
+            font-family: var(--font-display);
+            margin-bottom: 20px;
+        }
+
+        .mega-menu__primary nav>ul>li>a {
+            color: #fff;
+        }
+
+        .mega-menu__secondary {
+            padding: 80px 48px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .mega-menu__region-title {
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 16px;
+        }
+
+        .mega-menu__region-links {
+            list-style: none;
+        }
+
+        .mega-menu__region-links li {
+            margin-bottom: 10px;
+        }
+
+        .mega-menu__region-links a {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .mega-menu__region-links a:hover {
+            color: #fff;
+        }
+
+        .mega-menu__close {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        .mega-menu__featured {
+            margin-top: 32px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .mega-menu__feature-card {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .mega-menu__feature-card .ph {
+            width: 100%;
+            aspect-ratio: 3/2;
+        }
+
+        .mega-menu__feature-card-label {
+            margin-top: 8px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .mega-menu__feature-card-title {
+            font-size: 15px;
+            color: #fff;
+            font-family: var(--font-display);
+        }
+
+
+        /* ══════════════════════════════════════════
+       HERO — full-viewport video/image
+    ══════════════════════════════════════════ */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100svh;
+            min-height: 600px;
+            overflow: hidden;
+        }
+
+        .hero__media {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero__media-ph {
+            position: absolute;
+            inset: 0;
+        }
+
+        .hero__overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.05) 60%, rgba(0, 0, 0, 0.35) 100%);
+        }
+
+        /* No title text in hero — purely visual on Aman */
+
+
+        /* ══════════════════════════════════════════
+       FEATURE STRIP — 3 region pills below hero
+    ══════════════════════════════════════════ */
+        .region-strip {
+            background: var(--color-bg-dark);
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .region-strip__label {
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 16px 32px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+        }
+
+        .region-strip__link {
+            padding: 16px 32px;
+            font-size: 13px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #fff;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.2s;
+        }
+
+        .region-strip__link:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+
+        /* ══════════════════════════════════════════
+       EDITORIAL HERO CARD — large 2-col promo
+       (Villas / Hotels & Resorts / New & Noteworthy)
+    ══════════════════════════════════════════ */
+        .editorial-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 560px;
+        }
+
+        .editorial-card--reverse {
+            direction: rtl;
+        }
+
+        .editorial-card--reverse>* {
+            direction: ltr;
+        }
+
+        .editorial-card__image {
+            position: relative;
+        }
+
+        .editorial-card__image .ph {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+        }
+
+        .editorial-card__content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(40px, 6vw, 96px);
+            background: var(--color-bg);
+        }
+
+        .editorial-card__eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            margin-bottom: 16px;
+        }
+
+        .editorial-card__title {
+            font-family: var(--font-display);
+            font-size: clamp(22px, 3vw, 40px);
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .editorial-card__body {
+            font-size: 15px;
+            line-height: 1.75;
+            color: var(--color-text-muted);
+            max-width: 420px;
+            margin-bottom: 32px;
+        }
+
+
+        /* ══════════════════════════════════════════
+       SEASONAL EXPERIENCES — section + card grid
+    ══════════════════════════════════════════ */
+        .seasonal {
+            padding: clamp(48px, 6vw, 96px) clamp(24px, 5vw, 64px);
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .seasonal__header {
+            margin-bottom: 40px;
+        }
+
+        .seasonal__title {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 2.5vw, 32px);
+            font-weight: 400;
+        }
+
+        .seasonal__subtitle {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            margin-top: 10px;
+            max-width: 560px;
+        }
+
+        .seasonal__grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+        }
+
+        @media (max-width: 1024px) {
+            .seasonal__grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .seasonal__grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .seasonal-card {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            aspect-ratio: 1 / 1;
+        }
+
+        .seasonal-card .ph {
+            width: 100%;
+            height: 100%;
+        }
+
+        .seasonal-card__overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, transparent 55%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 24px;
+            transition: background 0.3s;
+        }
+
+        .seasonal-card:hover .seasonal-card__overlay {
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, transparent 55%);
+        }
+
+        .seasonal-card__tag {
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 6px;
+        }
+
+        .seasonal-card__title {
+            font-family: var(--font-display);
+            font-size: clamp(16px, 1.5vw, 22px);
+            color: #fff;
+            font-weight: 400;
+            line-height: 1.25;
+            margin-bottom: 10px;
+        }
+
+        .seasonal-card__link {
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .seasonal-card__link::after {
+            content: '→';
+        }
+
+        .seasonal-card:hover .seasonal-card__link {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+        /* ══════════════════════════════════════════
+       WORLD OF AMAN — 3-column slim promo cards
+    ══════════════════════════════════════════ */
+        .world-section {
+            padding: clamp(48px, 6vw, 96px) clamp(24px, 5vw, 64px);
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .world-section__title {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 2.5vw, 32px);
+            font-weight: 400;
+            margin-bottom: 40px;
+        }
+
+        .world-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .world-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .world-card {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .world-card__image {
+            position: relative;
+        }
+
+        .world-card__image .ph {
+            width: 100%;
+            aspect-ratio: 3/4;
+        }
+
+        .world-card__body {
+            padding: 20px 0;
+            flex: 1;
+        }
+
+        .world-card__eyebrow {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            margin-bottom: 8px;
+        }
+
+        .world-card__title {
+            font-family: var(--font-display);
+            font-size: clamp(17px, 1.6vw, 22px);
+            font-weight: 400;
+            line-height: 1.3;
+            margin-bottom: 12px;
+        }
+
+        .world-card__desc {
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--color-text-muted);
+            margin-bottom: 16px;
+        }
+
+
+        /* ══════════════════════════════════════════
+       NEWSLETTER / GET INSPIRED BANNER
+    ══════════════════════════════════════════ */
+        .newsletter {
+            background: var(--color-bg-dark);
+            color: #fff;
+            text-align: center;
+            padding: clamp(48px, 6vw, 80px) 24px;
+        }
+
+        .newsletter__label {
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 16px;
+        }
+
+        .newsletter__title {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 2.5vw, 32px);
+            font-weight: 400;
+            margin-bottom: 24px;
+        }
+
+        .newsletter__desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.65);
+            max-width: 480px;
+            margin: 0 auto 32px;
+            line-height: 1.7;
+        }
+
+        .newsletter__btn {
+            display: inline-block;
+            padding: 14px 40px;
+            border: 1px solid #fff;
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: transparent;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .newsletter__btn:hover {
+            background: #fff;
+            color: var(--color-text);
+        }
+
+
+        /* ══════════════════════════════════════════
+       FOOTER — dark, multi-column
+    ══════════════════════════════════════════ */
+        .footer {
+            background: var(--color-bg-dark);
+            color: rgba(255, 255, 255, 0.7);
+            padding: clamp(48px, 6vw, 80px) clamp(24px, 5vw, 64px) 32px;
+        }
+
+        .footer__top {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 40px 32px;
+            margin-bottom: 56px;
+        }
+
+        @media (max-width: 900px) {
+            .footer__top {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer__top {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Footer: More Information column */
+        .footer__col-title {
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 16px;
+        }
+
+        .footer__col-links {
+            list-style: none;
+        }
+
+        .footer__col-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer__col-links a {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.2s;
+        }
+
+        .footer__col-links a:hover {
+            color: #fff;
+        }
+
+        .footer__col-links .indent {
+            padding-left: 12px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Footer: Destinations columns */
+        .footer__dest-region {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .footer__divider {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 32px;
+        }
+
+        .footer__bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .footer__brand-name {
+            font-family: var(--font-display);
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .footer__social {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer__social a {
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+        }
+
+        .footer__social a:hover {
+            color: #fff;
+        }
+
+        .footer__copyright {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.35);
+            align-self: flex-end;
+        }
+
+        /* ─── Responsive: editorial card ───────── */
+        @media (max-width: 768px) {
+            .editorial-card {
+                grid-template-columns: 1fr;
+            }
+
+            .editorial-card--reverse {
+                direction: ltr;
+            }
+
+            .mega-menu__secondary {
+                grid-template-columns: 1fr;
+            }
+
+            .mega-menu__featured {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══════════════════════════════════════════
+       NAVIGATION (fixed, transparent over hero)
+  ══════════════════════════════════════════ -->
+    <header class="nav" id="site-nav">
+        <div class="nav__left">
+            <!-- Hamburger / Menu toggle -->
+            <button class="nav__menu-btn" aria-label="Open menu">
+                <span class="icon">
+                    <span></span><span></span><span></span>
+                </span>
+                [MENU LABEL]
+            </button>
+            <!-- Search icon -->
+            <button class="nav__menu-btn" aria-label="Search">&#x2315; [SEARCH LABEL]</button>
+        </div>
+
+        <!-- Centred logo -->
+        <a href="/" class="nav__logo">
+            <!-- <img src="[LOGO_SVG_PATH]" alt="[BRAND NAME]"> -->
+            <div class="ph nav__logo-ph" data-label="[LOGO]"></div>
+        </a>
+
+        <div class="nav__right">
+            <!-- Language selector -->
+            <button class="nav__lang">[LANGUAGE]</button>
+            <!-- Reserve CTA -->
+            <a href="[RESERVE_URL]" class="nav__reserve">[RESERVE BUTTON LABEL]</a>
+        </div>
+    </header>
+
+
+    <!-- ══════════════════════════════════════════
+       MEGA MENU OVERLAY (shown on menu click)
+  ══════════════════════════════════════════ -->
+    <div class="mega-menu" id="mega-menu" role="dialog" aria-modal="true" aria-label="Site navigation">
+        <button class="mega-menu__close" aria-label="Close menu">&times;</button>
+
+        <!-- Left: primary navigation links -->
+        <div class="mega-menu__primary">
+            <nav>
+                <ul>
+                    <li><a href="#">[NAV ITEM 1 — e.g. Destinations]</a></li>
+                    <li><a href="#">[NAV ITEM 2 — e.g. Hotels & Resorts]</a></li>
+                    <li><a href="#">[NAV ITEM 3 — e.g. Experiences]</a></li>
+                    <li><a href="#">[NAV ITEM 4 — e.g. Exclusive Offers]</a></li>
+                    <li><a href="#">[NAV ITEM 5 — e.g. Villas]</a></li>
+                    <li><a href="#">[NAV ITEM 6 — e.g. Residences]</a></li>
+                    <li><a href="#">[NAV ITEM 7 — e.g. About Us]</a></li>
+                    <li><a href="#">[NAV ITEM 8 — e.g. Gift Card]</a></li>
+                    <!-- Secondary brand links (smaller) -->
+                    <li style="font-size:0.6em;opacity:0.5;margin-top:24px;"><a href="#">[SECONDARY BRAND — e.g. Aman at
+                            Sea]</a></li>
+                    <li style="font-size:0.6em;opacity:0.5;"><a href="#">[SECONDARY BRAND — e.g. Aman Shop]</a></li>
+                    <li style="font-size:0.6em;opacity:0.5;"><a href="#">[SISTER BRAND — e.g. Janu]</a></li>
+                </ul>
+            </nav>
+
+            <!-- Featured content panel within menu -->
+            <div class="mega-menu__featured">
+                <div class="mega-menu__feature-card">
+                    <div class="ph" style="width:100%;aspect-ratio:3/2;" data-label="[FEATURED IMAGE 1]"></div>
+                    <p class="mega-menu__feature-card-label">[FEATURE LABEL — e.g. 2026 travel]</p>
+                    <p class="mega-menu__feature-card-title">[FEATURE TITLE — e.g. Journeys with Aman]</p>
+                </div>
+                <div class="mega-menu__feature-card">
+                    <div class="ph" style="width:100%;aspect-ratio:3/2;" data-label="[FEATURED IMAGE 2]"></div>
+                    <p class="mega-menu__feature-card-label">[FEATURE LABEL]</p>
+                    <p class="mega-menu__feature-card-title">[FEATURE TITLE]</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: region destination sub-links -->
+        <div class="mega-menu__secondary">
+
+            <div>
+                <p class="mega-menu__region-title">[REGION 1 — e.g. Americas & Caribbean]</p>
+                <ul class="mega-menu__region-links">
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country — Coming Soon]</a></li>
+                    <li><a href="#">[View All]</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <p class="mega-menu__region-title">[REGION 2 — e.g. Asia]</p>
+                <ul class="mega-menu__region-links">
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[View All]</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <p class="mega-menu__region-title">[REGION 3 — e.g. Europe, Middle East & Africa]</p>
+                <ul class="mega-menu__region-links">
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country]</a></li>
+                    <li><a href="#">[Destination Name, Country — Coming Soon]</a></li>
+                    <li><a href="#">[View All]</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div><!-- /#mega-menu -->
+
+
+    <main id="main-content">
+
+        <!-- ══════════════════════════════════════════
+         HERO — full-viewport background video/image
+         No headline text; purely immersive visual
+    ══════════════════════════════════════════ -->
+        <section class="hero">
+            <!-- Replace with <video autoplay muted loop playsinline> or <img> -->
+            <div class="ph hero__media-ph" data-label="[HERO VIDEO / FULL-SCREEN IMAGE]"></div>
+            <div class="hero__overlay"></div>
+        </section>
+
+
+        <!-- ══════════════════════════════════════════
+         REGION STRIP — "Discover Aman in..." links
+    ══════════════════════════════════════════ -->
+        <div class="region-strip">
+            <span class="region-strip__label">[STRIP LABEL — e.g. Discover Aman in...]</span>
+            <a href="#" class="region-strip__link">[Region 1 — e.g. USA & the Caribbean]</a>
+            <a href="#" class="region-strip__link">[Region 2 — e.g. Europe, Middle East & North Africa]</a>
+            <a href="#" class="region-strip__link">[Region 3 — e.g. Asia]</a>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════
+         EDITORIAL HERO CARD 1
+         Full-width 2-column: image left, text right
+         (e.g. "Exclusive Hideaways / Make lasting memories at Aman Villas")
+    ══════════════════════════════════════════ -->
+        <section class="editorial-card">
+            <div class="editorial-card__image">
+                <div class="ph" style="width:100%;height:100%;min-height:500px;" data-label="[EDITORIAL IMAGE 1]"></div>
+            </div>
+            <div class="editorial-card__content">
+                <p class="editorial-card__eyebrow">[EYEBROW LABEL — e.g. Exclusive Hideaways]</p>
+                <h2 class="editorial-card__title">[EDITORIAL HEADLINE — e.g. Make lasting memories at Aman Villas]</h2>
+                <a href="#" class="cta-link">[CTA TEXT — e.g. Discover more]</a>
+            </div>
+        </section>
+
+
+        <!-- ══════════════════════════════════════════
+         EDITORIAL HERO CARD 2
+         Full-width 2-column: text left, image right (reversed)
+         (e.g. "Hotels & Resorts / Explore the World of Aman")
+    ══════════════════════════════════════════ -->
+        <section class="editorial-card editorial-card--reverse">
+            <div class="editorial-card__image">
+                <div class="ph" style="width:100%;height:100%;min-height:500px;" data-label="[EDITORIAL IMAGE 2]"></div>
+            </div>
+            <div class="editorial-card__content">
+                <p class="editorial-card__eyebrow">[EYEBROW LABEL — e.g. Hotels & Resorts]</p>
+                <h2 class="editorial-card__title">[EDITORIAL HEADLINE — e.g. Explore the World of Aman]</h2>
+                <p class="editorial-card__body">[SHORT SUPPORTING DESCRIPTION — 1–2 sentences about the brand's
+                    portfolio scope]</p>
+                <a href="#" class="cta-link">[CTA TEXT — e.g. Discover more]</a>
+            </div>
+        </section>
+
+
+        <!-- ══════════════════════════════════════════
+         EDITORIAL HERO CARD 3
+         Full-width 2-column: image left, text right
+         (e.g. "New & Noteworthy / [Specific property feature story]")
+    ══════════════════════════════════════════ -->
+        <section class="editorial-card">
+            <div class="editorial-card__image">
+                <div class="ph" style="width:100%;height:100%;min-height:500px;" data-label="[EDITORIAL IMAGE 3]"></div>
+            </div>
+            <div class="editorial-card__content">
+                <p class="editorial-card__eyebrow">[EYEBROW LABEL — e.g. New & Noteworthy]</p>
+                <h2 class="editorial-card__title">[EDITORIAL HEADLINE — e.g. A Desert Oasis Emerges]</h2>
+                <p class="editorial-card__body">[SHORT SUPPORTING DESCRIPTION — 1–2 sentences describing the specific
+                    story or property feature]</p>
+                <a href="#" class="cta-link">[CTA TEXT — e.g. Discover more]</a>
+            </div>
+        </section>
+
+
+        <!-- ══════════════════════════════════════════
+         SEASONAL EXPERIENCES
+         Section header + 4×2 image card grid
+         (Alpine / Beach / Journeys / City / Nature / Coastal / Ambassador)
+    ══════════════════════════════════════════ -->
+        <section class="seasonal">
+            <div class="seasonal__header">
+                <h2 class="seasonal__title">[SECTION TITLE — e.g. Seasonal Experiences]</h2>
+                <p class="seasonal__subtitle">[SHORT SECTION SUBTITLE — 1 sentence describing the grid's purpose]</p>
+            </div>
+
+            <div class="seasonal__grid">
+
+                <!-- Card 1 -->
+                <article class="seasonal-card">
+                    <div class="ph" style="width:100%;height:100%;" data-label="[EXPERIENCE IMAGE 1]"></div>
+                    <div class="seasonal-card__overlay">
+                        <span class="seasonal-card__tag">[EXPERIENCE TAG — e.g. In the Mountains]</span>
+                        <h3 class="seasonal-card__title">[EXPERIENCE TITLE — e.g. Alpine Awakening]</h3>
+                        <a href="#" class="seasonal-card__link">[CTA TEXT — e.g. Discover more]</a>
+                    </div>
+                </article>
+
+                <!-- Card 2 -->
+                <article class="seasonal-card">
+                    <div class="ph" style="width:100%;height:100%;" data-label="[EXPERIENCE IMAGE 2]"></div>
+                    <div class="seasonal-card__overlay">
+                        <span class="seasonal-card__tag">[EXPERIENCE TAG — e.g. Winter Sun]</span>
+                        <h3 class="seasonal-card__title">[EXPERIENCE TITLE — e.g. Chasing Sunlight]</h3>
+                        <a href="#" class="seasonal-card__link">[CTA TEXT]</a>
+                    </div>
+                </article>
+
+                <!-- Card 3 -->
+                <article class="seasonal-card">
+                    <div class="ph" style="width:100%;height:100%;" data-label="[EXPERIENCE IMAGE 3]"></div>
+                    <div class="seasonal-card__overlay">
+                        <span class="seasonal-card__tag">[EXPERIENCE TAG — e.g. Multi-destination Journeys]</span>
+                        <h3 class="seasonal-card__title">[EXPERIENCE TITLE — e.g. Pathways to Discovery]</h3>
+                        <a href="#" class="seasonal-card__link">[CTA TEXT]</a>
+                    </div>
+                </article>
+
+                <!-- Card 4 -->
+                <article class="seasonal-card">
+                    <div class="ph" style="width:100%;height:100%;" data-label="[EXPERIENCE IMAGE 4]"></div>
+                    <div class="seasonal-card__overlay">
+                        <span class="seasonal-card__tag">[EXPERIENCE TAG — e.g. City Escapes]</span>
+                        <h3 class="seasonal-card__title">[EXPERIENCE TITLE — e.g. In the City]</h3>
+                        <a href="#" class="seasonal-card__link">[CTA TEXT]</a>
+                    </div>
+                </article>
+
+                <!-- Card 5 -->
+                <article class="seasonal-card">
+                    <div class="ph" style="width:100%;height:100%;" data-label="[EXPERIENCE IMAGE 5]"></div>
+                    <div class="seasonal-card__overlay">
+                        <span class="seasonal-card__tag">[EXPERIENCE TAG — e.g. Nature]</span>
+                        <h3 class="seasonal-card__title">[EXPERIENCE TITLE — e.g. To the Wilds]</h3>
+                        <a href="#" class="seasonal-card__link">[CTA TEXT]</a>
+                    </div>
+                </article>
+
+                <!-- Card 6 -->
+                <article class="seasonal-card">
+                    <div class="ph" style="width:100%;height:100%;" data-label="[EXPERIENCE IMAGE 6]"></div>
+                    <div class="seasonal-card__overlay">
+                        <span class="seasonal-card__tag">[EXPERIENCE TAG — e.g. Coastal]</span>
+                        <h3 class="seasonal-card__title">[EXPERIENCE TITLE — e.g. At Water's Edge]</h3>
+                        <a href="#" class="seasonal-card__link">[CTA TEXT]</a>
+                    </div>
+                </article>
+
+                <!-- Card 7 (optional — ambassador / special programme) -->
+                <article class="seasonal-card">
+                    <div class="ph" style="width:100%;height:100%;" data-label="[EXPERIENCE IMAGE 7]"></div>
+                    <div class="seasonal-card__overlay">
+                        <span class="seasonal-card__tag">[EXPERIENCE TAG — e.g. Curated by [AMBASSADOR NAME]]</span>
+                        <h3 class="seasonal-card__title">[EXPERIENCE TITLE — e.g. Detoxification Programmes]</h3>
+                        <a href="#" class="seasonal-card__link">[CTA TEXT]</a>
+                    </div>
+                </article>
+
+                <!-- Card 8 (optional — filler or additional experience) -->
+                <article class="seasonal-card">
+                    <div class="ph" style="width:100%;height:100%;" data-label="[EXPERIENCE IMAGE 8]"></div>
+                    <div class="seasonal-card__overlay">
+                        <span class="seasonal-card__tag">[EXPERIENCE TAG]</span>
+                        <h3 class="seasonal-card__title">[EXPERIENCE TITLE]</h3>
+                        <a href="#" class="seasonal-card__link">[CTA TEXT]</a>
+                    </div>
+                </article>
+
+            </div><!-- /.seasonal__grid -->
+        </section>
+
+
+        <!-- ══════════════════════════════════════════
+         WORLD OF AMAN — 3-column slim portrait promo
+         (Aman at Sea / Gift Cards / Aman Shop)
+    ══════════════════════════════════════════ -->
+        <section class="world-section">
+            <h2 class="world-section__title">[SECTION TITLE — e.g. The World of Aman]</h2>
+            <div class="world-grid">
+
+                <!-- World Card 1 -->
+                <article class="world-card">
+                    <div class="world-card__image">
+                        <div class="ph" style="width:100%;aspect-ratio:3/4;" data-label="[WORLD IMAGE 1]"></div>
+                    </div>
+                    <div class="world-card__body">
+                        <p class="world-card__eyebrow">[CARD EYEBROW — e.g. Aman at Sea]</p>
+                        <h3 class="world-card__title">[CARD HEADLINE — e.g. Amangati Opens for Reservations]</h3>
+                        <p class="world-card__desc">[SHORT DESCRIPTION — 1–2 sentences]</p>
+                        <a href="#" class="cta-link">[CTA TEXT — e.g. Discover more]</a>
+                    </div>
+                </article>
+
+                <!-- World Card 2 -->
+                <article class="world-card">
+                    <div class="world-card__image">
+                        <div class="ph" style="width:100%;aspect-ratio:3/4;" data-label="[WORLD IMAGE 2]"></div>
+                    </div>
+                    <div class="world-card__body">
+                        <p class="world-card__eyebrow">[CARD EYEBROW — e.g. Aman Gift Card]</p>
+                        <h3 class="world-card__title">[CARD HEADLINE — e.g. Thoughtful Gestures]</h3>
+                        <p class="world-card__desc">[SHORT DESCRIPTION — 1–2 sentences]</p>
+                        <a href="#" class="cta-link">[CTA TEXT — e.g. Shop now]</a>
+                    </div>
+                </article>
+
+                <!-- World Card 3 -->
+                <article class="world-card">
+                    <div class="world-card__image">
+                        <div class="ph" style="width:100%;aspect-ratio:3/4;" data-label="[WORLD IMAGE 3]"></div>
+                    </div>
+                    <div class="world-card__body">
+                        <p class="world-card__eyebrow">[CARD EYEBROW — e.g. Aman Essentials]</p>
+                        <h3 class="world-card__title">[CARD HEADLINE — e.g. The Official Aman Shop]</h3>
+                        <p class="world-card__desc">[SHORT DESCRIPTION — 1–2 sentences]</p>
+                        <a href="#" class="cta-link">[CTA TEXT — e.g. Shop now]</a>
+                    </div>
+                </article>
+
+            </div><!-- /.world-grid -->
+        </section>
+
+
+        <!-- ══════════════════════════════════════════
+         NEWSLETTER / GET INSPIRED BANNER
+    ══════════════════════════════════════════ -->
+        <section class="newsletter">
+            <p class="newsletter__label">[BANNER LABEL — e.g. Get inspired]</p>
+            <h2 class="newsletter__title">[BANNER HEADLINE — e.g. Stay in the World of Aman]</h2>
+            <p class="newsletter__desc">[BANNER DESCRIPTION — 1 sentence about newsletter/updates content]</p>
+            <a href="[SIGNUP_URL]" class="newsletter__btn">[CTA TEXT — e.g. Sign Up]</a>
+        </section>
+
+    </main>
+
+
+    <!-- ══════════════════════════════════════════
+       FOOTER — dark multi-column layout
+  ══════════════════════════════════════════ -->
+    <footer class="footer">
+        <div class="footer__top">
+
+            <!-- Column 1: More Information / brand links -->
+            <div>
+                <h4 class="footer__col-title">[COLUMN HEADING — e.g. More information]</h4>
+                <ul class="footer__col-links">
+                    <li><a href="#">[GROUP LINK — e.g. Aman Group]</a></li>
+                    <li><a href="#" class="indent">[SUB-LINK — e.g. – Aman]</a></li>
+                    <li><a href="#" class="indent">[SUB-LINK — e.g. – Aman Essentials]</a></li>
+                    <li><a href="#" class="indent">[SUB-LINK — e.g. – Aman Interiors]</a></li>
+                    <li><a href="#" class="indent">[SUB-LINK — e.g. – Aman at Sea]</a></li>
+                    <li><a href="#" class="indent">[SUB-LINK — e.g. – Janu]</a></li>
+                    <li style="margin-top:12px;"><a href="#">[LINK — e.g. Gift Card]</a></li>
+                    <li><a href="#">[LINK — e.g. Forthcoming Developments]</a></li>
+                    <li><a href="#">[LINK — e.g. Careers]</a></li>
+                    <li><a href="#">[LINK — e.g. Leadership]</a></li>
+                    <li><a href="#">[LINK — e.g. Sustainability]</a></li>
+                    <li><a href="#">[LINK — e.g. Privacy Notice]</a></li>
+                    <li><a href="#">[LINK — e.g. Cookie Policy]</a></li>
+                    <li><a href="#">[LINK — e.g. Legal Notice]</a></li>
+                    <li><a href="#">[LINK — e.g. Digital Accessibility]</a></li>
+                    <li><a href="#">[LINK — e.g. Cookie Preferences]</a></li>
+                    <li style="margin-top:12px;"><a href="#">[CTA LINK — e.g. Contact Us]</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 2: Destinations – Region 1 -->
+            <div>
+                <h4 class="footer__col-title">[COLUMN HEADING — e.g. Destinations]</h4>
+                <a href="#" class="footer__dest-region">[REGION HEADING — e.g. Americas & Caribbean]</a>
+                <ul class="footer__col-links">
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country — Opening YEAR]</a></li>
+                    <li><a href="#">[Property Name, Country — Coming Soon]</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 3: Destinations – Region 2 -->
+            <div>
+                <h4 class="footer__col-title">&nbsp;</h4>
+                <a href="#" class="footer__dest-region">[REGION HEADING — e.g. Europe, Middle East & Africa]</a>
+                <ul class="footer__col-links">
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country — Coming Soon]</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 4: Destinations – Region 3 + 3b -->
+            <div>
+                <h4 class="footer__col-title">&nbsp;</h4>
+                <a href="#" class="footer__dest-region">[REGION HEADING — e.g. Asia]</a>
+                <ul class="footer__col-links">
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country]</a></li>
+                </ul>
+                <br>
+                <a href="#" class="footer__dest-region">[REGION HEADING — e.g. Asia (continued)]</a>
+                <ul class="footer__col-links">
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country]</a></li>
+                    <li><a href="#">[Property Name, Country — Opening YEAR]</a></li>
+                </ul>
+            </div>
+
+        </div><!-- /.footer__top -->
+
+        <hr class="footer__divider">
+
+        <div class="footer__bottom">
+            <div>
+                <p class="footer__brand-name">[BRAND NAME]</p>
+                <!-- Social links row -->
+                <div class="footer__social">
+                    <a href="#">[Facebook]</a>
+                    <a href="#">[Twitter / X]</a>
+                    <a href="#">[Instagram]</a>
+                    <a href="#">[YouTube]</a>
+                    <a href="#">[Pinterest]</a>
+                    <a href="#">[Weibo]</a>
+                    <a href="#">[LINE]</a>
+                    <a href="#">[WeChat]</a>
+                    <a href="#">[RED / Xiaohongshu]</a>
+                    <a href="#">[WhatsApp]</a>
+                </div>
+            </div>
+            <p class="footer__copyright">Copyright [YEAR], [LEGAL ENTITY NAME].</p>
+        </div>
+    </footer>
+
+    <script>
+        // ── Sticky nav background on scroll ──
+        const nav = document.getElementById('site-nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('nav--scrolled', window.scrollY > 60);
+        });
+
+        // ── Mega menu toggle ──
+        const menuBtn = document.querySelector('.nav__menu-btn');
+        const megaMenu = document.getElementById('mega-menu');
+        const closeBtn = document.querySelector('.mega-menu__close');
+        if (menuBtn && megaMenu) {
+            menuBtn.addEventListener('click', () => megaMenu.style.display = 'grid');
+            closeBtn.addEventListener('click', () => megaMenu.style.display = 'none');
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') megaMenu.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+
+</html>
