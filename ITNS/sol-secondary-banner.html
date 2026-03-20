@@ -1,0 +1,310 @@
+<style>
+    .hero-banner-2291 {
+        margin: 20px 0;
+        position: relative;
+        width: 100%;
+        height: 60vh;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        font-family: 'Noto Sans Thai', sans-serif;
+        background-size: cover;
+        background-position: center right;
+        background-repeat: no-repeat;
+    }
+
+    .hero-content-2291 {
+        margin-left: 12rem;
+        position: relative;
+        z-index: 2;
+        padding: 48px 60px;
+        max-width: 620px;
+    }
+
+    .hero-eyebrow-2291 {
+        font-size: 35px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        margin: 0 0 14px 0;
+        text-transform: none;
+
+        background: linear-gradient(to right, #7eb3ff, #ffffff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+
+        padding-top: 6px;
+        line-height: 1.4;
+        display: inline-block;
+    }
+
+    .hero-title-2291 {
+        font-size: 42px;
+        font-weight: 800;
+        color: #ffffff;
+        line-height: 1.25;
+        margin: 0 0 20px 0;
+        letter-spacing: -0.01em;
+    }
+
+    .hero-bullets-2291 {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 28px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .hero-bullets-2291 li {
+        font-size: 20px;
+        color: rgba(255, 255, 255, 0.82);
+        line-height: 1.6;
+        padding-left: 18px;
+        position: relative;
+    }
+
+    .hero-bullets-2291 li::before {
+        content: '•';
+        position: absolute;
+        left: 0;
+        color: #f5861f;
+    }
+
+    .hero-cta-2291 {
+        display: inline-block;
+        background-color: #f5861f;
+        color: #ffffff;
+        font-family: 'Noto Sans Thai', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        padding: 13px 28px;
+        border-radius: 6px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .hero-cta-2291:hover {
+        background-color: #d96f0c;
+        transform: translateY(-1px);
+    }
+
+    /* Tablet */
+    @media (max-width: 1024px) {
+        .hero-content-2291 {
+            padding: 40px 40px;
+            max-width: 560px;
+        }
+
+        .hero-title-2291 {
+            font-size: 34px;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .hero-banner-2291 {
+            min-height: auto;
+            background-image:
+                linear-gradient(to bottom, rgba(5, 15, 40, 0.88) 50%, rgba(5, 15, 40, 0.70) 100%),
+                url('YOUR_IMAGE_URL_HERE');
+            background-position: center center;
+        }
+
+        .hero-content-2291 {
+            padding: 36px 24px;
+            max-width: 100%;
+        }
+
+        .hero-eyebrow-2291 {
+            font-size: 13px;
+        }
+
+        .hero-title-2291 {
+            font-size: 26px;
+            margin-bottom: 16px;
+        }
+
+        .hero-bullets-2291 li {
+            font-size: 13px;
+        }
+
+        .hero-cta-2291 {
+            font-size: 14px;
+            padding: 11px 22px;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 480px) {
+        .hero-content-2291 {
+            padding: 28px 18px;
+        }
+
+        .hero-title-2291 {
+            font-size: 22px;
+        }
+    }
+</style>
+
+<section class="hero-banner-2291">
+    <div class="hero-content-2291">
+        <p class="hero-eyebrow-2291 hero-eyebrow-slot"></p>
+        <h1 class="hero-title-2291 hero-title-slot"></h1>
+        <ul class="hero-bullets-2291 hero-bullets-slot"></ul>
+        <a class="hero-cta-2291 hero-cta-slot" href="#"></a>
+    </div>
+</section>
+
+<script>
+    const heroBannerMap = {
+        'sol-ai-contact-center': {
+            bgImage: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3905ffa6b6ae84589359c.webp',
+            eyebrow: 'AI Voice Contact Center',
+            title: 'รับทุกสาย ไม่มีพลาด\nบริการตลอด 24 ชั่วโมง ทุกวัน',
+            bullets: [
+                'AI รับสายอัตโนมัติ แม่นยำทุกการเชื่อมต่อ',
+                'เสียงภาษาไทยเป็นธรรมชาติ เหมือนคนจริง',
+                'ดูแลตามเดือน พร้อมปรับ Call Flow ให้มีประสิทธิภาพสูงสุด',
+            ],
+            cta: 'ขอใบเสนอราคา',
+            ctaHref: '#contact',
+        },
+        'sol-ai-agent-assist': {
+            bgImage: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b39071fa6b6ae8458935a0.webp',
+            eyebrow: 'AI Agent Assist',
+            title: 'ยกระดับทีมบริการ ตอบคำถามแม่นยำแบบมือโปร',
+            bullets: [
+                'ผู้ช่วยอัจฉริยะแบบ Real-time',
+                'เพิ่มประสิทธิภาพและลดภาระงาน',
+                'ระบบวิเคราะห์อารมณ์และควบคุมคุณภาพ',
+            ],
+            cta: 'ขอใบเสนอราคา',
+            ctaHref: '#contact',
+        },
+        'sol-ai-knowledge-hub': {
+            bgImage: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b39086fa6b6ae8458935a4.webp',
+            eyebrow: 'AI Knowledge Hub',
+            title: 'จัดการคลังข้อมูลองค์กร ค้นหาไว อ้างอิงได้แม่นยำ',
+            bullets: [
+                'คำตอบแม่นยำด้วยเทคโนโลยี RAG',
+                'เข้าใจบริบทและเชื่อมโยงข้อมูล',
+                'อ้างอิงแหล่งที่มาตรวจสอบได้ 100%',
+            ],
+            cta: 'ขอใบเสนอราคา',
+            ctaHref: '#contact',
+        },
+        'sol-ai-doc-automation': {
+            bgImage: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b390affa6b6ae8458935ac.webp',
+            eyebrow: 'AI Document Automation',
+            title: 'จัดการงานเอกสารและอนุมัติครบจบในที่เดียว',
+            bullets: [
+                'จัดการเอกสารครบวงจร',
+                'เพิ่มความแม่นยำและมาตรฐานเดียวกัน',
+                'มีประสิทธิภาพแม้เอกสารซับซ้อน',
+            ],
+            cta: 'ขอใบเสนอราคา',
+            ctaHref: '#contact',
+        },
+        'sol-ai-recept-kiosk-ai': {
+            bgImage: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b390c8fa6b6ae8458935b4.webp',
+            eyebrow: 'AI Receptionist / Kiosk',
+            title: 'ดูแลลูกค้าได้ทั่วถึงสื่อสารคล่องตัวทุกภาษา',
+            bullets: [
+                'เสมือนพนักงานต้อนรับอัจฉริยะ',
+                'การสนทนาที่เป็นธรรมชาติและหลากหลายภาษา',
+                'ระบบคัดกรองและจัดการนัดหมาย',
+            ],
+            cta: 'ขอใบเสนอราคา',
+            ctaHref: '#contact',
+        },
+        'ai-video-analytics': {
+            bgImage: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b390dcfa6b6ae8458935b8.webp',
+            eyebrow: 'AI Video Analytics',
+            title: 'ยกระดับความปลอดภัย\nตรวจจับไว แจ้งเตือนทันที',
+            bullets: [
+                'อัปเกรด CCTV เดิมให้เป็นระบบอัจฉริยะ',
+                'ครอบคลุมทุกกลุ่มอุตสาหกรรม',
+                'ตรวจจับและแจ้งเตือน Real-time แม่นยำ',
+            ],
+            cta: 'ขอใบเสนอราคา',
+            ctaHref: '#contact',
+        },
+        'sol-ai-monitoring-smart-alert': {
+            bgImage: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3911efa6b6ae8458935c0.webp',
+            eyebrow: 'AI Monitoring & Smart Alert',
+            title: 'เฝ้าระวังอัจฉริยะ\nแม่นยำทุกการแจ้งเตือน',
+            bullets: [
+                'คัดกรองเฉพาะเหตุการณ์ที่สำคัญ',
+                'คาดการณ์ล่วงหน้าก่อนเกิดความเสียหาย',
+                'ครอบคลุมทุกระบบในหนึ่งเดียว',
+            ],
+            cta: 'ขอใบเสนอราคา',
+            ctaHref: '#contact',
+        },
+        'sol-ai-learning-assistant': {
+            bgImage: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b390f0fa6b6ae8458935bc.webp',
+            eyebrow: 'AI Learning Assistant',
+            title: 'อัปเกรดการเรียนรู้\nตอบคำถามจากบทเรียนได้ทันที',
+            bullets: [
+                'ติวเตอร์ส่วนตัว ที่เชื่อถือได้',
+                'การเรียนรู้แบบเฉพาะบุคคล',
+                'ยกระดับประสิทธิภาพผู้สอน',
+            ],
+            cta: 'ขอใบเสนอราคา',
+            ctaHref: '#contact',
+        },
+    };
+
+    function applyHeroBanner() {
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        let content = null;
+
+        for (const segment of pathSegments) {
+            if (heroBannerMap[segment]) {
+                content = heroBannerMap[segment];
+                break;
+            }
+        }
+
+        if (!content) return;
+
+        // Add this: apply background image dynamically
+        const banner = document.querySelector('.hero-banner-2291');
+        if (banner && content.bgImage) {
+            banner.style.backgroundImage = `
+        linear-gradient(to right, rgba(5,15,40,0.92) 35%, rgba(5,15,40,0.55) 65%, rgba(5,15,40,0.15) 100%),
+        url('${content.bgImage}')
+      `;
+        }
+
+        // Eyebrow
+        const eyebrow = document.querySelector('.hero-eyebrow-slot');
+        if (eyebrow && content.eyebrow) eyebrow.textContent = content.eyebrow;
+
+        // Title (supports \n line breaks)
+        const title = document.querySelector('.hero-title-slot');
+        if (title && content.title) {
+            title.innerHTML = content.title.replace(/\n/g, '<br>');
+        }
+
+        // Bullets
+        const bulletsList = document.querySelector('.hero-bullets-slot');
+        if (bulletsList && content.bullets?.length) {
+            bulletsList.innerHTML = content.bullets
+                .map(b => `<li>${b}</li>`)
+                .join('');
+        }
+
+        // CTA button
+        const cta = document.querySelector('.hero-cta-slot');
+        if (cta) {
+            if (content.cta) cta.textContent = content.cta;
+            if (content.ctaHref) cta.href = content.ctaHref;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyHeroBanner);
+</script>

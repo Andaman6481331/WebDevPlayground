@@ -24,7 +24,7 @@ async function scrapeWebsiteForModernization(url) {
 
         const initialBuffer = response.data.slice(0, 10000).toString('ascii').toLowerCase();
         let charset = chardet.detect(response.data);
-        
+
         if (charset === 'windows-1252' || charset === 'ISO-8859-1' || !charset) {
             if (initialBuffer.includes('windows-874')) charset = 'windows-874';
             else if (initialBuffer.includes('tis-620')) charset = 'tis-620';
@@ -42,17 +42,17 @@ async function scrapeWebsiteForModernization(url) {
         }
 
         const $ = cheerio.load(body);
-        
+
         // ── Helpers ──────────────────────────────────────────
         const unique = arr => [...new Map(arr.map(x => [JSON.stringify(x), x])).values()];
 
         const title = $('title').text().trim();
         const metaDesc = $('meta[name="description"]').attr('content') || '';
         const metaKeys = $('meta[name="keywords"]').attr('content') || '';
-        
+
         const bodyBg = 'inherit';
         const bodyColor = 'inherit';
-        
+
         const navLinks = unique(
             $('nav a, header a, [role="navigation"] a').map((i, el) => ({
                 text: $(el).text().trim().slice(0, 400),
@@ -65,21 +65,33 @@ async function scrapeWebsiteForModernization(url) {
             text: $(el).text().trim().slice(0, 400)
         })).get().filter(h => h.text).slice(0, 20);
 
-        const paragraphs = $('p, li, td, th').map((i, el) => $(el).text().trim().slice(0, 400))
-            .get().filter(t => t.length > 30 && t.length < 500).slice(0, 30);
+        const paragraphs = $('p, li, td, th, div, span').map((i, el) => $(el).text().trim().slice(0, 400))
+            .get()
+            .filter(t => t.length > 30 && t.length < 500)
+            .filter((v, i, a) => a.indexOf(v) === i) // deduplicate near-identical strings
+            .slice(0, 30);
 
         const images = unique(
-            $('img').map((i, el) => ({
-                src: $(el).attr('src') || $(el).attr('data-src') || '',
-                alt: $(el).attr('alt') || '',
-                width: 100 // Hardcoded since cheerio can't easily get natural width without downloading image
-            })).get().filter(img => img.src && !img.src.startsWith('data:'))
-        ).map(img => {
-            try {
-                img.src = img.src.startsWith('http') ? img.src : new URL(img.src, url).href;
-            } catch (e) {}
-            return img;
-        }).slice(0, 20);
+            $('img').map((i, el) => {
+                let rawSrc = $(el).attr('src') || $(el).attr('data-src') || '';
+                let resolvedSrc = rawSrc;
+                try {
+                    resolvedSrc = rawSrc.startsWith('http') ? rawSrc : new URL(rawSrc, url).href;
+                } catch (e) { }
+
+                let urlHint = '';
+                try {
+                    urlHint = new URL(resolvedSrc).pathname.split('/').filter(Boolean).pop() || '';
+                } catch (e) { }
+
+                return {
+                    src: resolvedSrc,
+                    alt: $(el).attr('alt') || '',
+                    urlHint,
+                    width: 100
+                };
+            }).get().filter(img => img.src && !img.src.startsWith('data:'))
+        ).slice(0, 20);
 
         const allLinks = unique(
             $('a').map((i, el) => ({
@@ -99,9 +111,19 @@ async function scrapeWebsiteForModernization(url) {
 
         const rawHtml = $('body').html()?.slice(0, 60000) || '';
 
+        const bgImages = extractBackgroundImages($, url);
+        const heroBannerImg = bgImages.find(i => i.role === 'banner')?.src
+            || bgImages[0]?.src  // fallback to first bg image found
+            || null;
+
+        const brandColors = extractBrandColors($);
+
         const scraped = {
             title, metaDesc, metaKeys,
             bodyBg, bodyColor,
+            brandColors,
+            heroBannerImg,
+            bgImages,
             navLinks, headings, paragraphs,
             images, allLinks, forms,
             rawHtml
@@ -114,6 +136,83 @@ async function scrapeWebsiteForModernization(url) {
     }
 }
 
+function extractBackgroundImages($, baseUrl) {
+    const bgImages = [];
+    const urlPattern = /url\(['"]?([^'")\s]+)['"]?\)/g;
+
+    // From inline style attributes
+    $('[style]').each((i, el) => {
+        const style = $(el).attr('style') || '';
+        let match;
+        while ((match = urlPattern.exec(style)) !== null) {
+            const src = match[1];
+            if (!src.startsWith('data:') && !src.includes('gradient')) {
+                try {
+                    const abs = new URL(src, baseUrl).href;
+                    // Tag with element context so we know it's a banner candidate
+                    const tag = el.name?.toLowerCase();
+                    const cls = $(el).attr('class') || '';
+                    const isHero = ['header', 'div', 'section'].includes(tag) &&
+                        /banner|hero|slide|header|top/i.test(cls + ' ' + ($(el).attr('id') || ''));
+                    bgImages.push({ src: abs, role: isHero ? 'banner' : 'background' });
+                } catch { }
+            }
+        }
+    });
+
+    // From <style> blocks
+    $('style').each((i, el) => {
+        const css = $(el).text();
+        let match;
+        const re = /url\(['"]?([^'")\s]+)['"]?\)/g;
+        while ((match = re.exec(css)) !== null) {
+            const src = match[1];
+            if (!src.startsWith('data:') && !src.includes('gradient') && !src.includes('.gif')) {
+                try { bgImages.push({ src: new URL(src, baseUrl).href, role: 'css-background' }); }
+                catch { }
+            }
+        }
+    });
+
+    return bgImages;
+}
+
+function extractBrandColors($) {
+    const hexCounts = {};
+    const hexPattern = /#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b/g;
+
+    // Count hex frequency across all style blocks + inline styles
+    const allCss = $('style').map((i, el) => $(el).text()).get().join(' ')
+        + ' ' + $('[style]').map((i, el) => $(el).attr('style')).get().join(' ');
+
+    let match;
+    while ((match = hexPattern.exec(allCss)) !== null) {
+        const hex = match[0].toLowerCase();
+        // Skip near-white, near-black, near-grey — those are layout colors, not brand
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        const isNeutral = Math.max(r, g, b) - Math.min(r, g, b) < 30; // low saturation
+        const isWhite = r > 240 && g > 240 && b > 240;
+        const isBlack = r < 20 && g < 20 && b < 20;
+        if (!isNeutral && !isWhite && !isBlack) {
+            hexCounts[hex] = (hexCounts[hex] || 0) + 1;
+        }
+    }
+
+    // Top 3 most-used chromatic colors = brand palette
+    const sorted = Object.entries(hexCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([hex]) => hex);
+
+    return {
+        primary: sorted[0] || null,
+        accent: sorted[1] || null,
+        bg: sorted[2] || null,
+    };
+}
+
 // ─── Format scraped data → structured prompt context ────────
 function formatScrapedForPrompt(scraped) {
     const nav = scraped.navLinks.map(l => `  • ${l.text}${l.href ? ` → ${l.href}` : ''}`).join('\n');
@@ -122,12 +221,16 @@ function formatScrapedForPrompt(scraped) {
     const images = scraped.images.map(i => `  [IMG] src="${i.src}" alt="${i.alt}"`).join('\n');
     const links = scraped.allLinks.map(l => `  • "${l.text}" → ${l.href}`).join('\n');
 
+    const colors = `Primary: ${scraped.brandColors?.primary || 'none'}, Accent: ${scraped.brandColors?.accent || 'none'}, Bg: ${scraped.brandColors?.bg || 'none'}`;
+
     return `
 URL: ${scraped.url}
 TITLE: ${scraped.title}
 META DESCRIPTION: ${scraped.metaDesc || 'none'}
 PAGE BACKGROUND COLOR: ${scraped.bodyBg}
 PAGE TEXT COLOR: ${scraped.bodyColor}
+BRAND COLORS: ${colors}
+HERO BANNER IMAGE (suggested): ${scraped.heroBannerImg || 'none'}
 
 ── NAVIGATION LINKS ──────────────────────────────────
 ${nav || '  (none found)'}
@@ -171,13 +274,12 @@ Classify each zone into one of three roles:
 STEP 3 — PLAN THE PAGE (top to bottom)
 1. Announcement strip (if there are notices/alerts)
 2. Sticky top nav — logo + nav links + search + cart/CTA
-3. Hero banner — full-width, headline + subtext + CTA buttons
+3. Hero banner — full-width, headline + subtext + CTA buttons + 90% opacity image background
 4. Trust / info bar — 3–5 icon+label highlights (shipping, policy, etc.)
-5. Main 2-column layout:
-   Left: Sticky filter sidebar (category chips, size swatches, price range)
-   Right: Product/content area with sections (Browse by Category, Featured, New)
+5. Main Product/content area with sections (Browse by Category, Featured, New)
 6. Info blocks — 4-col grid of key service/policy topics
-7. Footer — brand col + 3 link cols + bottom bar
+7. FQA - multi-row questions link to each question
+8. Footer — brand col + 3 link cols + bottom bar
 Adapt to the actual content — not every site is a shop.
 
 STEP 4 — DESIGN RULES
@@ -186,13 +288,14 @@ STEP 4 — DESIGN RULES
 - Import exactly 2 Google Fonts: one display/serif for headings, one sans for body.
 - Avoid: Arial, Roboto, Inter, system-ui. Use characterful fonts.
 - CSS Grid for layouts, Flexbox for nav/bars.
-- Sidebar hidden on mobile, grids collapse to 1-2 cols.
 - Card hover: transform: translateY(-2px) + box-shadow lift.
 - Sticky nav with scroll-triggered background opacity (JS).
-- Colour palette: derive from the site's niche and mood.
+- Existing brand colors (use these exactly — adjust lightness only if needed for 
+  contrast/readability, never swap to a different hue):
   Define: --primary, --primary-light, --primary-dark, --bg, --bg-alt, --text, --text-muted, --border.
 - Real image URLs from the scraped data must appear as <img src="exact_url"> tags.
 - Real nav links and text must be used as-is — no invented content.
+- CSS: Main Container must have max-width 1800px and center aligned
 
 STEP 5 — CONSOLIDATE
 - If the same info appears multiple times, keep it once in its best location.
@@ -202,6 +305,11 @@ STEP 5 — CONSOLIDATE
 
 STEP 6 — OUTPUT FORMAT
 Respond ONLY using these XML tags. No text outside them:
+
+HALLUCINATION RULE: Every word of body copy in the output must appear 
+verbatim in the scraped content above. If a section has no scraped text, 
+leave it with the heading only — do not write descriptive copy.
+
 <ANALYSIS>
 One short paragraph describing what the site does, its audience, 
 and the 3 main layout decisions you made.
@@ -218,112 +326,185 @@ Bullet list of every structural change made vs the original.
 // ─── API Route ───────────────────────────────────────────────
 export default function setupModernizeWeb(app, anthropic, modelMap) {
     app.post('/api/modernize-website', async (req, res) => {
-    const { url, model } = req.body;
+        const { url, model } = req.body;
 
-    if (!url || !url.startsWith('http')) {
-        return res.status(400).json({ error: 'A valid URL is required.' });
-    }
-
-    console.log(`\n🔍 Modernize request: ${url}`);
-
-    // ── 1. Scrape ──────────────────────────────────────────────
-    let scraped;
-    try {
-        console.log('🕷️  Scraping website...');
-        scraped = await scrapeWebsiteForModernization(url);
-        console.log(`✅ Scraped: ${scraped.navLinks.length} nav links, ${scraped.images.length} images, ${scraped.headings.length} headings`);
-    } catch (err) {
-        console.error('❌ Scrape failed:', err.message);
-        return res.status(500).json({ error: 'Failed to scrape website.', details: err.message });
-    }
-
-    const promptContent = formatScrapedForPrompt(scraped);
-
-    // ── 2. Build messages (with optional screenshot) ──────────
-    const userMessageContent = [];
-
-    // Attach screenshot for visual context if available
-    if (scraped.screenshotBase64) {
-        userMessageContent.push({
-            type: 'image',
-            source: {
-                type: 'base64',
-                media_type: 'image/png',
-                data: scraped.screenshotBase64
-            }
-        });
-    }
-
-    userMessageContent.push({
-        type: 'text',
-        text: `Here is the complete scraped content of the website to modernize:\n\n${promptContent}\n\nApply all 6 steps and produce the modernized HTML.`
-    });
-
-    // ── 3. Call Claude ─────────────────────────────────────────
-    let aiResponse;
-    try {
-        console.log('🧠 Calling Claude...');
-        const selectedModel = (model && modelMap[model]) || 'claude-sonnet-4-6';
-
-        aiResponse = await anthropic.messages.create({
-            model: selectedModel,
-            max_tokens: 32000,
-            temperature: 1,  // Claude 4 models require temperature=1 for extended thinking;
-            // set to 0 if you don't want thinking mode
-            system: MODERNIZE_SYSTEM_PROMPT,
-            messages: [{ role: 'user', content: userMessageContent }]
-        });
-
-        if (aiResponse.stop_reason === 'max_tokens') {
-            console.warn('⚠️  Response truncated at max_tokens');
+        if (!url || !url.startsWith('http')) {
+            return res.status(400).json({ error: 'A valid URL is required.' });
         }
 
-        console.log(`✅ Claude responded: ${aiResponse.usage.output_tokens} output tokens`);
-    } catch (err) {
-        console.error('❌ Claude API error:', err.message);
-        return res.status(500).json({ error: 'AI generation failed.', details: err.message });
-    }
+        console.log(`\n🔍 Modernize request: ${url}`);
 
-    // ── 4. Parse response ──────────────────────────────────────
-    const responseText = aiResponse.content
-        .filter(b => b.type === 'text')
-        .map(b => b.text)
-        .join('');
+        // ── 1. Scrape ──────────────────────────────────────────────
+        let scraped;
+        try {
+            console.log('🕷️  Scraping website...');
+            scraped = await scrapeWebsiteForModernization(url);
+            console.log(`✅ Scraped: ${scraped.navLinks.length} nav links, ${scraped.images.length} images, ${scraped.headings.length} headings`);
+        } catch (err) {
+            console.error('❌ Scrape failed:', err.message);
+            return res.status(500).json({ error: 'Failed to scrape website.', details: err.message });
+        }
 
-    const extract = (tag) => {
-        const open = `<${tag}>`;
-        const close = `</${tag}>`;
-        const start = responseText.indexOf(open);
-        if (start === -1) return null;
-        const end = responseText.indexOf(close, start);
-        return end === -1
-            ? responseText.slice(start + open.length).trim()   // truncation fallback
-            : responseText.slice(start + open.length, end).trim();
-    };
+        const promptContent = formatScrapedForPrompt(scraped);
 
-    const html = extract('HTML');
-    const analysis = extract('ANALYSIS');
-    const changes = extract('CHANGES');
+        // ── 2. Build messages (with optional screenshot) ──────────
+        const userMessageContent = [];
 
-    if (!html) {
-        console.error('❌ Could not extract <HTML> tag from response');
-        console.error('Raw response start:', responseText.slice(0, 500));
-        return res.status(500).json({
-            error: 'AI response missing HTML block.',
-            rawPreview: responseText.slice(0, 1000)
+        // Attach screenshot for visual context if available
+        if (scraped.screenshotBase64) {
+            userMessageContent.push({
+                type: 'image',
+                source: {
+                    type: 'base64',
+                    media_type: 'image/png',
+                    data: scraped.screenshotBase64
+                }
+            });
+        }
+
+        userMessageContent.push({
+            type: 'text',
+            text: `Here is the complete scraped content of the website to modernize:\n\n${promptContent}\n\nApply all 6 steps and produce the modernized HTML.`
         });
-    }
 
-    // ── 5. Return ─────────────────────────────────────────────
-    res.json({
-        url,
-        analysis: analysis || '',
-        changes: changes
-            ? changes.split('\n').filter(l => l.trim()).map(l => l.replace(/^[-•*]\s*/, ''))
-            : [],
-        html,
-        usage: aiResponse.usage,
-        truncated: aiResponse.stop_reason === 'max_tokens'
+        // ── 3. Call Claude ─────────────────────────────────────────
+        let aiResponse;
+        try {
+            console.log('🧠 Calling Claude...');
+            const selectedModel = (model && modelMap[model]) || 'claude-sonnet-4-6';
+
+            aiResponse = await anthropic.messages.create({
+                model: selectedModel,
+                max_tokens: 32000,
+                temperature: 1,  // Claude 4 models require temperature=1 for extended thinking;
+                // set to 0 if you don't want thinking mode
+                system: MODERNIZE_SYSTEM_PROMPT,
+                messages: [{ role: 'user', content: userMessageContent }]
+            });
+
+            if (aiResponse.stop_reason === 'max_tokens') {
+                console.warn('⚠️  Response truncated at max_tokens');
+            }
+
+            console.log(`✅ Claude responded: ${aiResponse.usage.output_tokens} output tokens`);
+        } catch (err) {
+            console.error('❌ Claude API error:', err.message);
+            return res.status(500).json({ error: 'AI generation failed.', details: err.message });
+        }
+
+        // ── 4. Parse response ──────────────────────────────────────
+        const responseText = aiResponse.content
+            .filter(b => b.type === 'text')
+            .map(b => b.text)
+            .join('');
+
+        const extract = (tag) => {
+            const open = `<${tag}>`;
+            const close = `</${tag}>`;
+            const start = responseText.indexOf(open);
+            if (start === -1) return null;
+            const end = responseText.indexOf(close, start);
+            return end === -1
+                ? responseText.slice(start + open.length).trim()   // truncation fallback
+                : responseText.slice(start + open.length, end).trim();
+        };
+
+        const html = extract('HTML');
+        const analysis = extract('ANALYSIS');
+        const changes = extract('CHANGES');
+
+        if (!html) {
+            console.error('❌ Could not extract <HTML> tag from response');
+            console.error('Raw response start:', responseText.slice(0, 500));
+            return res.status(500).json({
+                error: 'AI response missing HTML block.',
+                rawPreview: responseText.slice(0, 1000)
+            });
+        }
+
+        // ── 5. Return ─────────────────────────────────────────────
+        res.json({
+            url,
+            analysis: analysis || '',
+            changes: changes
+                ? changes.split('\n').filter(l => l.trim()).map(l => l.replace(/^[-•*]\s*/, ''))
+                : [],
+            html,
+            usage: aiResponse.usage,
+            truncated: aiResponse.stop_reason === 'max_tokens'
+        });
     });
-});
 }
+
+
+// const MODERNIZE_SYSTEM_PROMPT = `You are a senior front-end architect and UI designer.
+// You will receive the full scraped content of an old website and produce a single, modern, 
+// self-contained HTML file that completely reimagines its design while preserving all real content.
+
+// Follow these six steps mentally before writing any code:
+
+// STEP 1 — AUDIT
+// Read all provided content. Identify every content zone:
+// navigation, hero, product/service listings, announcements, 
+// shipping/policy info, utility links, contact, footer.
+// Note what is duplicated or redundant.
+
+// STEP 2 — CLASSIFY
+// Classify each zone into one of three roles:
+// - NAVIGATION → belongs in top nav or sticky sidebar filter
+// - DISCOVERY → belongs in main body (cards, grids, hero, sections)
+// - REFERENCE → belongs in footer or info-blocks section
+
+// STEP 3 — PLAN THE PAGE (top to bottom)
+// 1. Announcement strip (if there are notices/alerts)
+// 2. Sticky top nav — logo + nav links + search + cart/CTA
+// 3. Hero banner — full-width, headline + subtext + CTA buttons
+// 4. Trust / info bar — 3–5 icon+label highlights (shipping, policy, etc.)
+// 5. Main 2-column layout:
+//    Left: Sticky filter sidebar (category chips, size swatches, price range)
+//    Right: Product/content area with sections (Browse by Category, Featured, New)
+// 6. Info blocks — 4-col grid of key service/policy topics
+// 7. Footer — brand col + 3 link cols + bottom bar
+// Adapt to the actual content — not every site is a shop.
+
+// STEP 4 — DESIGN RULES
+// - Single self-contained .html file. All CSS in <style>, no frameworks.
+// - CSS custom properties for ALL colours and fonts.
+// - Import exactly 2 Google Fonts: one display/serif for headings, one sans for body.
+// - Avoid: Arial, Roboto, Inter, system-ui. Use characterful fonts.
+// - CSS Grid for layouts, Flexbox for nav/bars.
+// - Sidebar hidden on mobile, grids collapse to 1-2 cols.
+// - Card hover: transform: translateY(-2px) + box-shadow lift.
+// - Sticky nav with scroll-triggered background opacity (JS).
+// - Existing brand colors (use these exactly — adjust lightness only if needed for 
+//   contrast/readability, never swap to a different hue):
+//   Define: --primary, --primary-light, --primary-dark, --bg, --bg-alt, --text, --text-muted, --border.
+// - Real image URLs from the scraped data must appear as <img src="exact_url"> tags.
+// - Real nav links and text must be used as-is — no invented content.
+// - CSS: Main Container must have max-width 1800px and center aligned
+
+// STEP 5 — CONSOLIDATE
+// - If the same info appears multiple times, keep it once in its best location.
+// - Merge all notices into one announcement strip.
+// - Category lists with 15+ items: group into parent cards, use filters for sub-variants.
+// - Utility links: info blocks + footer only.
+
+// STEP 6 — OUTPUT FORMAT
+// Respond ONLY using these XML tags. No text outside them:
+// 
+// HALLUCINATION RULE: Every word of body copy in the output must appear 
+// verbatim in the scraped content above. If a section has no scraped text, 
+// leave it with the heading only — do not write descriptive copy.
+// 
+// <ANALYSIS>
+// One short paragraph describing what the site does, its audience, 
+// and the 3 main layout decisions you made.
+// </ANALYSIS>
+// <HTML>
+// Complete, valid HTML file from <!DOCTYPE html> to </html>.
+// Includes all <style> and <script> inline.
+// All real content from the source embedded.
+// </HTML>
+// <CHANGES>
+// Bullet list of every structural change made vs the original.
+// </CHANGES>`

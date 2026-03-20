@@ -1,0 +1,81 @@
+{
+  "id": "1773990647557539pb",
+  "title": "New Conversation",
+  "date": "2026-03-20T07:10:47.557Z",
+  "lastUpdated": "2026-03-20T07:58:48.458Z",
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    }
+  ],
+  "code": {
+    "html": "<div class=\"container\">\n    <h1>Welcome to Web Dev Playground</h1>\n    <p>Start coding and see live results!</p>\n</div>",
+    "css": "",
+    "js": ""
+  },
+  "history": [
+    {
+      "html": "<div class=\"container\">\n    <h1>Welcome to Web Dev Playground</h1>\n    <p>Start coding and see live results!</p>\n</div>",
+      "css": "",
+      "js": ""
+    }
+  ],
+  "historyIndex": 0
+}

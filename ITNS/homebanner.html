@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showroom Banner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Prompt:wght@300;400;500;600&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        .banner-title {
+            font-family: Google Sans;
+            font-weight: 700;
+            font-style: Bold;
+            font-size: 90px;
+
+        }
+
+        .banner-description {
+            font-family: Google Sans;
+            font-weight: 400;
+            font-style: Regular;
+            font-size: 28px;
+
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .banner-title {
+                font-size: 60px;
+            }
+
+            .banner-description {
+                font-size: 24px;
+                width: 80%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .contact-banner {
+                height: 500px;
+            }
+
+            .banner-title {
+                font-size: 32px;
+                margin-bottom: 25px;
+            }
+
+            .banner-description {
+                font-size: 22px;
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .contact-banner {
+                height: 400px;
+                padding: 0 15px;
+            }
+
+            .banner-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .banner-description {
+                font-size: 18px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="contact-banner"
+        style="background-image: url('https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/10/69afe355acc8240329a3db82.webp');
+height: 80vh; background-size: cover; width: 100%;text-align: left; justify-content: space-around; align-items: center; display: flex; color: white;">
+        <div style="display: flex; flex-direction: column; justify-content: flex-start; gap: 50px;">
+            <div class="banner-description">International Network System Public Company Limited</div>
+            <div class="banner-title">CBW-150 AX Wi-Fi 6<br>Save 20% </div>
+            <div class="banner-description">Fast, secure, and easy to deploy. Perfect for offices, <br>schools, and
+                businesses.</div>
+            <button
+                style="font-family: Google Sans;
+font-weight: 700;
+font-style: Bold;
+font-size: 22px;
+line-height: 20px;
+letter-spacing: 0%;
+text-align: center;
+width: 160px;
+padding: 20px 30px;
+background-color: #EA580C; color: white; border: none; border-radius: 5px; cursor: pointer; border-color: #FF8C00;">Shop
+                Now</button>
+        </div>
+        <div>
+            <img src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/10/69afe4f3acc8240329a3db86.webp"
+                alt="wifi" style="scale: 1.3; ">
+        </div>
+    </section>
+</body>
+
+</html>

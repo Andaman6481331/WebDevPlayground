@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary: #1a4f8b;
+            --primary-light: #2d6ab3;
+            --primary-dark: #0f2f55;
+            --accent: #e8820c;
+            --accent-light: #f5a94e;
+            --bg: #f4f6f9;
+            --bg-alt: #ffffff;
+            --bg-dark: #0d1f3c;
+            --text: #1c2333;
+            --text-muted: #5a6578;
+            --text-light: #8a95a8;
+            --border: #dde3ee;
+            --card-shadow: 0 2px 12px rgba(26, 79, 139, 0.10);
+            --card-shadow-hover: 0 8px 32px rgba(26, 79, 139, 0.18);
+            --radius: 10px;
+            --radius-lg: 16px;
+            --font-display: 'Barlow Condensed', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --nav-h: 64px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ── ANNOUNCEMENT STRIP ── */
+        .announce-strip {
+            background: var(--primary-dark);
+            color: #c8d8f0;
+            font-size: 12.5px;
+            letter-spacing: 0.04em;
+            padding: 7px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .announce-strip a {
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        .announce-strip a:hover {
+            text-decoration: underline;
+        }
+
+        .announce-marquee {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .announce-links {
+            display: flex;
+            gap: 16px;
+            white-space: nowrap;
+        }
+
+        /* ── STICKY NAV ── */
+        .site-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: var(--nav-h);
+            background: rgba(15, 47, 85, 0.97);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            gap: 0;
+            transition: background 0.3s;
+        }
+
+        .site-nav.scrolled {
+            background: rgba(10, 30, 60, 0.99);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 32px;
+            flex-shrink: 0;
+        }
+
+        .nav-logo .logo-mark {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 18px;
+            color: #fff;
+            letter-spacing: -1px;
+        }
+
+        .nav-logo .logo-text {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 20px;
+            color: #fff;
+            letter-spacing: 0.04em;
+            line-height: 1.1;
+        }
+
+        .nav-logo .logo-sub {
+            font-size: 9px;
+            color: #8aabcc;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 2px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-item>a,
+        .nav-item>.nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 13px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #c8d8ee;
+            border-radius: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: var(--font-body);
+            letter-spacing: 0.01em;
+        }
+
+        .nav-item>a:hover,
+        .nav-item>.nav-btn:hover,
+        .nav-item.active>a,
+        .nav-item.active>.nav-btn {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item>a .caret,
+        .nav-item>.nav-btn .caret {
+            font-size: 9px;
+            opacity: 0.6;
+            transition: transform 0.2s;
+        }
+
+        .nav-item:hover>.nav-btn .caret {
+            transform: rotate(180deg);
+        }
+
+        /* Dropdowns */
+        .nav-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 240px;
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+            padding: 8px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.22s;
+            z-index: 200;
+            border: 1px solid var(--border);
+        }
+
+        .nav-item:hover .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            font-size: 13.5px;
+            color: var(--text);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .nav-dropdown a:hover {
+            background: #eef4ff;
+            color: var(--primary);
+        }
+
+        .nav-dropdown .dd-section {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-light);
+            padding: 10px 18px 4px;
+        }
+
+        .nav-dropdown .dd-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 6px 0;
+        }
+
+        .nav-cta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .btn-search {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #c8d8ee;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            transition: all 0.2s;
+        }
+
+        .btn-search:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+
+        .btn-contact {
+            background: var(--accent);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-contact:hover {
+            background: #d06e00;
+            transform: translateY(-1px);
+        }
+
+        /* Mobile toggle */
+        .nav-mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px;
+            margin-left: auto;
+        }
+
+        .nav-mobile-toggle span {
+            width: 22px;
+            height: 2px;
+            background: #c8d8ee;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            position: relative;
+            min-height: 520px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #1a6aab 100%);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 70% at 70% 50%, rgba(45, 106, 179, 0.4) 0%, transparent 70%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        }
+
+        .hero-banner-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.18;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(232, 130, 12, 0.2);
+            border: 1px solid rgba(232, 130, 12, 0.4);
+            color: var(--accent-light);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-bottom: 18px;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(36px, 5vw, 62px);
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.05;
+            letter-spacing: 0.01em;
+            margin-bottom: 18px;
+        }
+
+        .hero-title span {
+            color: var(--accent-light);
+        }
+
+        .hero-desc {
+            font-size: 15.5px;
+            color: #a8c4e0;
+            max-width: 480px;
+            margin-bottom: 32px;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            padding: 13px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14.5px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #d06e00;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(232, 130, 12, 0.4);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.08);
+            color: #c8d8ee;
+            padding: 13px 28px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14.5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .hero-stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius);
+            padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-stat-card .stat-num {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--accent-light);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .hero-stat-card .stat-label {
+            font-size: 12px;
+            color: #8aaac8;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        /* ── TRUST BAR ── */
+        .trust-bar {
+            background: var(--bg-alt);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+        }
+
+        .trust-bar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 22px 18px;
+            border-right: 1px solid var(--border);
+        }
+
+        .trust-item:last-child {
+            border-right: none;
+        }
+
+        .trust-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #eef4ff, #dce8ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .trust-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.3;
+        }
+
+        .trust-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .main-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            position: sticky;
+            top: calc(var(--nav-h) + 20px);
+        }
+
+        .sidebar-card {
+            background: var(--bg-alt);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: #fff;
+            padding: 14px 20px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-body {
+            padding: 12px;
+        }
+
+        .cat-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.18s;
+            margin-bottom: 2px;
+        }
+
+        .cat-chip:hover {
+            background: #eef4ff;
+            color: var(--primary);
+        }
+
+        .cat-chip.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .cat-chip .cat-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .cat-chip .cat-count {
+            margin-left: auto;
+            background: rgba(26, 79, 139, 0.1);
+            color: var(--primary);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .cat-chip.active .cat-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+        .quick-links {
+            padding: 0 12px 12px;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 7px;
+            font-size: 13px;
+            color: var(--text-muted);
+            transition: all 0.18s;
+            margin-bottom: 2px;
+        }
+
+        .quick-link:hover {
+            background: #eef4ff;
+            color: var(--primary);
+        }
+
+        .quick-link svg {
+            opacity: 0.5;
+            flex-shrink: 0;
+        }
+
+        .quick-link:hover svg {
+            opacity: 1;
+        }
+
+        /* ── CONTENT AREA ── */
+        .content-area {
+            min-width: 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 16px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            letter-spacing: 0.02em;
+            line-height: 1.1;
+        }
+
+        .section-title span {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-family: var(--font-body);
+            margin-bottom: 4px;
+        }
+
+        .section-link {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        .section-link:hover {
+            color: var(--accent);
+        }
+
+        /* Product category cards */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px 18px;
+            cursor: pointer;
+            transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            opacity: 0;
+            transition: opacity 0.22s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: var(--primary-light);
+        }
+
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        .product-card .pc-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .product-card .pc-name {
+            font-family: var(--font-display);
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        .product-card .pc-brands {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .product-card .pc-arrow {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            background: #eef4ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--primary);
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .product-card:hover .pc-arrow {
+            background: var(--primary);
+            color: #fff;
+            transform: translate(2px, -2px);
+        }
+
+        /* Brand sub-items */
+        .brand-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .brand-pill {
+            background: #f0f4fa;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            transition: all 0.18s;
+        }
+
+        .brand-pill:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        /* ── FEATURED PRODUCTS ── */
+        .featured-section {
+            margin-bottom: 40px;
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+        .feat-card {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform 0.22s, box-shadow 0.22s;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+        }
+
+        .feat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .feat-img-wrap {
+            aspect-ratio: 1;
+            background: #f0f4fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 12px;
+        }
+
+        .feat-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s;
+        }
+
+        .feat-card:hover .feat-img-wrap img {
+            transform: scale(1.05);
+        }
+
+        .feat-body {
+            padding: 10px 12px 12px;
+        }
+
+        .feat-brand {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 3px;
+        }
+
+        .feat-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        /* ── BRANDS SHOWCASE ── */
+        .brands-section {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 40px;
+        }
+
+        .brands-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .brand-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: #f4f7fc;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text);
+            transition: all 0.18s;
+            cursor: pointer;
+        }
+
+        .brand-tag:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 79, 139, 0.2);
+        }
+
+        .brand-tag .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .brand-tag:hover .dot {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        /* ── INFO BLOCKS ── */
+        .info-blocks {
+            background: var(--primary-dark);
+            padding: 64px 24px;
+        }
+
+        .info-blocks-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .info-blocks-title {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .info-blocks-sub {
+            text-align: center;
+            color: #7aa8cc;
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: 28px 22px;
+            text-align: center;
+            transition: all 0.22s;
+            cursor: pointer;
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .info-card .ic-icon {
+            font-size: 36px;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .info-card .ic-title {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        .info-card .ic-desc {
+            font-size: 13px;
+            color: #7aa8cc;
+            line-height: 1.6;
+        }
+
+        .info-card a {
+            display: inline-block;
+            margin-top: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-light);
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .info-card a:hover {
+            border-color: var(--accent-light);
+        }
+
+        /* ── FOOTER ── */
+        .site-footer {
+            background: var(--bg-dark);
+            padding: 60px 24px 0;
+            color: #8aa0b8;
+            font-size: 13.5px;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            padding-bottom: 48px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .footer-brand .logo-mark {
+            width: 44px;
+            height: 44px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+
+        .footer-brand .brand-name {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+        }
+
+        .footer-brand p {
+            line-height: 1.7;
+            margin-bottom: 20px;
+            color: #6a88a4;
+            font-size: 13px;
+        }
+
+        .footer-col h4 {
+            font-family: var(--font-display);
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .footer-col ul {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .footer-col ul a {
+            color: #6a88a4;
+            font-size: 13px;
+            transition: color 0.18s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-col ul a:hover {
+            color: #c8d8ee;
+        }
+
+        .footer-col ul a::before {
+            content: '›';
+            color: var(--accent);
+            font-size: 14px;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #3a5570;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-bottom a {
+            color: #4a7090;
+        }
+
+        .footer-bottom a:hover {
+            color: #8aacc8;
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .hero-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .trust-bar-inner {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .trust-item:nth-child(3) {
+                border-right: none;
+            }
+
+            .trust-item:nth-child(4) {
+                border-top: 1px solid var(--border);
+            }
+
+            .trust-item:nth-child(5) {
+                border-top: 1px solid var(--border);
+                border-right: none;
+            }
+
+            .main-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .featured-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-inner {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .site-nav {
+                padding: 0 20px;
+            }
+
+            .nav-links,
+            .nav-cta {
+                display: none;
+            }
+
+            .nav-mobile-toggle {
+                display: flex;
+            }
+
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: var(--nav-h);
+                left: 0;
+                right: 0;
+                background: var(--primary-dark);
+                padding: 16px;
+                gap: 4px;
+                max-height: 80vh;
+                overflow-y: auto;
+                z-index: 999;
+            }
+
+            .nav-dropdown {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                border: none;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 0 0 0 12px;
+                display: none;
+            }
+
+            .nav-dropdown.open {
+                display: block;
+            }
+
+            .nav-dropdown a {
+                color: #a0c0e0;
+                padding: 6px 12px;
+            }
+
+            .trust-bar-inner {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .hero-content {
+                padding: 60px 24px;
+            }
+
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .announce-links {
+                display: none;
+            }
+
+            .footer-bottom {
+                justify-content: center;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .trust-bar-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .trust-item {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPB Group – Industrial Components Distributor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&amp;family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&amp;display=swap"
+        rel="stylesheet">
+    <!-- ── ANNOUNCEMENT STRIP ── -->
+    <div class="announce-strip">
+        <div class="announce-marquee">
+            🔧 &nbsp;Authorised distributor of SUNTES, OGURA, SUMITOMO, SINFONIA, SEISA, TAISEI KOGYO &amp; more premium
+            Japanese industrial brands
+        </div>
+        <div class="announce-links">
+            <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539155778">Stock List</a>
+            <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672228">Catalogue 2025</a>
+            <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=search_content">🔍 Search Products</a>
+        </div>
+    </div>
+    <!-- ── STICKY NAV ── -->
+    <nav class="site-nav" id="siteNav">
+        <a href="http://www.kpbgroup.com/" class="nav-logo">
+            <div class="logo-mark">KPB</div>
+            <div>
+                <div class="logo-text">KPB Group</div>
+                <div class="logo-sub">Industrial Components</div>
+            </div>
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li class="nav-item">
+                <a href="http://www.kpbgroup.com/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=246776">Company Profile</a>
+            </li>
+            <li class="nav-item">
+                <button class="nav-btn" onclick="toggleDrop(this)">Products Group <span class="caret">▾</span></button>
+                <div class="nav-dropdown">
+                    <div class="dd-section">By Category</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988742">⚙️ Brake</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988741">🔗 Coupling</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539990819">💨 Electric
+                        Fan</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539993814">🔧 Filter</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539994517">👣 Foot
+                        Switch</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539997019">⚖️ Load
+                        Cell</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539991268">🔴 Pressure
+                        Switch</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539991128">🔄 Rotary
+                        Joint</a>
+                    <div class="dd-divider"></div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=350939">🛑 Shock
+                        Absorber</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538695602">🔩 More
+                        Products…</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <button class="nav-btn" onclick="toggleDrop(this)">Brands List <span class="caret">▾</span></button>
+                <div class="nav-dropdown">
+                    <div class="dd-section">Featured Brands</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=350939">ACE Controls</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=250082">BRIDGESTONE</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539990649">DAIDO
+                        PRECISION</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539724335">EXEN</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539991109">FAWICK</a>
+                    <a
+                        href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538705450">HIROTAKA-SEIKI</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539993993">JAC
+                        COUPLING</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988763">MIKI PULLEY</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988754">NBK</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538690229">SEISA</a>
+                    <div class="dd-divider"></div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=246775">View All Brands
+                        →</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539155778">Stock List</a>
+            </li>
+            <li class="nav-item">
+                <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=photo">Stock Picture</a>
+            </li>
+            <li class="nav-item">
+                <button class="nav-btn" onclick="toggleDrop(this)">Catalogue <span class="caret">▾</span></button>
+                <div class="nav-dropdown">
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672228">📖 Catalogue /
+                        แคตตาล็อก</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672687">📋 Catalogue
+                        2025</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672061">🏭 Machine
+                        Catalog</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672420">📐 Drawing</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=344359">Customers</a>
+            </li>
+            <li class="nav-item">
+                <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=383149">Contact Us</a>
+            </li>
+        </ul>
+        <div class="nav-cta">
+            <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=search_content" class="btn-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                Search
+            </a>
+            <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=383149"
+                class="btn-contact">Contact Us</a>
+        </div>
+        <div class="nav-mobile-toggle" id="mobileToggle" onclick="toggleMobileNav()">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+    <!-- ── HERO ── -->
+    <section class="hero">
+        <img src="http://www.kpbgroup.com/images_profiles/sbanner_1734690770.jpg" alt="KPB Group - SUNTES Brake System"
+            class="hero-banner-img">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">🏭 Authorised Distributor · Thailand</div>
+                <h1 class="hero-title">Premium<br><span>Industrial</span><br>Components</h1>
+                <p class="hero-desc">Your trusted source for Japanese and international industrial parts — brakes,
+                    couplings, hydraulics, sensors, filters, and more. Serving manufacturing industries across Thailand.
+                </p>
+                <div class="hero-actions">
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538663611"
+                        class="btn-primary">
+                        Browse Products
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672228"
+                        class="btn-outline">
+                        📖 View Catalogue 2025
+                    </a>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat-card">
+                    <div class="stat-num">50+</div>
+                    <div class="stat-label">Premium Brands</div>
+                </div>
+                <div class="hero-stat-card">
+                    <div class="stat-num">20+</div>
+                    <div class="stat-label">Product Categories</div>
+                </div>
+                <div class="hero-stat-card">
+                    <div class="stat-num">30+</div>
+                    <div class="stat-label">Years Experience</div>
+                </div>
+                <div class="hero-stat-card">
+                    <div class="stat-num">B2B</div>
+                    <div class="stat-label">Industrial Focus</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ── TRUST BAR ── -->
+    <div class="trust-bar">
+        <div class="trust-bar-inner">
+            <div class="trust-item">
+                <div class="trust-icon">🇯🇵</div>
+                <div>
+                    <div class="trust-label">Genuine Japanese Parts</div>
+                    <div class="trust-sub">Direct authorised distributor</div>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">📦</div>
+                <div>
+                    <div class="trust-label">Stock Available</div>
+                    <div class="trust-sub">Ready-to-ship inventory</div>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">📐</div>
+                <div>
+                    <div class="trust-label">Technical Drawings</div>
+                    <div class="trust-sub">Full spec documentation</div>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">📋</div>
+                <div>
+                    <div class="trust-label">Full Catalogue 2025</div>
+                    <div class="trust-sub">Updated product listings</div>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">📍</div>
+                <div>
+                    <div class="trust-label">Based in Thailand</div>
+                    <div class="trust-sub"><a
+                            href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539906579"
+                            style="color:var(--primary);">View on Map</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ── MAIN LAYOUT ── -->
+    <div class="main-wrapper">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-header">⚙️ Product Categories</div>
+                <div class="sidebar-body">
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988742"
+                        class="cat-chip active">
+                        <span class="cat-icon">⚙️</span> Brake
+                        <span class="cat-count">3</span>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988741"
+                        class="cat-chip">
+                        <span class="cat-icon">🔗</span> Coupling
+                        <span class="cat-count">7</span>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539990819"
+                        class="cat-chip">
+                        <span class="cat-icon">💨</span> Electric Fan
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539993814"
+                        class="cat-chip">
+                        <span class="cat-icon">🔧</span> Filter
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539994517"
+                        class="cat-chip">
+                        <span class="cat-icon">👣</span> Foot Switch
+                        <span class="cat-count">2</span>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539997019"
+                        class="cat-chip">
+                        <span class="cat-icon">⚖️</span> Load Cell
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539991268"
+                        class="cat-chip">
+                        <span class="cat-icon">🔴</span> Pressure Switch
+                        <span class="cat-count">3</span>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539991128"
+                        class="cat-chip">
+                        <span class="cat-icon">🔄</span> Rotary Joint
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=350939" class="cat-chip">
+                        <span class="cat-icon">🛑</span> Shock Absorber
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538702408"
+                        class="cat-chip">
+                        <span class="cat-icon">🔊</span> Voice / Signal
+                        <span class="cat-count">3</span>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538695602"
+                        class="cat-chip">
+                        <span class="cat-icon">🧲</span> Clutch &amp; Brake Ctrl
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538705440"
+                        class="cat-chip">
+                        <span class="cat-icon">💪</span> Power Cylinder
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539724335"
+                        class="cat-chip">
+                        <span class="cat-icon">📳</span> Vibration Equip.
+                        <span class="cat-count">4</span>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538695145"
+                        class="cat-chip">
+                        <span class="cat-icon">🩺</span> Expansion Joint
+                    </a>
+                </div>
+            </div>
+            <div class="sidebar-card">
+                <div class="sidebar-header">🔗 Quick Links</div>
+                <div class="quick-links">
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539155778"
+                        class="quick-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        Stock List
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=photo" class="quick-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        Stock Picture
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672228"
+                        class="quick-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                        Catalogue 2025
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672420"
+                        class="quick-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                        Technical Drawings
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=search_content" class="quick-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        Search Products
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=344359"
+                        class="quick-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Our Customers
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539906579"
+                        class="quick-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        Location Map
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539383819"
+                        class="quick-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                        </svg>
+                        Partner Links
+                    </a>
+                </div>
+            </div>
+        </aside>
+        <!-- CONTENT AREA -->
+        <main class="content-area">
+            <!-- PRODUCT CATEGORIES -->
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>Browse by Category</span>
+                        Products Group
+                    </div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538663611"
+                        class="section-link">View All ›</a>
+                </div>
+                <div class="product-grid">
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988742"
+                        class="product-card">
+                        <span class="pc-icon">⚙️</span>
+                        <div class="pc-name">Brake Systems</div>
+                        <div class="pc-brands">SUNTES · SANYO · SINFONIA · SHINKO</div>
+                        <div class="brand-list" style="margin-top:10px;">
+                            <span class="brand-pill">Hydraulic Disc</span>
+                            <span class="brand-pill">Pneumatic Disc</span>
+                            <span class="brand-pill">Electromagnetic</span>
+                        </div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988741"
+                        class="product-card">
+                        <span class="pc-icon">🔗</span>
+                        <div class="pc-name">Coupling</div>
+                        <div class="pc-brands">BRIDGESTONE · DAIDO · JAC · MIKI PULLEY · NBK · SEISA · TOYO</div>
+                        <div class="brand-list" style="margin-top:10px;">
+                            <span class="brand-pill">Flexible</span>
+                            <span class="brand-pill">Gear</span>
+                            <span class="brand-pill">Form-Flex</span>
+                        </div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538705450"
+                        class="product-card">
+                        <span class="pc-icon">💪</span>
+                        <div class="pc-name">Power Cylinders</div>
+                        <div class="pc-brands">HIROTAKA-SEIKI</div>
+                        <div class="brand-list" style="margin-top:10px;">
+                            <span class="brand-pill">Pneumatic Power</span>
+                            <span class="brand-pill">Booster</span>
+                            <span class="brand-pill">Hydraulic</span>
+                            <span class="brand-pill">Power Pack</span>
+                        </div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539991268"
+                        class="product-card">
+                        <span class="pc-icon">🔴</span>
+                        <div class="pc-name">Pressure Switch</div>
+                        <div class="pc-brands">ACT · NISCON (NIHON SEIKI) · SANWA DENKI · ASAHI GAUGE · BIERI</div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539991128"
+                        class="product-card">
+                        <span class="pc-icon">🔄</span>
+                        <div class="pc-name">Rotary Joint</div>
+                        <div class="pc-brands">FAWICK</div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539724335"
+                        class="product-card">
+                        <span class="pc-icon">📳</span>
+                        <div class="pc-name">Vibration Equipment</div>
+                        <div class="pc-brands">EXEN</div>
+                        <div class="brand-list" style="margin-top:10px;">
+                            <span class="brand-pill">Blaster</span>
+                            <span class="brand-pill">Pneumatic Vibrator</span>
+                            <span class="brand-pill">Vibration Motor</span>
+                            <span class="brand-pill">Vibration Screen</span>
+                            <span class="brand-pill">Vibration Feeder</span>
+                        </div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538702408"
+                        class="product-card">
+                        <span class="pc-icon">🚦</span>
+                        <div class="pc-name">Signal / Indicator Lights</div>
+                        <div class="pc-brands">Arrow · Pro-face</div>
+                        <div class="brand-list" style="margin-top:10px;">
+                            <span class="brand-pill">Tower Light</span>
+                            <span class="brand-pill">Rotating Light</span>
+                            <span class="brand-pill">LED Arrow Light</span>
+                            <span class="brand-pill">Mainte Call</span>
+                        </div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539997019"
+                        class="product-card">
+                        <span class="pc-icon">⚖️</span>
+                        <div class="pc-name">Load Cell &amp; Cable</div>
+                        <div class="pc-brands">NMB (MINEBEA) · A&amp;D Company</div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539993814"
+                        class="product-card">
+                        <span class="pc-icon">🔧</span>
+                        <div class="pc-name">Oil Filter</div>
+                        <div class="pc-brands">TAISEI KOGYO</div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539994517"
+                        class="product-card">
+                        <span class="pc-icon">👣</span>
+                        <div class="pc-name">Foot Switch</div>
+                        <div class="pc-brands">KOKUSAI · OJIDEN</div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539990819"
+                        class="product-card">
+                        <span class="pc-icon">💨</span>
+                        <div class="pc-name">Electric Fan</div>
+                        <div class="pc-brands">ROYAL Fan · STYLE</div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=350939"
+                        class="product-card">
+                        <span class="pc-icon">🛑</span>
+                        <div class="pc-name">Shock Absorber</div>
+                        <div class="pc-brands">ACE Controls Inc.</div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=250085"
+                        class="product-card">
+                        <span class="pc-icon">🔘</span>
+                        <div class="pc-name">Switch &amp; Sensor</div>
+                        <div class="pc-brands">CHASCO · SANTEST</div>
+                        <div class="brand-list" style="margin-top:10px;">
+                            <span class="brand-pill">Air Picker</span>
+                            <span class="brand-pill">Touch Sensor</span>
+                            <span class="brand-pill">Safety Checker</span>
+                            <span class="brand-pill">Linear Sensor</span>
+                        </div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538695145"
+                        class="product-card">
+                        <span class="pc-icon">🩺</span>
+                        <div class="pc-name">Rubber &amp; Expansion</div>
+                        <div class="pc-brands">BRIDGESTONE · FUJILATEX · ASTON</div>
+                        <div class="brand-list" style="margin-top:10px;">
+                            <span class="brand-pill">Rubber Expansion Joint</span>
+                            <span class="brand-pill">Nylon Tubing</span>
+                            <span class="brand-pill">Air Shaft</span>
+                        </div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=361858"
+                        class="product-card">
+                        <span class="pc-icon">🧲</span>
+                        <div class="pc-name">Clutch &amp; Controllers</div>
+                        <div class="pc-brands">SINFONIA · OGURA · DAIWA DENGYO</div>
+                        <div class="brand-list" style="margin-top:10px;">
+                            <span class="brand-pill">Clutch Controller</span>
+                            <span class="brand-pill">DC Controller</span>
+                            <span class="brand-pill">Torque Motor</span>
+                            <span class="brand-pill">Knife Heater</span>
+                        </div>
+                        <div class="pc-arrow">›</div>
+                    </a>
+                </div>
+            </section>
+            <!-- FEATURED PRODUCTS -->
+            <section class="featured-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>Product Showcase</span>
+                        Featured Items
+                    </div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=photo" class="section-link">Stock
+                        Pictures ›</a>
+                </div>
+                <div class="featured-grid">
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539990819"
+                        class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/STYLE FAN S15F10-ZM.jpg"
+                                alt="STYLE Electric Fan S15F10-ZM">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">STYLE</div>
+                            <div class="feat-name">Electric Fan S15F10-ZM</div>
+                        </div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672090"
+                        class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/OSAKIDENGYOSHA Power Module HD-100M(1).jpg"
+                                alt="OSAKIDENGYOSHA Power Module HD-100M">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">OSAKIDENGYOSHA</div>
+                            <div class="feat-name">Power Module HD-100M</div>
+                        </div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539993814"
+                        class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/TAISEI KOGYO Filter Element P-LND-06-20U.jpg"
+                                alt="TAISEI KOGYO Filter Element">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">TAISEI KOGYO</div>
+                            <div class="feat-name">Filter Element P-LND-06-20U</div>
+                        </div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=346053" class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/SUNTES Copper Pipe DB-0106-01-0_5M.JPG"
+                                alt="SUNTES Copper Pipe">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">SUNTES</div>
+                            <div class="feat-name">Copper Pipe DB-0106-01-0.5M</div>
+                        </div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539009437"
+                        class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/PEACOCK Dial Gauge 0-135X10^3Kg (300-42M2).JPG"
+                                alt="PEACOCK Dial Gauge">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">PEACOCK</div>
+                            <div class="feat-name">Dial Gauge 0-135×10³Kg</div>
+                        </div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672440"
+                        class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/OGURA Clutch MZ5D.jpg"
+                                alt="OGURA Clutch MZ5D">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">OGURA</div>
+                            <div class="feat-name">Clutch MZ5D</div>
+                        </div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=250085" class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/SANTEST Linear Sensor GYcAT4-2250-BD-M-CN.jpg"
+                                alt="SANTEST Linear Sensor">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">SANTEST</div>
+                            <div class="feat-name">Linear Sensor GYcAT4-2250</div>
+                        </div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538690229"
+                        class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/SEISA Gear Coupling GC-SSM140.JPG"
+                                alt="SEISA Gear Coupling GC-SSM140">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">SEISA</div>
+                            <div class="feat-name">Gear Coupling GC-SSM140</div>
+                        </div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538663611"
+                        class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/SUMITOMO Internal Gear Pump QT42-31_5-A.JPG"
+                                alt="SUMITOMO Internal Gear Pump">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">SUMITOMO</div>
+                            <div class="feat-name">Internal Gear Pump QT42-31.5-A</div>
+                        </div>
+                    </a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=346053" class="feat-card">
+                        <div class="feat-img-wrap">
+                            <img src="http://www.kpbgroup.com/images/intro_1151921436/SUNTES 4 Inch Diaphragm B00365-01(1).jpg"
+                                alt="SUNTES 4 Inch Diaphragm">
+                        </div>
+                        <div class="feat-body">
+                            <div class="feat-brand">SUNTES</div>
+                            <div class="feat-name">4 Inch Diaphragm B00365-01</div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+            <!-- BRANDS SHOWCASE -->
+            <section class="brands-section">
+                <div class="section-header" style="margin-bottom:0;">
+                    <div class="section-title">
+                        <span>Our Supplier Portfolio</span>
+                        Brands We Carry
+                    </div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=246775"
+                        class="section-link">All Brands A–Z ›</a>
+                </div>
+                <div class="brands-grid">
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=350939"
+                        class="brand-tag"><span class="dot"></span>ACE Controls</a>
+                    <a href="http://www.acecontrols.com/" target="_blank" class="brand-tag"><span class="dot"></span>ACE
+                        Controls Inc.</a>
+                    <a href="http://www.act-electric.co.jp/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>ACT Electric</a>
+                    <a href="http://www.aandd.jp/" target="_blank" class="brand-tag"><span class="dot"></span>A&amp;D
+                        Company</a>
+                    <a href="http://mail.asahigauge.co.jp/english/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>ASAHI GAUGE</a>
+                    <a href="https://www.aston-airshaft.com/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>ASTON Air Shaft</a>
+                    <a href="http://www.bierihydraulics.com/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>BIERI Hydraulik</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=250082"
+                        class="brand-tag"><span class="dot"></span>BRIDGESTONE</a>
+                    <a href="http://chasco.co.kr/" target="_blank" class="brand-tag"><span class="dot"></span>CHASCO</a>
+                    <a href="http://www.daidoseimitu.co.jp/e/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>DAIDO PRECISION</a>
+                    <a href="https://www.hyd.daikin.com/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>DAIKIN Hydraulics</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147538213"
+                        class="brand-tag"><span class="dot"></span>DAIWA DENGYO</a>
+                    <a href="https://www.exen.co.jp/english/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>EXEN</a>
+                    <a href="http://www.fawick.co.jp/en/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>FAWICK</a>
+                    <a href="https://www.fujielectric.com/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>FUJI ELECTRIC</a>
+                    <a href="https://www.fujilatex.co.jp/en/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>FUJI LATEX</a>
+                    <a href="https://www.fujikin.co.jp/en/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>FUJIKIN</a>
+                    <a href="https://www.fuji-techno.co.jp/english/" target="_blank" class="brand-tag"><span
+                            class="dot"></span>FUJI TECHNO</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538705450"
+                        class="brand-tag"><span class="dot"></span>HIROTAKA-SEIKI</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539993993"
+                        class="brand-tag"><span class="dot"></span>JAC COUPLING</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988763"
+                        class="brand-tag"><span class="dot"></span>MIKI PULLEY</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988754"
+                        class="brand-tag"><span class="dot"></span>NBK</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539995279"
+                        class="brand-tag"><span class="dot"></span>NMB (MINEBEA)</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672440"
+                        class="brand-tag"><span class="dot"></span>OGURA</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539994524"
+                        class="brand-tag"><span class="dot"></span>OJIDEN</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538690229"
+                        class="brand-tag"><span class="dot"></span>SEISA</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672090"
+                        class="brand-tag"><span class="dot"></span>SINFONIA</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=346053"
+                        class="brand-tag"><span class="dot"></span>SUNTES</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539993813"
+                        class="brand-tag"><span class="dot"></span>TAISEI KOGYO</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672291"
+                        class="brand-tag"><span class="dot"></span>TOCOS</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672151"
+                        class="brand-tag"><span class="dot"></span>TOYO</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672240"
+                        class="brand-tag"><span class="dot"></span>WATANABE</a>
+                </div>
+            </section>
+        </main>
+    </div>
+    <!-- ── INFO BLOCKS ── -->
+    <section class="info-blocks">
+        <div class="info-blocks-inner">
+            <div class="info-blocks-title">Resources &amp; Services</div>
+            <div class="info-blocks-sub">Everything you need to source the right industrial component</div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <span class="ic-icon">📖</span>
+                    <div class="ic-title">KPB Catalogue 2025</div>
+                    <div class="ic-desc">Full product catalogue with specifications, part numbers, and ordering
+                        information for all brands.</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672687">Download
+                        Catalogue →</a>
+                </div>
+                <div class="info-card">
+                    <span class="ic-icon">🏭</span>
+                    <div class="ic-title">Machine Catalog</div>
+                    <div class="ic-desc">Detailed machine-level catalogs for brands including ACT, DAIDO, JAC, HIROTAKA,
+                        SUNTES, SINFONIA and more.</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672061">View Machine
+                        Catalog →</a>
+                </div>
+                <div class="info-card">
+                    <span class="ic-icon">📐</span>
+                    <div class="ic-title">Technical Drawings</div>
+                    <div class="ic-desc">CAD-ready dimensional drawings and technical specifications for engineering and
+                        design integration.</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672420">Access
+                        Drawings →</a>
+                </div>
+                <div class="info-card">
+                    <span class="ic-icon">📦</span>
+                    <div class="ic-title">Stock &amp; Availability</div>
+                    <div class="ic-desc">Check our current stock list and view pictures of available inventory ready to
+                        ship.</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539155778">Check Stock
+                        List →</a>
+                </div>
+                <div class="info-card">
+                    <span class="ic-icon">🔍</span>
+                    <div class="ic-title">Product Search</div>
+                    <div class="ic-desc">Search across all products, part numbers, and brands in our comprehensive
+                        database.</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=search_content">Search Products →</a>
+                </div>
+                <div class="info-card">
+                    <span class="ic-icon">🏢</span>
+                    <div class="ic-title">Company Profile</div>
+                    <div class="ic-desc">Learn about KPB Group — our history, capabilities, authorised brand
+                        partnerships, and mission.</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=246776">About KPB Group
+                        →</a>
+                </div>
+                <div class="info-card">
+                    <span class="ic-icon">👥</span>
+                    <div class="ic-title">Our Customers</div>
+                    <div class="ic-desc">See the industries and companies we proudly serve across Thailand's
+                        manufacturing sector.</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=344359">View Customers
+                        →</a>
+                </div>
+                <div class="info-card">
+                    <span class="ic-icon">📞</span>
+                    <div class="ic-title">Contact &amp; Map</div>
+                    <div class="ic-desc">Get in touch with our team for quotations, technical support, or to visit our
+                        showroom.</div>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=383149">Contact Us →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ── FOOTER ── -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="logo-mark">KPB</div>
+                <div class="brand-name">KPB Group</div>
+                <p>Authorised distributor of premium Japanese and international industrial components. Serving
+                    Thailand's manufacturing and engineering industries with genuine, in-stock parts and full technical
+                    support.</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=383149"
+                        class="btn-primary" style="font-size:13px;padding:9px 18px;">Contact Us</a>
+                    <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=search_content" class="btn-outline"
+                        style="font-size:13px;padding:9px 18px;border-color:rgba(255,255,255,0.2);color:#8aacc8;">Search
+                        Products</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Products</h4>
+                <ul>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988742">Brake
+                            Systems</a></li>
+                    <li><a
+                            href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539988741">Coupling</a>
+                    </li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539991268">Pressure
+                            Switch</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539991128">Rotary
+                            Joint</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539724335">Vibration
+                            Equipment</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539990819">Electric
+                            Fan</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539993814">Oil
+                            Filter</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539997019">Load
+                            Cell</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=350939">Shock
+                            Absorber</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=538705450">Power
+                            Cylinder</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672228">Catalogue
+                            / แคตตาล็อก</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672687">Catalogue
+                            2025</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672061">Machine
+                            Catalog</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=2147672420">Technical
+                            Drawings</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539155778">Stock
+                            List</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=photo">Stock Pictures</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=search_content">Search Products</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=246776">Company
+                            Profile</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=246775">Brands
+                            List</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=344359">Our
+                            Customers</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=383149">Contact Us</a>
+                    </li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539906579">Location
+                            Map</a></li>
+                    <li><a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539383819">Partner
+                            Links</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>© 2025 KPB Group · www.kpbgroup.com · All rights reserved.</div>
+            <div>
+                <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=383149">Contact</a>
+                &nbsp;·&nbsp;
+                <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539906579">Map</a>
+                &nbsp;·&nbsp;
+                <a href="http://www.kpbgroup.com/index.php?lay=show&amp;ac=article&amp;Id=539383819">Links</a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Sticky nav background on scroll
+        const siteNav = document.getElementById('siteNav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 60) {
+                siteNav.classList.add('scrolled');
+            } else {
+                siteNav.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile nav toggle
+        function toggleMobileNav() {
+            const links = document.getElementById('navLinks');
+            links.classList.toggle('open');
+        }
+
+        // Dropdown toggle for mobile (nav buttons)
+        function toggleDrop(btn) {
+            const isMobile = window.innerWidth <= 768;
+            if (!isMobile) return;
+            const dropdown = btn.parentElement.querySelector('.nav-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('open');
+            }
+        }
+
+        // Close nav on outside click
+        document.addEventListener('click', (e) => {
+            const nav = document.getElementById('siteNav');
+            const links = document.getElementById('navLinks');
+            if (!nav.contains(e.target)) {
+                links.classList.remove('open');
+            }
+        });
+
+        // Smooth card hover ripple effect (minimal)
+        document.querySelectorAll('.product-card, .feat-card, .info-card').forEach(card => {
+            card.addEventListener('mouseenter', function () {
+                this.style.transition = 'transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s, border-color 0.22s';
+            });
+            card.addEventListener('mouseleave', function () {
+                this.style.transition = 'transform 0.22s, box-shadow 0.22s, border-color 0.22s';
+            });
+        });
+    </script>
+</body>
+
+</html>

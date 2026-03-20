@@ -1,0 +1,265 @@
+<style>
+    .features-section-9271 {
+        width: 100%;
+        height: 80vh;
+        background-image: url(https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3b282fa6b6ae845893600.webp);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 60px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        position: relative;
+        font-family: 'Noto Sans Thai', sans-serif;
+    }
+
+    .features-section-9271::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(235, 238, 245, 0.55);
+        pointer-events: none;
+    }
+
+    .features-inner-9271 {
+        position: relative;
+        z-index: 1;
+        max-width: 1800px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .features-title-9271 {
+        font-size: 40px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 10px;
+        letter-spacing: 0.01em;
+    }
+
+    .features-subtitle-9271 {
+        font-size: 25px;
+        font-weight: 600;
+        color: #e05a00;
+        margin-bottom: 40px;
+    }
+
+    .features-grid-9271 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .feature-card-9271 {
+        background: rgba(255, 255, 255, 0.88);
+        border-radius: 16px;
+        padding: 28px 24px;
+        text-align: left;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+        transition: box-shadow 0.2s;
+    }
+
+    .feature-card-9271:hover {
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.13);
+    }
+
+    .feature-icon-wrap-9271 {
+        width: 70px;
+        height: 70px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+        flex-shrink: 0;
+    }
+
+    .feature-card-title-9271 {
+        font-size: 30px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .feature-card-desc-9271 {
+        font-size: 15px;
+        font-weight: 400;
+        color: #555555;
+        line-height: 1.75;
+    }
+
+    @media (max-width: 768px) {
+        .features-grid-9271 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .features-grid-9271 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="features-section-9271">
+    <div class="features-inner-9271">
+        <h2 class="features-title-9271 feat-title-slot"></h2>
+        <p class="features-subtitle-9271 feat-subtitle-slot"></p>
+        <div class="features-grid-9271 feat-grid-slot"></div>
+    </div>
+</div>
+
+<script>
+    const featuresMap = {
+        'sol-ai-contact-center': {
+            title: 'ฟีเจอร์หลัก',
+            subtitle: 'ศูนย์บริการลูกค้าอัจฉริยะ',
+            cards: [
+                { icon: '', cardTitle: 'AI Voicebot', cardDesc: 'สนทนาด้วยเสียงภาษาไทยธรรมชาติเข้าใจสำเนียงท้องถิ่น รับสายโทรศัพท์ได้พร้อม กันไม่จำกัด ไม่มีสายตก' },
+                { icon: '', cardTitle: 'AI Chatbot', cardDesc: 'ตอบข้อความ LINE, Facebook Messenger, Web Chat จากจุดเดียว (Unified Inbox)' },
+                { icon: '', cardTitle: 'Omni-channel', cardDesc: 'ทุกช่องทางเชื่อมเป็นบทสนทนาเดียว ลูกค้าเปลี่ยนช่องทางได้โดยไม่ต้องเริ่มใหม่' },
+                { icon: '', cardTitle: 'RAG Engine', cardDesc: 'เรียนรู้จากเอกสารองค์กร ตอบได้แม่นยำ อ้างอิงแหล่งข้อมูลได้ ไม่ Hallucinate' },
+                { icon: '', cardTitle: 'Warm Transfer', cardDesc: 'โอนสายไปเจ้าหน้าที่จริงพร้อมบริบทบทสนทนา ลูกค้าไม่ต้องเล่าซ้ำ' },
+                { icon: '', cardTitle: 'Dashboard & Analytics', cardDesc: 'รายงานสถิติ Real-time: สายโทรเข้า, เวลาเฉลี่ย, อัตราแก้ปัญหาสำเร็จ, CSAT' },
+            ],
+        },
+        'sol-ai-agent-assist': {
+            title: 'ฟีเจอร์หลัก',
+            subtitle: 'ผู้ช่วย AI สำหรับเจ้าหน้าที่ Call Center / Helpdesk',
+            cards: [
+                { icon: '', cardTitle: 'Real-time Suggest', cardDesc: 'แนะนำคำตอบให้เจ้าหน้าที่ขณะสนทนา จาก SOP, KB, FAQ ขององค์กร' },
+                { icon: '', cardTitle: 'Auto Summarization', cardDesc: 'สรุปบทสนทนาอัตโนมัติเมื่อจบสาย ลด After-Call Work (ACW) ได้ทันที' },
+                { icon: '', cardTitle: 'Sentiment Analysis', cardDesc: 'วิเคราะห์อารมณ์ลูกค้า Real-time แจ้งเตือนหัวหน้าทีมเมื่อเกิดวิกฤต' },
+                { icon: '', cardTitle: 'Knowledge Search', cardDesc: 'ค้นหาข้อมูลจากเอกสาร SOP, Policy, FAQ ให้เจ้าหน้าที่ได้ทันที' },
+                { icon: '', cardTitle: 'Compliance Check', cardDesc: 'ตรวจสอบว่าเจ้าหน้าที่พูดครบตาม Script / ข้อกำหนดหรือไม่' },
+                { icon: '', cardTitle: 'Performance Dashboard', cardDesc: 'วิเคราะห์ผลงานเจ้าหน้าที่ AHT, FCR, CSAT รายบุคคลและรายทีม' },
+            ],
+        },
+        'sol-ai-knowledge-hub': {
+            title: 'ฟีเจอร์หลัก',
+            subtitle: 'ระบบค้นหาความรู้จากเอกสารองค์กรด้วย RAG',
+            cards: [
+                { icon: '', cardTitle: 'RAG Engine', cardDesc: 'ดึงข้อมูลจากเอกสารองค์กร สร้างคำตอบพร้อมอ้างอิงแหล่งที่มาชัดเจน' },
+                { icon: '', cardTitle: 'Multi-format Support', cardDesc: 'รองรับ PDF, Word, Excel, PowerPoint, Wiki, Database, Confluence, SharePoint' },
+                { icon: '', cardTitle: 'Source Citation', cardDesc: 'ทุกคำตอบมีลิงก์ไปยังเอกสารต้นทาง ตรวจสอบได้ทันที' },
+                { icon: '', cardTitle: 'Cross-document Linking', cardDesc: 'เชื่อมโยงข้อมูลข้ามเอกสารอัตโนมัติ ตอบคำถามที่ต้องใช้ข้อมูลจากหลายแหล่ง' },
+                { icon: '', cardTitle: 'Access Control', cardDesc: 'ควบคุมสิทธิ์การเข้าถึงตามตำแหน่งงาน แผนก หรือระดับความลับ' },
+                { icon: '', cardTitle: 'Multi-language', cardDesc: 'รองรับภาษาไทย อังกฤษ และภาษาอื่น ๆ ค้นหาข้ามภาษาได้' },
+            ],
+        },
+        'sol-ai-doc-automation': {
+            title: 'ฟีเจอร์หลัก',
+            subtitle: 'ระบบจัดการเอกสารอัจฉริยะ พร้อม Workflow อนุมัติ',
+            cards: [
+                { icon: '', cardTitle: 'Auto Draft', cardDesc: 'ร่างเอกสารอัตโนมัติจากเทมเพลตที่กำหนด กรอกข้อมูลจากระบบ CRM/ERP' },
+                { icon: '', cardTitle: 'Intelligent Summarize', cardDesc: 'สรุปเอกสารยาว ๆ ให้กระชับเหลือไม่กี่ย่อหน้า คงสาระสำคัญครบ' },
+                { icon: '', cardTitle: 'Document Comparison', cardDesc: 'เปรียบเทียบ 2 เวอร์ชัน ไฮไลท์จุดที่เปลี่ยนแปลง ตรวจสอบความสอดคล้อง' },
+                { icon: '', cardTitle: 'Approval Workflow', cardDesc: 'Workflow อนุมัติดิจิทัลครบวงจร กำหนดลำดับผู้อนุมัติ แจ้งเตือนอัตโนมัติ' },
+                { icon: '', cardTitle: 'Compliance Check', cardDesc: 'ตรวจสอบเอกสารตามมาตรฐานที่กำหนด Flag จุดที่ไม่สอดคล้อง' },
+                { icon: '', cardTitle: 'Audit Trail', cardDesc: 'บันทึกประวัติทุกการแก้ไข ทุกการอนุมัติ ครบถ้วนตาม Compliance' },
+            ],
+        },
+        'sol-ai-recept-kiosk-ai': {
+            title: 'ฟีเจอร์หลัก',
+            subtitle: '',
+            cards: [
+                { icon: '', cardTitle: 'Voice + Text AI', cardDesc: 'สนทนาด้วยเสียงและข้อความแบบธรรมชาติ ไม่ใช่แค่กดเลือกเมนู' },
+                { icon: '', cardTitle: 'Multi-language (4+)', cardDesc: 'ตอบข้อความ LINE, Facebook Messenger, Web Chat จากจุดเดียว (Unified Inbox)' },
+                { icon: '', cardTitle: 'Visitor Screening', cardDesc: 'คัดกรองผู้เข้าพบ ตรวจสอบนัดหมาย แจ้งเจ้าหน้าที่อัตโนมัติ' },
+                { icon: '', cardTitle: 'Wayfinding', cardDesc: 'แนะนำเส้นทางภายในอาคาร แสดงแผนที่ นำทางไปยังจุดหมาย' },
+                { icon: '', cardTitle: 'Appointment Booking', cardDesc: 'จองนัดหมาย จองห้องประชุม เชื่อมต่อปฏิทินองค์กร' },
+                { icon: '', cardTitle: 'System Integration', cardDesc: 'เชื่อมต่อ Access Control, Visitor Management, PBX, Calendar' },
+            ],
+        },
+        'ai-video-analytics': {
+            title: 'ฟีเจอร์หลัก',
+            subtitle: 'วิเคราะห์ภาพจากกล้อง CCTV ด้วย AI',
+            cards: [
+                { icon: '', cardTitle: 'Anomaly Detection', cardDesc: 'ตรวจจับเหตุการณ์ผิดปกติอัตโนมัติ เช่น ผู้บุกรุก, วัตถุต้องสงสัย, พฤติกรรมผิดปกติ' },
+                { icon: '', cardTitle: 'People Counting', cardDesc: 'นับจำนวนคนแบบ Real-time วิเคราะห์ Heat Map จุดที่คนเดินเยอะ' },
+                { icon: '', cardTitle: 'PPE Detection', cardDesc: 'ตรวจจับอุปกรณ์ความปลอดภัย (หมวก, แว่น, เสื้อสะท้อนแสง) ในโรงงาน' },
+                { icon: '', cardTitle: 'Face Recognition', cardDesc: 'ตรวจจับใบหน้าสำหรับ Access Control (ปฏิบัติตาม PDPA)' },
+                { icon: '', cardTitle: 'Real-time Alert', cardDesc: 'แจ้งเตือนทันทีผ่าน LINE, SMS, Email, Dashboard เมื่อตรวจจับเหตุ' },
+                { icon: '', cardTitle: 'Legacy Camera Support', cardDesc: 'ใช้ได้กับกล้อง CCTV เดิมที่มีอยู่แล้ว ไม่ต้องเปลี่ยนอุปกรณ์' },
+            ],
+        },
+        'sol-ai-monitoring-smart-alert': {
+            title: 'ฟีเจอร์หลัก',
+            subtitle: 'วิเคราะห์เหตุการณ์ระบบ IT/Ops/Industrial พร้อมแจ้งเตือน Actionable',
+            cards: [
+                { icon: '', cardTitle: 'AI Alert Filtering', cardDesc: 'กลั่นกรอง Alert ด้วย AI ลด Alert Fatigue เหลือแต่สิ่งสำคัญ' },
+                { icon: '', cardTitle: 'Actionable Alert', cardDesc: 'นับจำนวนคนแบบ Real-time วิเคราะห์ Heat Map จุดที่คนเดินเยอะ' },
+                { icon: '', cardTitle: 'Predictive Detection', cardDesc: 'ตรวจจับความผิดปกติก่อนเกิดปัญหาจริง (Anomaly Detection + Predictive)' },
+                { icon: '', cardTitle: 'Root Cause Analysis', cardDesc: 'วิเคราะห์สาเหตุรากเหง้าของปัญหาอัตโนมัติ ลดเวลา Troubleshoot' },
+                { icon: '', cardTitle: 'Multi-domain', cardDesc: 'รองรับ IT (Server, Network), Ops (สายผลิต), Industrial (เครื่องจักร)' },
+                { icon: '', cardTitle: 'Integration', cardDesc: 'เชื่อมต่อ Dashboard, Ticketing System, LINE, SMS, PagerDuty' },
+            ],
+        },
+        'sol-ai-learning-assistant': {
+            title: 'ฟีเจอร์หลัก',
+            subtitle: 'ศูนย์บริการลูกค้าอัจฉริยะ',
+            cards: [
+                { icon: '', cardTitle: 'Q&A from Lessons', cardDesc: 'ตอบคำถามจากบทเรียนพร้อมอ้างอิงเนื้อหา ไม่แต่งคำตอบจากความรู้ภายนอก' },
+                { icon: '', cardTitle: 'Auto Quiz Generator', cardDesc: 'สร้างข้อสอบ Practice Test จากเนื้อหาบทเรียนอัตโนมัติ' },
+                { icon: '', cardTitle: 'Content Summarizer', cardDesc: 'สรุปเนื้อหาบทเรียนให้กระชับ เหมาะสำหรับการทบทวน' },
+                { icon: '', cardTitle: 'Weakness Analysis', cardDesc: 'วิเคราะห์จุดอ่อนผู้เรียนรายบุคคล แนะนำเนื้อหาทบทวน' },
+                { icon: '', cardTitle: 'Personalized Learning', cardDesc: 'ปรับระดับความยากและเนื้อหาตามผู้เรียนแต่ละคน' },
+                { icon: '', cardTitle: 'Teacher Dashboard', cardDesc: 'Dashboard สำหรับอาจารย์ดูภาพรวมผู้เรียน วิเคราะห์ Learning Gap' },
+            ],
+        },
+    };
+
+
+
+    function applyFeatures() {
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        let content = null;
+
+        for (const segment of pathSegments) {
+            if (featuresMap[segment]) {
+                content = featuresMap[segment];
+                break;
+            }
+        }
+
+        if (!content) return;
+
+        const fallbackIcon = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/>
+    <path d="M12 8v4" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="12" cy="16" r="1" fill="white"/>
+</svg>`;
+
+        // Background image
+        const section = document.querySelector('.features-section-9271');
+        if (section && content.bgImage) {
+            section.style.backgroundImage = `url('${content.bgImage}')`;
+        }
+
+        // Title & subtitle
+        const title = document.querySelector('.feat-title-slot');
+        if (title && content.title) title.textContent = content.title;
+
+        const subtitle = document.querySelector('.feat-subtitle-slot');
+        if (subtitle && content.subtitle) subtitle.textContent = content.subtitle;
+
+        // Cards
+        const grid = document.querySelector('.feat-grid-slot');
+        if (grid && content.cards?.length) {
+            grid.innerHTML = content.cards.map(card => `
+    <div class="feature-card-9271">
+        <div class="feature-icon-wrap-9271">
+            ${card.icon || fallbackIcon}
+        </div>
+        <h3 class="feature-card-title-9271">${card.cardTitle}</h3>
+        <p class="feature-card-desc-9271">${card.cardDesc}</p>
+    </div>
+`).join('');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyFeatures);
+</script>

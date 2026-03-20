@@ -139,6 +139,74 @@ const modelMap = {
 
 setupModernizeWeb(app, anthropic, modelMap);
 
+// ========== CONVERSATION PERSISTENCE ==========
+const CONVERSATIONS_DIR = path.join(__dirname, 'conversations');
+if (!fs.existsSync(CONVERSATIONS_DIR)) {
+  fs.mkdirSync(CONVERSATIONS_DIR, { recursive: true });
+}
+
+// List all conversations
+app.get("/api/conversations", (req, res) => {
+  try {
+    const files = fs.readdirSync(CONVERSATIONS_DIR);
+    const summaries = files
+      .filter(f => f.endsWith('.json'))
+      .map(f => {
+        try {
+          const content = JSON.parse(fs.readFileSync(path.join(CONVERSATIONS_DIR, f), 'utf8'));
+          return {
+            id: content.id,
+            title: content.title,
+            date: content.date,
+            lastUpdated: fs.statSync(path.join(CONVERSATIONS_DIR, f)).mtime
+          };
+        } catch (e) {
+          return null;
+        }
+      })
+      .filter(Boolean)
+      .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+    
+    res.json(summaries);
+  } catch (err) {
+    console.error("Error listing conversations:", err);
+    res.status(500).json({ error: "Failed to list conversations" });
+  }
+});
+
+// Get a specific conversation
+app.get("/api/conversations/:id", (req, res) => {
+  try {
+    const filePath = path.join(CONVERSATIONS_DIR, `${req.params.id}.json`);
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      res.json(JSON.parse(content));
+    } else {
+      res.status(404).json({ error: "Conversation not found" });
+    }
+  } catch (err) {
+    console.error("Error loading conversation:", err);
+    res.status(500).json({ error: "Failed to load conversation" });
+  }
+});
+
+// Save a conversation
+app.post("/api/save-conversation", (req, res) => {
+  try {
+    const conversation = req.body;
+    if (!conversation || !conversation.id) {
+      return res.status(400).json({ error: "Invalid conversation data" });
+    }
+    
+    const filePath = path.join(CONVERSATIONS_DIR, `${conversation.id}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(conversation, null, 2));
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error saving conversation:", err);
+    res.status(500).json({ error: "Failed to save conversation" });
+  }
+});
+
 // ========== ADAPTIVE PIPELINE ENDPOINT ==========
 app.post("/api/adaptive-chat", async (req, res) => {
   try {

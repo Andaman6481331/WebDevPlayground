@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <!DOCTYPE html>
+    <html lang="th">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Topline Center Co.,Ltd. — Professional Cleaning Solutions</title>
+        <meta name="description"
+            content="Topline Center Co.,Ltd. — ผู้จำหน่ายเครื่องทำความสะอาด เคมีภัณฑ์ และอุปกรณ์ดูแลพื้น ระดับมืออาชีพ">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+            rel="stylesheet">
+        <style>
+            /* ── CSS Custom Properties ───────────────────────────── */
+            :root {
+                --primary: #1a5f7a;
+                --primary-light: #2e86a8;
+                --primary-dark: #0d3f54;
+                --accent: #e07b39;
+                --accent-light: #f5a56a;
+                --bg: #f5f7f9;
+                --bg-alt: #ffffff;
+                --bg-dark: #0d2e3a;
+                --text: #1c2b33;
+                --text-muted: #5a7080;
+                --border: #d0dde4;
+                --card-shadow: 0 2px 12px rgba(26, 95, 122, 0.10);
+                --card-hover: 0 8px 28px rgba(26, 95, 122, 0.18);
+                --font-display: 'Playfair Display', serif;
+                --font-body: 'DM Sans', sans-serif;
+                --radius: 10px;
+                --radius-lg: 16px;
+                --transition: 0.25s ease;
+                --nav-height: 68px;
+            }
+
+            /* ── Reset & Base ────────────────────────────────────── */
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: var(--font-body);
+                background: var(--bg);
+                color: var(--text);
+                font-size: 15px;
+                line-height: 1.65;
+            }
+
+            img {
+                max-width: 100%;
+                display: block;
+            }
+
+            a {
+                color: inherit;
+                text-decoration: none;
+            }
+
+            ul {
+                list-style: none;
+            }
+
+            /* ── Utilities ───────────────────────────────────────── */
+            .container {
+                max-width: 1800px;
+                margin: 0 auto;
+                padding: 0 32px;
+            }
+
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+            }
+
+            .tag {
+                display: inline-block;
+                background: var(--primary-light);
+                color: #fff;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                padding: 3px 9px;
+                border-radius: 20px;
+                margin-bottom: 6px;
+            }
+
+            .tag--accent {
+                background: var(--accent);
+            }
+
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 10px 22px;
+                border-radius: var(--radius);
+                font-family: var(--font-body);
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all var(--transition);
+                border: none;
+            }
+
+            .btn-primary {
+                background: var(--accent);
+                color: #fff;
+            }
+
+            .btn-primary:hover {
+                background: #c9672a;
+                transform: translateY(-1px);
+            }
+
+            .btn-outline {
+                background: transparent;
+                border: 2px solid rgba(255, 255, 255, .6);
+                color: #fff;
+            }
+
+            .btn-outline:hover {
+                background: rgba(255, 255, 255, .15);
+                transform: translateY(-1px);
+            }
+
+            .section-title {
+                font-family: var(--font-display);
+                font-size: clamp(1.3rem, 2vw, 1.8rem);
+                font-weight: 700;
+                color: var(--primary-dark);
+                margin-bottom: 4px;
+            }
+
+            .section-sub {
+                color: var(--text-muted);
+                font-size: 14px;
+                margin-bottom: 28px;
+            }
+
+            /* ── Announcement Strip ──────────────────────────────── */
+            .announcement {
+                background: var(--primary-dark);
+                color: #b8dce8;
+                text-align: center;
+                font-size: 13px;
+                font-weight: 500;
+                padding: 9px 20px;
+                letter-spacing: .03em;
+            }
+
+            .announcement strong {
+                color: #fff;
+            }
+
+            /* ── Sticky Nav ──────────────────────────────────────── */
+            .nav-wrap {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                height: var(--nav-height);
+                transition: background var(--transition), box-shadow var(--transition);
+                background: var(--bg-alt);
+            }
+
+            .nav-wrap.scrolled {
+                background: rgba(255, 255, 255, .97);
+                box-shadow: 0 2px 16px rgba(26, 95, 122, 0.12);
+            }
+
+            .nav-inner {
+                max-width: 1800px;
+                margin: 0 auto;
+                padding: 0 32px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                gap: 28px;
+            }
+
+            .nav-logo {
+                display: flex;
+                flex-direction: column;
+                line-height: 1.15;
+                min-width: 180px;
+            }
+
+            .nav-logo .logo-main {
+                font-family: var(--font-display);
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--primary-dark);
+                letter-spacing: -.02em;
+            }
+
+            .nav-logo .logo-sub {
+                font-size: 10.5px;
+                color: var(--text-muted);
+                letter-spacing: .08em;
+                text-transform: uppercase;
+            }
+
+            .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                flex: 1;
+            }
+
+            .nav-links a {
+                font-size: 13.5px;
+                font-weight: 500;
+                color: var(--text);
+                padding: 8px 14px;
+                border-radius: var(--radius);
+                transition: all var(--transition);
+                white-space: nowrap;
+            }
+
+            .nav-links a:hover,
+            .nav-links a.active {
+                background: var(--primary);
+                color: #fff;
+            }
+
+            .nav-cta {
+                background: var(--accent);
+                color: #fff;
+                padding: 9px 20px;
+                border-radius: var(--radius);
+                font-size: 13.5px;
+                font-weight: 600;
+                transition: all var(--transition);
+                white-space: nowrap;
+            }
+
+            .nav-cta:hover {
+                background: #c9672a;
+                transform: translateY(-1px);
+                color: #fff;
+            }
+
+            .nav-phone {
+                font-size: 13px;
+                color: var(--primary);
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            .nav-phone span {
+                color: var(--text-muted);
+                font-weight: 400;
+                font-size: 11px;
+                display: block;
+            }
+
+            .hamburger {
+                display: none;
+                flex-direction: column;
+                gap: 5px;
+                cursor: pointer;
+                padding: 6px;
+                border: none;
+                background: none;
+            }
+
+            .hamburger span {
+                width: 24px;
+                height: 2px;
+                background: var(--text);
+                border-radius: 2px;
+                transition: all .3s;
+                display: block;
+            }
+
+            /* ── Hero ────────────────────────────────────────────── */
+            .hero {
+                background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 55%, var(--primary-light) 100%);
+                color: #fff;
+                padding: 72px 32px 60px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .hero::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: url('http://www.toplinecenter.co.th/lib_images/sbanner/globalwarming_1024.jpg') center/cover no-repeat;
+                opacity: .12;
+            }
+
+            .hero-inner {
+                max-width: 1800px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 48px;
+                align-items: center;
+                position: relative;
+                z-index: 1;
+            }
+
+            .hero-label {
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: .15em;
+                text-transform: uppercase;
+                color: var(--accent-light);
+                margin-bottom: 14px;
+            }
+
+            .hero h1 {
+                font-family: var(--font-display);
+                font-size: clamp(2rem, 4vw, 3.2rem);
+                font-weight: 700;
+                line-height: 1.18;
+                margin-bottom: 18px;
+            }
+
+            .hero h1 em {
+                color: var(--accent-light);
+                font-style: normal;
+            }
+
+            .hero-desc {
+                color: rgba(255, 255, 255, .82);
+                font-size: 15.5px;
+                max-width: 500px;
+                margin-bottom: 30px;
+                line-height: 1.7;
+            }
+
+            .hero-actions {
+                display: flex;
+                gap: 14px;
+                flex-wrap: wrap;
+            }
+
+            .hero-image-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .hero-image-grid img {
+                border-radius: var(--radius);
+                width: 100%;
+                height: 160px;
+                object-fit: cover;
+                opacity: .9;
+                transition: opacity var(--transition);
+            }
+
+            .hero-image-grid img:first-child {
+                grid-column: span 2;
+                height: 200px;
+            }
+
+            .hero-image-grid img:hover {
+                opacity: 1;
+            }
+
+            /* ── Trust Bar ───────────────────────────────────────── */
+            .trust-bar {
+                background: var(--bg-alt);
+                border-bottom: 1px solid var(--border);
+                padding: 22px 32px;
+            }
+
+            .trust-inner {
+                max-width: 1800px;
+                margin: 0 auto;
+                display: flex;
+                justify-content: space-between;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+
+            .trust-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .trust-icon {
+                width: 42px;
+                height: 42px;
+                background: var(--primary);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                color: #fff;
+                font-size: 18px;
+            }
+
+            .trust-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text);
+            }
+
+            .trust-desc {
+                font-size: 11.5px;
+                color: var(--text-muted);
+            }
+
+            /* ── Main 2-column Layout ────────────────────────────── */
+            .main-body {
+                max-width: 1800px;
+                margin: 0 auto;
+                padding: 40px 32px 60px;
+                display: grid;
+                grid-template-columns: 280px 1fr;
+                gap: 36px;
+                align-items: start;
+            }
+
+            /* ── Sidebar ─────────────────────────────────────────── */
+            .sidebar {
+                position: sticky;
+                top: calc(var(--nav-height) + 20px);
+                background: var(--bg-alt);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                overflow: hidden;
+                box-shadow: var(--card-shadow);
+            }
+
+            .sidebar-header {
+                background: var(--primary-dark);
+                color: #fff;
+                padding: 16px 20px;
+                font-family: var(--font-display);
+                font-size: 1rem;
+                font-weight: 700;
+                letter-spacing: .02em;
+            }
+
+            .cat-group {
+                border-bottom: 1px solid var(--border);
+            }
+
+            .cat-group:last-child {
+                border-bottom: none;
+            }
+
+            .cat-group-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 13px 20px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 13.5px;
+                color: var(--primary-dark);
+                transition: background var(--transition);
+                user-select: none;
+                background: none;
+                border: none;
+                width: 100%;
+                text-align: left;
+                font-family: var(--font-body);
+            }
+
+            .cat-group-toggle:hover {
+                background: var(--bg);
+            }
+
+            .cat-group-toggle .chevron {
+                transition: transform var(--transition);
+                font-size: 12px;
+                color: var(--text-muted);
+            }
+
+            .cat-group.open .chevron {
+                transform: rotate(180deg);
+            }
+
+            .cat-items {
+                display: none;
+                padding: 4px 0 10px 0;
+                background: var(--bg);
+            }
+
+            .cat-group.open .cat-items {
+                display: block;
+            }
+
+            .cat-items a {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 7px 20px 7px 28px;
+                font-size: 13px;
+                color: var(--text);
+                transition: all var(--transition);
+            }
+
+            .cat-items a::before {
+                content: '›';
+                color: var(--accent);
+                font-size: 16px;
+                line-height: 1;
+                flex-shrink: 0;
+            }
+
+            .cat-items a:hover {
+                background: var(--primary);
+                color: #fff;
+                padding-left: 32px;
+            }
+
+            .cat-items a:hover::before {
+                color: #fff;
+            }
+
+            /* ── Content Area ────────────────────────────────────── */
+            .content-area {
+                min-width: 0;
+            }
+
+            /* section spacing */
+            .content-section {
+                margin-bottom: 48px;
+            }
+
+            /* ── Product / Category Feature Cards ───────────────── */
+            .feature-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+
+            .feat-card {
+                background: var(--bg-alt);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                overflow: hidden;
+                transition: all var(--transition);
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .feat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--card-hover);
+                border-color: var(--primary-light);
+            }
+
+            .feat-card img {
+                width: 100%;
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .feat-card-body {
+                padding: 18px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .feat-card-body h3 {
+                font-family: var(--font-display);
+                font-size: 1rem;
+                font-weight: 700;
+                color: var(--primary-dark);
+                margin-bottom: 8px;
+            }
+
+            .feat-card-body p {
+                font-size: 13.5px;
+                color: var(--text-muted);
+                flex: 1;
+                line-height: 1.6;
+            }
+
+            .feat-card-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                margin-top: 14px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--primary);
+                transition: color var(--transition);
+            }
+
+            .feat-card-link:hover {
+                color: var(--accent);
+            }
+
+            .feat-card-link::after {
+                content: '→';
+            }
+
+            /* ── Article / News Cards ────────────────────────────── */
+            .article-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 22px;
+            }
+
+            .article-card {
+                background: var(--bg-alt);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                display: flex;
+                gap: 16px;
+                padding: 18px;
+                transition: all var(--transition);
+            }
+
+            .article-card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--card-hover);
+                border-color: var(--primary-light);
+            }
+
+            .article-card img {
+                width: 90px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: var(--radius);
+                flex-shrink: 0;
+                background: var(--bg);
+            }
+
+            .article-card-body {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .article-card-body h3 {
+                font-size: 14px;
+                font-weight: 700;
+                color: var(--primary-dark);
+                margin-bottom: 6px;
+                line-height: 1.4;
+            }
+
+            .article-card-body p {
+                font-size: 12.5px;
+                color: var(--text-muted);
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .read-more {
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--accent);
+                margin-top: 8px;
+                display: inline-block;
+                transition: color var(--transition);
+            }
+
+            .read-more:hover {
+                color: var(--primary);
+            }
+
+            .read-more::after {
+                content: ' →';
+            }
+
+            /* ── News / Product Spotlight Row ───────────────────── */
+            .news-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 18px;
+            }
+
+            .news-card {
+                background: var(--bg-alt);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                overflow: hidden;
+                transition: all var(--transition);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .news-card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--card-hover);
+            }
+
+            .news-card img {
+                width: 100%;
+                height: 140px;
+                object-fit: cover;
+                background: var(--bg);
+            }
+
+            .news-card-body {
+                padding: 14px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .news-card-body h3 {
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--primary-dark);
+                line-height: 1.4;
+                margin-bottom: 6px;
+                flex: 1;
+            }
+
+            .news-card-body .read-more {
+                margin-top: 8px;
+            }
+
+            /* ── Welcome / Brand Banner ──────────────────────────── */
+            .brand-banner {
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                border-radius: var(--radius-lg);
+                padding: 36px 40px;
+                color: #fff;
+                display: grid;
+                grid-template-columns: 1fr auto;
+                align-items: center;
+                gap: 30px;
+                margin-bottom: 36px;
+            }
+
+            .brand-banner h2 {
+                font-family: var(--font-display);
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+
+            .brand-banner p {
+                color: rgba(255, 255, 255, .8);
+                font-size: 14px;
+                max-width: 560px;
+                line-height: 1.65;
+            }
+
+            .brand-banner img {
+                border-radius: var(--radius);
+                width: 220px;
+                height: 120px;
+                object-fit: cover;
+                opacity: .85;
+            }
+
+            /* ── Info Blocks ─────────────────────────────────────── */
+            .info-blocks {
+                background: var(--primary-dark);
+                padding: 48px 32px;
+            }
+
+            .info-blocks-inner {
+                max-width: 1800px;
+                margin: 0 auto;
+            }
+
+            .info-blocks h2 {
+                font-family: var(--font-display);
+                color: #fff;
+                font-size: 1.5rem;
+                margin-bottom: 28px;
+                text-align: center;
+            }
+
+            .info-blocks-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+
+            .info-block {
+                background: rgba(255, 255, 255, .07);
+                border: 1px solid rgba(255, 255, 255, .12);
+                border-radius: var(--radius-lg);
+                padding: 24px 20px;
+                text-align: center;
+                transition: all var(--transition);
+            }
+
+            .info-block:hover {
+                background: rgba(255, 255, 255, .13);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+            }
+
+            .info-block-icon {
+                font-size: 32px;
+                margin-bottom: 12px;
+            }
+
+            .info-block h3 {
+                color: #fff;
+                font-size: 15px;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+
+            .info-block p {
+                color: rgba(255, 255, 255, .65);
+                font-size: 13px;
+                line-height: 1.55;
+            }
+
+            /* ── Footer ──────────────────────────────────────────── */
+            .footer {
+                background: #07202d;
+                color: rgba(255, 255, 255, .75);
+                padding: 52px 32px 0;
+            }
+
+            .footer-inner {
+                max-width: 1800px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: 1.6fr 1fr 1fr 1fr;
+                gap: 40px;
+                padding-bottom: 40px;
+                border-bottom: 1px solid rgba(255, 255, 255, .1);
+            }
+
+            .footer-brand .logo-main {
+                font-family: var(--font-display);
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #fff;
+                margin-bottom: 4px;
+            }
+
+            .footer-brand .logo-sub {
+                font-size: 11px;
+                color: rgba(255, 255, 255, .5);
+                letter-spacing: .1em;
+                text-transform: uppercase;
+                margin-bottom: 16px;
+            }
+
+            .footer-brand p {
+                font-size: 13.5px;
+                line-height: 1.7;
+                margin-bottom: 12px;
+            }
+
+            .footer-contact {
+                margin-top: 16px;
+            }
+
+            .footer-contact a {
+                display: block;
+                color: var(--accent-light);
+                font-size: 13.5px;
+                margin-bottom: 5px;
+                transition: color var(--transition);
+            }
+
+            .footer-contact a:hover {
+                color: #fff;
+            }
+
+            .footer-col h4 {
+                color: #fff;
+                font-size: 14px;
+                font-weight: 700;
+                margin-bottom: 16px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid rgba(255, 255, 255, .12);
+            }
+
+            .footer-col a {
+                display: block;
+                font-size: 13px;
+                color: rgba(255, 255, 255, .65);
+                margin-bottom: 8px;
+                transition: color var(--transition);
+            }
+
+            .footer-col a:hover {
+                color: var(--accent-light);
+            }
+
+            .footer-hours {
+                background: rgba(255, 255, 255, .05);
+                border-radius: var(--radius);
+                padding: 14px 16px;
+                margin-top: 12px;
+                font-size: 13px;
+                line-height: 1.7;
+                color: rgba(255, 255, 255, .7);
+            }
+
+            .footer-hours strong {
+                color: #fff;
+                display: block;
+                margin-bottom: 4px;
+            }
+
+            .footer-bottom {
+                max-width: 1800px;
+                margin: 0 auto;
+                padding: 18px 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 12.5px;
+                color: rgba(255, 255, 255, .4);
+            }
+
+            .visitors {
+                color: rgba(255, 255, 255, .5);
+            }
+
+            /* ── Newsletter ──────────────────────────────────────── */
+            .newsletter-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 18px;
+            }
+
+            .newsletter-row input[type="email"] {
+                flex: 1;
+                padding: 10px 14px;
+                border-radius: var(--radius);
+                border: 1px solid rgba(255, 255, 255, .2);
+                background: rgba(255, 255, 255, .08);
+                color: #fff;
+                font-family: var(--font-body);
+                font-size: 13px;
+                outline: none;
+                transition: border var(--transition);
+            }
+
+            .newsletter-row input[type="email"]::placeholder {
+                color: rgba(255, 255, 255, .4);
+            }
+
+            .newsletter-row input[type="email"]:focus {
+                border-color: var(--accent-light);
+            }
+
+            .newsletter-row button {
+                padding: 10px 16px;
+                background: var(--accent);
+                color: #fff;
+                border: none;
+                border-radius: var(--radius);
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                font-family: var(--font-body);
+                transition: background var(--transition);
+                white-space: nowrap;
+            }
+
+            .newsletter-row button:hover {
+                background: #c9672a;
+            }
+
+            /* ── Mobile responsive ───────────────────────────────── */
+            @media (max-width: 1200px) {
+                .feature-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .news-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .info-blocks-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .footer-inner {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            @media (max-width: 960px) {
+                .main-body {
+                    grid-template-columns: 1fr;
+                }
+
+                .sidebar {
+                    position: relative;
+                    top: 0;
+                }
+
+                .hero-inner {
+                    grid-template-columns: 1fr;
+                }
+
+                .hero-image-grid {
+                    display: none;
+                }
+
+                .article-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .brand-banner {
+                    grid-template-columns: 1fr;
+                }
+
+                .brand-banner img {
+                    display: none;
+                }
+
+                .nav-links {
+                    display: none;
+                }
+
+                .hamburger {
+                    display: flex;
+                    margin-left: auto;
+                }
+
+                .nav-phone {
+                    display: none;
+                }
+            }
+
+            @media (max-width: 640px) {
+
+                .container,
+                .main-body,
+                .info-blocks,
+                .footer,
+                .hero,
+                .trust-bar {
+                    padding-left: 16px;
+                    padding-right: 16px;
+                }
+
+                .feature-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .news-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .info-blocks-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .footer-inner {
+                    grid-template-columns: 1fr;
+                }
+
+                .footer-bottom {
+                    flex-direction: column;
+                    gap: 8px;
+                    text-align: center;
+                }
+
+                .trust-inner {
+                    flex-direction: column;
+                    gap: 14px;
+                }
+
+                .nav-cta {
+                    display: none;
+                }
+
+                .main-body {
+                    padding: 20px 16px 40px;
+                }
+            }
+
+            /* ── Mobile nav drawer ───────────────────────────────── */
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                inset: 0;
+                z-index: 2000;
+                background: rgba(13, 46, 58, .96);
+                flex-direction: column;
+                padding: 32px 24px;
+                overflow-y: auto;
+            }
+
+            .mobile-menu.open {
+                display: flex;
+            }
+
+            .mobile-menu-close {
+                align-self: flex-end;
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 28px;
+                cursor: pointer;
+                margin-bottom: 24px;
+            }
+
+            .mobile-menu a {
+                display: block;
+                color: rgba(255, 255, 255, .85);
+                font-size: 16px;
+                font-weight: 500;
+                padding: 13px 0;
+                border-bottom: 1px solid rgba(255, 255, 255, .1);
+                transition: color var(--transition);
+            }
+
+            .mobile-menu a:hover {
+                color: var(--accent-light);
+            }
+
+            .mobile-menu .mob-cat-title {
+                color: var(--accent-light);
+                font-size: 12px;
+                letter-spacing: .12em;
+                text-transform: uppercase;
+                font-weight: 700;
+                margin-top: 20px;
+                margin-bottom: 4px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <!-- ── Announcement Strip ─────────────────────────────── -->
+        <div class="announcement">
+            <strong>เปิดทำการ:</strong> วันจันทร์ อังคาร พฤหัสบดี และศุกร์ &nbsp;|&nbsp; เวลา 08:30 – 16:00 น.
+            &nbsp;|&nbsp; T. 076-364071 , 076-364072
+        </div>
+
+        <!-- ── Sticky Navigation ──────────────────────────────── -->
+        <nav class="nav-wrap" id="mainNav" role="navigation">
+            <div class="nav-inner">
+                <a href="http://www.toplinecenter.co.th/index.php" class="nav-logo">
+                    <span class="logo-main">Topline Center</span>
+                    <span class="logo-sub">Co., Ltd. — Phuket, Thailand</span>
+                </a>
+                <div class="nav-links">
+                    <a href="http://www.toplinecenter.co.th/index.php" class="active">Home</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147630601">Products</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147630395">Services</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=webboard">Webboard</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=539563876">Knowledge</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538813527">Contact</a>
+                </div>
+                <div class="nav-phone">
+                    076-364071
+                    <span>Call Us Mon–Fri</span>
+                </div>
+                <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538813527" class="nav-cta">Get
+                    a Quote</a>
+                <button class="hamburger" id="menuToggle" aria-label="Open menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- ── Mobile Menu Drawer ──────────────────────────────── -->
+        <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobile navigation">
+            <button class="mobile-menu-close" id="menuClose" aria-label="Close menu">✕</button>
+            <a href="http://www.toplinecenter.co.th/index.php">🏠 Home</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147630601">Products</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147630395">Services</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=webboard">Webboard</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=539563876">Knowledge</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538813527">Contact Us</a>
+            <div class="mob-cat-title">Cleaning Machines</div>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812711">High-pressure
+                Washers</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812718">Auto Scrubber Driers</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812719">Steam Cleaners</a>
+            <div class="mob-cat-title">Chemicals</div>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812729">3M Daily Chemical</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812745">Maintenance
+                Chemicals</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147632694">Greenmind Eco
+                Products</a>
+            <div class="mob-cat-title">Stone Restoration</div>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538795225">Stone Restoration</a>
+            <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812752">Stone Restoration
+                Machine</a>
+        </div>
+
+        <!-- ── Hero ───────────────────────────────────────────── -->
+        <section class="hero">
+            <div class="hero-inner">
+                <div class="hero-content">
+                    <p class="hero-label">Professional Cleaning Solutions · Phuket, Thailand</p>
+                    <h1>Total Cleaning<br><em>Excellence</em> for<br>Every Surface</h1>
+                    <p class="hero-desc">
+                        Topline Center is your trusted partner for professional-grade cleaning machines,
+                        3M chemical systems, stone restoration, and eco-friendly floor care —
+                        serving hotels, facilities, and commercial properties across Thailand.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147630601"
+                            class="btn btn-primary">Explore Products</a>
+                        <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538813527"
+                            class="btn btn-outline">Contact Us</a>
+                    </div>
+                </div>
+                <div class="hero-image-grid" aria-hidden="true">
+                    <img src="http://www.toplinecenter.co.th/images/introw_1282388490/pictur(2).jpg"
+                        alt="Professional cleaning equipment" loading="lazy">
+                    <img src="http://www.toplinecenter.co.th/images/introw_1282388490/Pictur.png"
+                        alt="Floor care system" loading="lazy">
+                    <img src="http://www.toplinecenter.co.th/images/introw_1282388490/154464.jpg"
+                        alt="Cleaning solutions" loading="lazy">
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Trust Bar ──────────────────────────────────────── -->
+        <div class="trust-bar">
+            <div class="trust-inner">
+                <div class="trust-item">
+                    <div class="trust-icon">🏆</div>
+                    <div>
+                        <div class="trust-label">Authorised 3M Partner</div>
+                        <div class="trust-desc">Certified chemicals &amp; pads distributor</div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">🔧</div>
+                    <div>
+                        <div class="trust-label">After-Sales Service</div>
+                        <div class="trust-desc"><a
+                                href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812950">Machine
+                                repair &amp; maintenance</a></div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">🌿</div>
+                    <div>
+                        <div class="trust-label">Eco-Friendly Options</div>
+                        <div class="trust-desc"><a
+                                href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147632694">Greenmind
+                                environment-safe range</a></div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">📞</div>
+                    <div>
+                        <div class="trust-label">Expert Consultation</div>
+                        <div class="trust-desc">On-site advisory &amp; training available</div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">🛡️</div>
+                    <div>
+                        <div class="trust-label">Stone Restoration</div>
+                        <div class="trust-desc"><a
+                                href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538795225">Crystal
+                                shine &amp; diamond systems</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Main Body ──────────────────────────────────────── -->
+        <div class="main-body">
+
+            <!-- ── Sidebar ────────────────────────────────────────── -->
+            <aside class="sidebar" aria-label="Product categories">
+                <div class="sidebar-header">📦 Product Categories</div>
+
+                <!-- Stone Restoration -->
+                <div class="cat-group open">
+                    <button class="cat-group-toggle" aria-expanded="true">
+                        🪨 Stone Restoration <span class="chevron">▾</span>
+                    </button>
+                    <ul class="cat-items">
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538795225">Stone
+                                Restoration</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812752">Stone
+                                Restoration Machine</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812749">Diamond
+                                Resin Disc</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=540018029">Diamond
+                                Pads</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812782">Crystal
+                                Shine System</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812892">Repair
+                                Machines</a></li>
+                    </ul>
+                </div>
+
+                <!-- Matting & Safety -->
+                <div class="cat-group">
+                    <button class="cat-group-toggle" aria-expanded="false">
+                        🚧 Matting &amp; Safety <span class="chevron">▾</span>
+                    </button>
+                    <ul class="cat-items">
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812784">3M
+                                Matting</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812700">Anti-Slip
+                                Matting</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812694">3M
+                                Anti-Slip Tape</a></li>
+                    </ul>
+                </div>
+
+                <!-- Cleaning Machines -->
+                <div class="cat-group">
+                    <button class="cat-group-toggle" aria-expanded="false">
+                        🤖 Cleaning Machines <span class="chevron">▾</span>
+                    </button>
+                    <ul class="cat-items">
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812711">High-pressure
+                                Washers</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812706">Dry
+                                Vacuum</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812707">Wet
+                                &amp; Dry Vacuum</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812714">Carpet
+                                Cleaner</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812715">Floor
+                                Scrubber &amp; Polishing</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812719">Steam
+                                Cleaner</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812718">Auto
+                                Scrubber Driers</a></li>
+                        <li><a
+                                href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812723">Sweepers</a>
+                        </li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538816384">Carpet
+                                Air Blower</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147631764">Window
+                                &amp; Surface Vacuum</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538824250">Ozone
+                                Machine</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812950">After
+                                Sales Services</a></li>
+                    </ul>
+                </div>
+
+                <!-- 3M Chemicals -->
+                <div class="cat-group">
+                    <button class="cat-group-toggle" aria-expanded="false">
+                        🧪 3M Chemicals <span class="chevron">▾</span>
+                    </button>
+                    <ul class="cat-items">
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812729">3M Daily
+                                Chemical</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812787">3M
+                                Hardfloor System</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812788">3M
+                                Soft-floor System</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538824457">3M
+                                Problem Solving</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147632694">Greenmind
+                                (Eco-Friendly)</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812745">Maintenance
+                                Chemicals</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812781">Problem
+                                Solving Chemical</a></li>
+                        <li><a
+                                href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538953539">Sealer</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Cleaning Accessories -->
+                <div class="cat-group">
+                    <button class="cat-group-toggle" aria-expanded="false">
+                        🧹 Cleaning Accessories <span class="chevron">▾</span>
+                    </button>
+                    <ul class="cat-items">
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812726">3M
+                                Scotch-Brite</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538813463">3M Easy
+                                Erasing Pad</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812758">3M
+                                Cleaning Equipments</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812755">3M Floor
+                                Pads</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812763">Unger
+                                Glass Cleaner</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812769">Micro
+                                Fiber Cloths</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812690">Other
+                                Equipment</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538945054">Stainless
+                                Maker</a></li>
+                        <li><a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=539905381">Bin</a>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- ── Content Area ──────────────────────────────────── -->
+            <main class="content-area">
+
+                <!-- Brand banner -->
+                <div class="brand-banner">
+                    <div>
+                        <h2>บริษัท ท็อปไลน์ เซ็นเตอร์ จำกัด</h2>
+                        <p>
+                            ผู้เชี่ยวชาญด้านการทำความสะอาดมืออาชีพ — เครื่องจักร เคมีภัณฑ์ และระบบดูแลพื้นผิวครบวงจร
+                            สำหรับโรงแรม อาคารพาณิชย์ และสถานประกอบการทั่วไทย
+                        </p>
+                    </div>
+                    <img src="http://www.toplinecenter.co.th/images/introw_1282388490/pictur(2).jpg"
+                        alt="Topline Center Products" loading="lazy">
+                </div>
+
+                <!-- ── Featured Products ────────────────────────────── -->
+                <section class="content-section" aria-labelledby="featured-title">
+                    <h2 class="section-title" id="featured-title">Featured Products</h2>
+                    <p class="section-sub">Professional-grade equipment &amp; systems for every cleaning challenge</p>
+                    <div class="feature-grid">
+
+                        <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538952002&Ntype=3"
+                            class="feat-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/hom เครื่อง karcher(2).jpeg"
+                                alt="Karcher Auto Scrubber BR30-4C" loading="lazy">
+                            <div class="feat-card-body">
+                                <span class="tag">Machines</span>
+                                <h3>Karcher Auto Scrubber BR30-4C</h3>
+                                <p>Compact auto scrubber drier ideal for small to medium-sized hard floor areas.
+                                    Efficient cleaning with minimal effort.</p>
+                                <span class="feat-card-link">View Details</span>
+                            </div>
+                        </a>
+
+                        <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538944558&Ntype=3"
+                            class="feat-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/algohol tevise.jpg"
+                                alt="Eco-Friendly Cleaning Products" loading="lazy">
+                            <div class="feat-card-body">
+                                <span class="tag tag--accent">Eco</span>
+                                <h3>ผลิตภัณฑ์ทำความสะอาดที่ห่วงใยสิ่งแวดล้อม</h3>
+                                <p>Environment-conscious cleaning solutions that deliver professional results while
+                                    protecting our planet.</p>
+                                <span class="feat-card-link">Learn More</span>
+                            </div>
+                        </a>
+
+                        <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538825866&Ntype=3"
+                            class="feat-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/Untitled-4 revise.jpg"
+                                alt="3-in-1 Carpet Extraction Vacuum" loading="lazy">
+                            <div class="feat-card-body">
+                                <span class="tag">Carpet Care</span>
+                                <h3>3 in 1 Carpet Extraction Wet &amp; Dry Vacuum Cleaner</h3>
+                                <p>Versatile three-function machine for carpet extraction, wet pickup, and dry vacuuming
+                                    in a single unit.</p>
+                                <span class="feat-card-link">View Details</span>
+                            </div>
+                        </a>
+
+                        <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147632694"
+                            class="feat-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/Untitled-1 revise.jpg"
+                                alt="3M Daily Chemical" loading="lazy">
+                            <div class="feat-card-body">
+                                <span class="tag">3M Chemicals</span>
+                                <h3>3M Daily Chemical System</h3>
+                                <p>Complete daily maintenance chemical range from 3M — proven formulas for professional
+                                    hygiene and surface care.</p>
+                                <span class="feat-card-link">View Range</span>
+                            </div>
+                        </a>
+
+                        <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538795225"
+                            class="feat-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/Untitled-2 revise.jpg"
+                                alt="Stone Restoration" loading="lazy">
+                            <div class="feat-card-body">
+                                <span class="tag">Stone Restoration</span>
+                                <h3>Stone Restoration &amp; Crystal Shine</h3>
+                                <p>Professional stone restoration using diamond resin discs, crystal shine systems, and
+                                    specialist machinery.</p>
+                                <span class="feat-card-link">Explore System</span>
+                            </div>
+                        </a>
+
+                        <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147632694"
+                            class="feat-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/132896(2).jpg"
+                                alt="Greenmind Eco Products" loading="lazy">
+                            <div class="feat-card-body">
+                                <span class="tag tag--accent">Greenmind</span>
+                                <h3>Greenmind — Eco-Friendly Chemical Range</h3>
+                                <p>Biodegradable, environment-safe cleaning chemicals that meet professional standards
+                                    without harming the ecosystem.</p>
+                                <span class="feat-card-link">View Greenmind</span>
+                            </div>
+                        </a>
+
+                    </div>
+                </section>
+
+                <!-- ── Knowledge Base / Articles ────────────────────── -->
+                <section class="content-section" aria-labelledby="knowledge-title">
+                    <h2 class="section-title" id="knowledge-title">คู่มือและบทความ · Knowledge Centre</h2>
+                    <p class="section-sub">ข้อมูลจากผู้เชี่ยวชาญด้านการทำความสะอาด — Guides &amp; Field Notes</p>
+                    <div class="article-grid">
+
+                        <a href="/index.php?lay=show&ac=article&Id=539563889&Ntype=1" class="article-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/pictur(2).jpg"
+                                alt="คู่มือการทำความสะอาด" loading="lazy">
+                            <div class="article-card-body">
+                                <span class="tag">คู่มือ</span>
+                                <h3>คู่มือการทำความสะอาด</h3>
+                                <p>หลายท่านอาจจะมีความรู้ในเรื่องการทำความสะอาดมากบ้างแล้ว แต่ทางบริษัทฯ
+                                    ใคร่ขอทบทวนความทรงจำกันอีกครั้ง โดย สมาร์ทแล็ป</p>
+                                <span class="read-more">อ่านเพิ่มเติม</span>
+                            </div>
+                        </a>
+
+                        <a href="/index.php?lay=show&ac=article&Id=539396249&Ntype=2" class="article-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/hom เครื่อง karcher(2).jpeg"
+                                alt="เครื่องฉีดน้ำแรงดันสูง" loading="lazy">
+                            <div class="article-card-body">
+                                <span class="tag">เก็บตกจากภาคสนาม</span>
+                                <h3>เคล็ดไม่ลับในการใช้งานเครื่องฉีดน้ำแรงดันสูง</h3>
+                                <p>วันนี้มีโอกาสที่จะนำเสนอบทความที่เกี่ยวกับการใช้งานเครื่องฉีดน้ำแรงดันสูงอย่างถูกวิธีมาฝากทุกท่าน
+                                    เพื่อเป็นแนวทางสำหรับผู้ใช้ ซึ่งหลายท่านอาจจะเคยพบปัญหาต่างๆ มาบ้างแล้ว
+                                    แต่อยากทราบสาเหตุของปัญหาดังกล่าว</p>
+                                <span class="read-more">อ่านเพิ่มเติม</span>
+                            </div>
+                        </a>
+
+                        <a href="/index.php?lay=show&ac=article&Id=539149484&Ntype=2" class="article-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/Untitled-2 revise.jpg"
+                                alt="สนิมเหล็กจัดการได้" loading="lazy">
+                            <div class="article-card-body">
+                                <span class="tag">เก็บตกจากภาคสนาม</span>
+                                <h3>สนิมเหล็กจัดการได้</h3>
+                                <p>ภาพที่เห็น คือ ที่ปักร่มชายหาด ที่ทำจากวัสดุสแตนเลสชุบ แต่ไม่สามารถทนต่อไอทะเล
+                                    และความชื้นในอากาศได้ จึงทำให้เกิดสนิมเหล็กขึ้น
+                                    ปัญหานี้เราได้รับการติดต่อจากลูกค้าให้ช่วยเข้าไปแนะนำให้คำปรึกษา
+                                    พร้อมทั้งวิธีการแก้ปัญหา</p>
+                                <span class="read-more">อ่านเพิ่มเติม</span>
+                            </div>
+                        </a>
+
+                        <a href="/index.php?lay=show&ac=article&Id=538824369&Ntype=2" class="article-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/Untitled-4 revise.jpg"
+                                alt="หินทราย" loading="lazy">
+                            <div class="article-card-body">
+                                <span class="tag">เก็บตกจากภาคสนาม</span>
+                                <h3>หินทราย ดูแลไม่ง่ายอย่างที่คิด?</h3>
+                                <p>หินทรายเกิดคราบขาวระหว่างร่องยาแนวที่กำแพง หากปล่อยไว้คงไม่งาม —
+                                    ปัญหาที่พบบ่อยและวิธีแก้ไขจากผู้เชี่ยวชาญ</p>
+                                <span class="read-more">อ่านเพิ่มเติม</span>
+                            </div>
+                        </a>
+
+                    </div>
+                </section>
+
+                <!-- ── Latest News / Spotlight ──────────────────────── -->
+                <section class="content-section" aria-labelledby="news-title">
+                    <h2 class="section-title" id="news-title">Product Spotlight &amp; News</h2>
+                    <p class="section-sub">New arrivals and featured highlights from our range</p>
+                    <div class="news-grid">
+
+                        <a href="/index.php?lay=show&ac=article&Id=538952002&Ntype=3" class="news-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/hom เครื่อง karcher(2).jpeg"
+                                alt="Karcher BR30-4C" loading="lazy">
+                            <div class="news-card-body">
+                                <span class="tag">New</span>
+                                <h3>Karcher Auto Scrubber BR30-4C</h3>
+                                <span class="read-more">More</span>
+                            </div>
+                        </a>
+
+                        <a href="/index.php?lay=show&ac=article&Id=538944558&Ntype=3" class="news-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/algohol tevise.jpg"
+                                alt="Eco Products" loading="lazy">
+                            <div class="news-card-body">
+                                <span class="tag tag--accent">Eco</span>
+                                <h3>ผลิตภัณฑ์ทำความสะอาดที่ห่วงใยสิ่งแวดล้อม</h3>
+                                <span class="read-more">More</span>
+                            </div>
+                        </a>
+
+                        <a href="/index.php?lay=show&ac=article&Id=538825866&Ntype=3" class="news-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/Untitled-4 revise.jpg"
+                                alt="Carpet Extraction" loading="lazy">
+                            <div class="news-card-body">
+                                <span class="tag">Carpet</span>
+                                <h3>3 in 1 Carpet Extraction Wet &amp; Dry Vacuum Cleaner</h3>
+                                <span class="read-more">More</span>
+                            </div>
+                        </a>
+
+                        <a href="/index.php?lay=show&ac=article&Id=538948317&Ntype=3" class="news-card">
+                            <img src="http://www.toplinecenter.co.th/images/introw_1282388490/132896(2).jpg"
+                                alt="หน้ากากป้องกัน" loading="lazy">
+                            <div class="news-card-body">
+                                <span class="tag">Safety</span>
+                                <h3>หน้ากากป้องกัน หวัดมรณะ</h3>
+                                <span class="read-more">More</span>
+                            </div>
+                        </a>
+
+                    </div>
+                </section>
+
+            </main>
+        </div>
+
+        <!-- ── Info Blocks ────────────────────────────────────── -->
+        <section class="info-blocks" aria-labelledby="services-title">
+            <div class="info-blocks-inner">
+                <h2 id="services-title">Why Choose Topline Center?</h2>
+                <div class="info-blocks-grid">
+                    <div class="info-block">
+                        <div class="info-block-icon">🤖</div>
+                        <h3>Professional Machines</h3>
+                        <p>Kärcher, 3M and leading-brand cleaning machines for every scale — from compact to industrial
+                            auto scrubbers.</p>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-block-icon">🧪</div>
+                        <h3>Certified Chemicals</h3>
+                        <p>3M daily, hard-floor, soft-floor, and problem-solving chemical systems. Plus eco-friendly
+                            Greenmind options.</p>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-block-icon">🔬</div>
+                        <h3>Stone &amp; Floor Restoration</h3>
+                        <p>Diamond resin discs, crystal shine systems, sealers, and stone restoration machines for
+                            premium surfaces.</p>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-block-icon">🛠️</div>
+                        <h3>After-Sales Support</h3>
+                        <p>Machine repair services, on-site training, and expert consultation. We support you throughout
+                            the entire product lifecycle.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Footer ─────────────────────────────────────────── -->
+        <footer class="footer" role="contentinfo">
+            <div class="footer-inner">
+
+                <!-- Brand Column -->
+                <div class="footer-brand">
+                    <div class="logo-main">Topline Center</div>
+                    <div class="logo-sub">Co., Ltd.</div>
+                    <p>
+                        บริษัท ท็อปไลน์ เซ็นเตอร์ จำกัด — ผู้เชี่ยวชาญด้านการทำความสะอาดมืออาชีพ
+                        ครบวงจรสำหรับธุรกิจและอาคารพาณิชย์ ภูเก็ต ประเทศไทย
+                    </p>
+                    <div class="footer-contact">
+                        <a href="mailto:info@toplinecenter.co.th">✉ info@toplinecenter.co.th</a>
+                        <a href="tel:076364071">📞 076-364071</a>
+                        <a href="tel:076364072">📞 076-364072</a>
+                        <a href="#">📠 Fax: 076-530398</a>
+                        <a href="http://www.toplinecenter.co.th">🌐 www.toplinecenter.co.th</a>
+                    </div>
+                    <div class="footer-hours">
+                        <strong>⏰ Business Hours</strong>
+                        เปิดทำการเฉพาะวันจันทร์ อังคาร พฤหัสบดี และศุกร์<br>
+                        ตั้งแต่เวลา 08:30 – 16:00 น.
+                    </div>
+                    <!-- Newsletter -->
+                    <form style="margin-top:20px;" onsubmit="handleNewsletter(event)">
+                        <div
+                            style="color:rgba(255,255,255,.6);font-size:12px;margin-bottom:8px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;">
+                            📧 Subscribe for Updates</div>
+                        <div class="newsletter-row">
+                            <input type="email" placeholder="your@email.com" name="emailsubscribe" id="footerEmail"
+                                required>
+                            <button type="submit">ตกลง</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Machines -->
+                <div class="footer-col">
+                    <h4>Cleaning Machines</h4>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812711">High-pressure
+                        Washers</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812706">Dry Vacuum</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812707">Wet &amp; Dry
+                        Vacuum</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812714">Carpet
+                        Cleaner</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812715">Floor Scrubber
+                        &amp; Polishing</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812719">Steam
+                        Cleaner</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812718">Auto Scrubber
+                        Driers</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812723">Sweepers</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812950">After Sales
+                        Services</a>
+                </div>
+
+                <!-- Chemicals & Stone -->
+                <div class="footer-col">
+                    <h4>Chemicals &amp; Stone</h4>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812729">3M Daily
+                        Chemical</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812787">3M Hardfloor
+                        System</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812788">3M Soft-floor
+                        System</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=2147632694">Greenmind
+                        (Eco)</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812745">Maintenance
+                        Chemicals</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538953539">Sealer</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538795225">Stone
+                        Restoration</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812749">Diamond Resin
+                        Disc</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=540018029">Diamond Pads</a>
+                </div>
+
+                <!-- Accessories & Info -->
+                <div class="footer-col">
+                    <h4>Accessories &amp; Info</h4>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812726">3M
+                        Scotch-Brite</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812758">3M Cleaning
+                        Equipments</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812755">3M Floor
+                        Pads</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812763">Unger Glass
+                        Cleaner</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812769">Micro Fiber
+                        Cloths</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812784">3M Matting</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812700">Anti-Slip
+                        Matting</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538812694">3M Anti-Slip
+                        Tape</a>
+                    <a href="http://www.toplinecenter.co.th/index.php?lay=show&ac=article&Id=538813527">Contact Us</a>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+                <span>© 2024 Topline Center Co., Ltd. — Phuket, Thailand. All rights reserved.</span>
+                <span class="visitors">Visitors: 66,530</span>
+            </div>
+        </footer>
+
+        <script>
+            /* ── Sticky nav scroll effect ───────────────────────── */
+            const nav = document.getElementById('mainNav');
+            window.addEventListener('scroll', () => {
+                nav.classList.toggle('scrolled', window.scrollY > 40);
+            }, { passive: true });
+
+            /* ── Mobile menu ────────────────────────────────────── */
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuClose = document.getElementById('menuClose');
+
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            });
+            menuClose.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+            mobileMenu.addEventListener('click', (e) => {
+                if (e.target === mobileMenu) {
+                    mobileMenu.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            /* ── Sidebar category accordions ───────────────────── */
+            document.querySelectorAll('.cat-group-toggle').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const group = btn.closest('.cat-group');
+                    const isOpen = group.classList.contains('open');
+                    // close all
+                    document.querySelectorAll('.cat-group').forEach(g => g.classList.remove('open'));
+                    // toggle clicked
+                    if (!isOpen) group.classList.add('open');
+                    btn.setAttribute('aria-expanded', !isOpen);
+                });
+            });
+
+            /* ── Newsletter form ────────────────────────────────── */
+            function handleNewsletter(e) {
+                e.preventDefault();
+                const emailVal = document.getElementById('footerEmail').value;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailVal)) {
+                    alert('กรุณากรอก อีเมล ให้ถูกต้อง ตัวอย่าง : youremail@abc.com');
+                    return false;
+                }
+                alert('ขอบคุณ! ท่านได้สมัครรับข้อมูลข่าวสารเรียบร้อยแล้ว');
+                e.target.reset();
+            }
+
+            /* ── Animate cards on scroll (IntersectionObserver) ── */
+            const cards = document.querySelectorAll('.feat-card, .article-card, .news-card, .info-block');
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.08 });
+
+                cards.forEach(card => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(18px)';
+                    card.style.transition = 'opacity 0.45s ease, transform 0.45s ease, box-shadow 0.25s ease, border-color 0.25s ease';
+                    observer.observe(card);
+                });
+            }
+        </script>
+    </body>
+
+    </html>
+    <script>
+
+    </script>
+</body>
+
+</html>

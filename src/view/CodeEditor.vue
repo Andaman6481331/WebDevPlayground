@@ -4,7 +4,8 @@ import { ref, watch, onUnmounted } from 'vue';
 const props = defineProps({
     htmlCode: String,
     cssCode: String,
-    jsCode: String
+    jsCode: String,
+    inspectedElement: Object
 });
 
 const emit = defineEmits(['update:htmlCode', 'update:cssCode', 'update:jsCode']);
@@ -117,6 +118,80 @@ onUnmounted(() => {
     window.removeEventListener('keydown', handleEsc);
 });
 
+// ========== SNIPPET SEARCH & FOCUS ==========
+const htmlTextarea = ref(null);
+
+watch(() => props.inspectedElement, (elementData) => {
+    if (!elementData || !htmlTextarea.value) return;
+
+    // Switch to HTML tab if not active
+    activeTab.value = 'html';
+
+    const { outerHTML, innerHTML, textContent, tagName, id, classes } = elementData;
+    let index = -1;
+    let matchStr = "";
+
+    // 1. Try to clean up outerHTML (remove browser-injected noise)
+    const cleanOuter = outerHTML.replace(/ xmlns="[^"]*"/g, '').replace(/ inspect-highlight/g, '').replace(/ class=""/g, '').trim();
+    
+    // Strategy A: Exact match of cleaned outerHTML
+    index = props.htmlCode.indexOf(cleanOuter);
+    if (index !== -1) {
+        matchStr = cleanOuter;
+    }
+
+    // Strategy B: If outerHTML fails, try matching the opening tag specifically
+    if (index === -1) {
+        // Construct a safe opening tag search: <tag...id...class
+        // This handles cases where browser reorders attributes
+        const escapedTagName = tagName.toLowerCase();
+        const tagRegex = new RegExp(`<${escapedTagName}[^>]*>`, 'gi');
+        let match;
+        
+        while ((match = tagRegex.exec(props.htmlCode)) !== null) {
+            const fullTag = match[0];
+            // Check if this tag looks like ours
+            const idMatch = !id || fullTag.includes(`id="${id.replace('#','')}"`);
+            const classMatch = !classes || classes.split('.').filter(c => c).every(c => fullTag.includes(c));
+            
+            if (idMatch && classMatch) {
+                // If we also have innerHTML/textContent, verify it matches or contains it
+                const remainingCode = props.htmlCode.substring(match.index + fullTag.length);
+                if (!innerHTML || remainingCode.includes(innerHTML.trim())) {
+                    index = match.index;
+                    matchStr = fullTag;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Strategy C: Absolute fallback - just match the first tag of that type with that textContent
+    if (index === -1 && textContent && textContent.length > 5) {
+        const escapedText = textContent.substring(0, 30).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const fallbackRegex = new RegExp(`<${tagName.toLowerCase()}[^>]*>[^<]*${escapedText}`, 'i');
+        const fallbackMatch = props.htmlCode.match(fallbackRegex);
+        if (fallbackMatch) {
+            index = fallbackMatch.index;
+            matchStr = fallbackMatch[0];
+        }
+    }
+
+    if (index !== -1) {
+        setTimeout(() => {
+            const textarea = htmlTextarea.value;
+            textarea.focus();
+            textarea.setSelectionRange(index, index + matchStr.length);
+            
+            // Scroll to the line
+            const linesBefore = props.htmlCode.substring(0, index).split('\n').length;
+            textarea.scrollTop = (linesBefore - 8) * 21; 
+        }, 100);
+    } else {
+        console.warn('Inspect Mode: Could not find matching element in source code.');
+    }
+});
+
 </script>
 
 <template>
@@ -156,6 +231,7 @@ onUnmounted(() => {
         <div class="editor-container">
             <div class="editor" :class="{ active: activeTab === 'html' }">
                 <textarea 
+                    ref="htmlTextarea"
                     class="code-textarea" 
                     :value="htmlCode" 
                     @input="updateCode('html', $event)"

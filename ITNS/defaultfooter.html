@@ -1,0 +1,417 @@
+<style>
+    .itns-infobar-wrap-1748100000 {
+        background-color: #122A66;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 20px 60px;
+        font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif;
+        height: 30vh;
+    }
+
+    .itns-infobar-1748100000 {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .itns-infobar-card-1748100000 {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 28px 20px;
+        background-color: #15337E;
+        border-radius: 10px;
+        margin: 16px 8px;
+        gap: 12px;
+        box-sizing: border-box;
+        transition: background-color 0.2s;
+    }
+
+    .itns-infobar-card-1748100000:hover {
+        background-color: #243d8f;
+    }
+
+    .itns-infobar-icon-1748100000 {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 4px;
+        opacity: 0.92;
+    }
+
+    .itns-infobar-text-1748100000 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .itns-infobar-title-1748100000 {
+        color: #ffffff;
+        font-size: 14.5px;
+        font-weight: 700;
+        line-height: 1.4;
+        letter-spacing: 0.1px;
+    }
+
+    .itns-infobar-sub-1748100000 {
+        color: #c5d0e8;
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+    .itns-footer-1748000000 {
+        background-color: #0d1b2e;
+        color: #cdd5e0;
+        font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif;
+        font-size: 14px;
+        padding: 40px 60px 0 60px;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .itns-footer-top-1748000000 {
+        display: flex;
+        flex-direction: row;
+        gap: 40px;
+        padding-bottom: 36px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        align-items: flex-start;
+    }
+
+    .itns-footer-brand-1748000000 {
+        min-width: 220px;
+        max-width: 280px;
+        flex: 1.2;
+    }
+
+    .itns-footer-col-1748000000 {
+        flex: 1;
+        min-width: 140px;
+    }
+
+    .itns-logo-wrap-1748000000 {
+        background: white;
+        display: inline-block;
+        border-radius: 6px;
+        padding: 6px 10px;
+        margin-bottom: 16px;
+    }
+
+    .itns-logo-img-1748000000 {
+        width: 110px;
+        height: auto;
+        display: block;
+    }
+
+    .itns-address-1748000000 {
+        color: #b0bec5;
+        line-height: 1.7;
+        margin: 0 0 14px 0;
+        font-size: 13.5px;
+    }
+
+    .itns-contact-item-1748000000 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .itns-contact-item-1748000000 a {
+        color: #b0bec5;
+        text-decoration: none;
+        font-size: 13.5px;
+    }
+
+    .itns-contact-item-1748000000 a:hover {
+        color: #ffffff;
+    }
+
+    .itns-icon-1748000000 {
+        font-size: 14px;
+        color: #b0bec5;
+    }
+
+    .itns-col-title-1748000000 {
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 16px 0;
+        letter-spacing: 0.3px;
+    }
+
+    .itns-link-list-1748000000 {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .itns-link-list-1748000000 li {
+        margin-bottom: 9px;
+    }
+
+    .itns-link-list-1748000000 a {
+        color: #b0bec5;
+        text-decoration: none;
+        font-size: 13.5px;
+        line-height: 1.5;
+        transition: color 0.2s;
+    }
+
+    .itns-link-list-1748000000 a:hover {
+        color: #ffffff;
+    }
+
+    .itns-footer-bottom-1748000000 {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 0 20px 0;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .itns-copyright-1748000000 {
+        color: #8a9bb0;
+        font-size: 13px;
+        margin: 0;
+        max-width: 320px;
+        line-height: 1.5;
+    }
+
+    .itns-bottom-links-1748000000 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .itns-bottom-links-1748000000 a {
+        color: #b0bec5;
+        text-decoration: none;
+        font-size: 13px;
+        transition: color 0.2s;
+    }
+
+    .itns-bottom-links-1748000000 a:hover {
+        color: #ffffff;
+    }
+
+    .itns-divider-1748000000 {
+        color: #8a9bb0;
+        font-size: 13px;
+    }
+
+    .itns-social-icons-1748000000 {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .itns-social-btn-1748000000 {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        text-decoration: none;
+        transition: opacity 0.2s;
+    }
+
+    .itns-social-btn-1748000000:hover {
+        opacity: 0.8;
+    }
+
+    .itns-line-1748000000 {
+        background-color: #06c755;
+    }
+
+    .itns-fb-1748000000 {
+        background-color: #1877f2;
+    }
+
+    @media (max-width: 768px) {
+        .itns-infobar-wrap-1748100000 {
+            padding: 0 16px;
+        }
+
+        .itns-infobar-1748100000 {
+            flex-wrap: wrap;
+        }
+
+        .itns-infobar-card-1748100000 {
+            flex: 1 1 calc(50% - 16px);
+            margin: 8px 4px;
+        }
+
+        .itns-footer-1748000000 {
+            padding: 30px 16px 0 16px;
+        }
+
+        .itns-footer-top-1748000000 {
+            flex-wrap: wrap;
+        }
+
+        .itns-footer-bottom-1748000000 {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+<div class="itns-infobar-wrap-1748100000">
+    <div class="itns-infobar-1748100000">
+        <div class="itns-infobar-card-1748100000">
+            <div class="itns-infobar-icon-1748100000">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none"
+                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13" rx="1" />
+                    <path d="M16 8h4l3 5v3h-7V8z" />
+                    <circle cx="5.5" cy="18.5" r="2.5" />
+                    <circle cx="18.5" cy="18.5" r="2.5" />
+                    <path d="M1 16h2" />
+                    <path d="M19 16h4" />
+                </svg>
+            </div>
+            <div class="itns-infobar-text-1748100000">
+                <span class="itns-infobar-title-1748100000">Free Shipping in Thailand</span>
+                <span class="itns-infobar-sub-1748100000">on orders over ฿5,000</span>
+            </div>
+        </div>
+        <div class="itns-infobar-card-1748100000">
+            <div class="itns-infobar-icon-1748100000">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none"
+                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                    <path d="M16.5 4.5 A9 9 0 0 1 20 12" stroke-dasharray="2 2" />
+                </svg>
+            </div>
+            <div class="itns-infobar-text-1748100000">
+                <span class="itns-infobar-title-1748100000">Free Shipping</span>
+                <span class="itns-infobar-sub-1748100000">Bangkok &amp; Service Areas</span>
+            </div>
+        </div>
+        <div class="itns-infobar-card-1748100000">
+            <div class="itns-infobar-icon-1748100000">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none"
+                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2" />
+                    <line x1="8" y1="6" x2="16" y2="6" />
+                    <line x1="8" y1="10" x2="16" y2="10" />
+                    <line x1="8" y1="14" x2="12" y2="14" />
+                    <path d="M15 17 l2 2 l4 -4" stroke-width="1.8" />
+                </svg>
+            </div>
+            <div class="itns-infobar-text-1748100000">
+                <span class="itns-infobar-title-1748100000">Office Pick-up Available</span>
+                <span class="itns-infobar-sub-1748100000">Elephant Tower, Bangkok</span>
+            </div>
+        </div>
+        <div class="itns-infobar-card-1748100000">
+            <div class="itns-infobar-icon-1748100000">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none"
+                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1 4 1 10 7 10" />
+                    <polyline points="23 20 23 14 17 14" />
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10" />
+                    <path d="M3.51 15A9 9 0 0 0 18.36 18.36L23 14" />
+                </svg>
+            </div>
+            <div class="itns-infobar-text-1748100000">
+                <span class="itns-infobar-title-1748100000">Returns &amp; Exchanges</span>
+                <span class="itns-infobar-sub-1748100000">within 15 days of purchase.*</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="itns-footer-1748000000">
+    <div class="itns-footer-top-1748000000">
+        <div class="itns-footer-col-1748000000 itns-footer-brand-1748000000">
+            <div class="itns-logo-wrap-1748000000">
+                <img src="https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/10/69aff4a2acc8240329a3dba6.webp"
+                    alt="ITNS Logo" class="itns-logo-img-1748000000">
+            </div>
+            <p class="itns-address-1748000000">3300/106-107 อาคารช้าง (อาคาร B) ชั้น 20<br>ถนนพหลโยธิน แขวงจอมพล
+                เขตจตุจักร<br>กรุงเทพมหานคร 10900 ประเทศไทย</p>
+            <div class="itns-contact-item-1748000000">
+                <span class="itns-icon-1748000000">✉</span>
+                <a href="mailto:contact@itns.co.th">contact@itns.co.th</a>
+            </div>
+            <div class="itns-contact-item-1748000000">
+                <span class="itns-icon-1748000000">📞</span>
+                <a href="tel:+6625137637">(+66)2-513-7637</a>
+            </div>
+        </div>
+
+        <div class="itns-footer-col-1748000000">
+            <h4 class="itns-col-title-1748000000">Sitemap</h4>
+            <ul class="itns-link-list-1748000000">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Products</a></li>
+                <li><a href="#">Solutions</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Knowledge Hub</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+
+        <div class="itns-footer-col-1748000000">
+            <h4 class="itns-col-title-1748000000">Categories</h4>
+            <ul class="itns-link-list-1748000000">
+                <li><a href="#">อุปกรณ์เครือข่าย</a></li>
+                <li><a href="#">ความปลอดภัยทางไซเบอร์</a></li>
+                <li><a href="#">เซิร์ฟเวอร์และระบบจัดเก็บข้อมูล</a></li>
+                <li><a href="#">คอมพิวเตอร์และอุปกรณ์ต่อพ่วง</a></li>
+                <li><a href="#">ระบบไฟฟ้าและศูนย์ข้อมูล</a></li>
+                <li><a href="#">ซอฟต์แวร์และคลาวด์</a></li>
+                <li><a href="#">ระบบประชุมทางไกล</a></li>
+            </ul>
+        </div>
+
+        <div class="itns-footer-col-1748000000">
+            <h4 class="itns-col-title-1748000000">เมนูลัด</h4>
+            <ul class="itns-link-list-1748000000">
+                <li><a href="#">เงื่อนไขและข้อกำหนดการคืนเงิน</a></li>
+                <li><a href="#">นโยบายการรับประกัน / การเคลมสินค้า</a></li>
+                <li><a href="#">การจัดส่งและการขนส่งสินค้า</a></li>
+                <li><a href="#">การคืนสินค้า</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="itns-footer-bottom-1748000000">
+        <p class="itns-copyright-1748000000">Copyright © 2025 International Network System PCL. All rights reserved.</p>
+        <div class="itns-bottom-links-1748000000">
+            <a href="#">ข้อกำหนดและเงื่อนไข</a>
+            <span class="itns-divider-1748000000">|</span>
+            <a href="#">นโยบายความเป็นส่วนตัว</a>
+        </div>
+        <div class="itns-social-icons-1748000000">
+            <a href="#" class="itns-social-btn-1748000000 itns-line-1748000000">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white">
+                    <path
+                        d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314">
+                    </path>
+                </svg>
+            </a>
+            <a href="#" class="itns-social-btn-1748000000 itns-fb-1748000000">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white">
+                    <path
+                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z">
+                    </path>
+                </svg>
+            </a>
+        </div>
+    </div>
+</footer>

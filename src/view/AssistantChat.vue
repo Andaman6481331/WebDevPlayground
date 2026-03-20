@@ -15,6 +15,7 @@ const messageInput = ref('');
 const fileInput = ref(null);
 const currentAttachment = ref(null);
 const chatMessagesRef = ref(null);
+const fullViewImage = ref(null); // URL of the image to show in full screen
 
 const triggerFileInput = () => {
     fileInput.value.click();
@@ -115,6 +116,15 @@ watch(() => props.isLoading, (newVal) => {
     }
 });
 
+const resetDraft = () => {
+    messageInput.value = '';
+    currentAttachment.value = null;
+    if (fileInput.value) fileInput.value.value = '';
+};
+
+defineExpose({
+    resetDraft
+});
 </script>
 
 <template>
@@ -171,7 +181,11 @@ watch(() => props.isLoading, (newVal) => {
                     {{ msg.content }}
                     
                     <!-- Image Attachment -->
-                    <div v-if="msg.attachment && msg.role === 'user' && msg.attachment.type.startsWith('image/')" class="attachment-indicator is-image">
+                    <div v-if="msg.attachment && msg.role === 'user' && msg.attachment.type.startsWith('image/')" 
+                        class="attachment-indicator is-image"
+                        @click="fullViewImage = msg.attachment.dataUrl"
+                        style="cursor: pointer;"
+                    >
                         <img :src="msg.attachment.dataUrl" alt="Attachment">
                         <span>📎 {{ msg.attachment.name }}</span>
                     </div>
@@ -199,7 +213,7 @@ watch(() => props.isLoading, (newVal) => {
         <div class="chat-input-area">
             <!-- File attachment preview -->
             <div v-if="currentAttachment" class="attachment-section">
-                <div class="attachment-preview">
+                <div class="attachment-preview" @click="fullViewImage = currentAttachment.dataUrl" style="cursor: pointer;">
                     <img :src="currentAttachment.dataUrl" alt="Preview">
                     <div class="file-info">
                         <div class="file-name">{{ currentAttachment.name }}</div>
@@ -239,6 +253,14 @@ watch(() => props.isLoading, (newVal) => {
                 style="display: none;" 
                 @change="handleFileChange"
             >
+        </div>
+
+        <!-- Full View Image Modal -->
+        <div v-if="fullViewImage" class="full-image-overlay" @click="fullViewImage = null">
+            <div class="full-image-container" @click.stop>
+                <img :src="fullViewImage" alt="Full View">
+                <button class="close-full-view" @click="fullViewImage = null">×</button>
+            </div>
         </div>
     </aside>
 </template>
@@ -519,4 +541,74 @@ watch(() => props.isLoading, (newVal) => {
 .chat-messages::-webkit-scrollbar-thumb:hover {
     background: #444;
 }
+
+/* Full Image View Modal */
+.full-image-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.full-image-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.full-image-container img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.close-full-view {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 32px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.close-full-view:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .close-full-view {
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.5);
+    }
+}
+
 </style>

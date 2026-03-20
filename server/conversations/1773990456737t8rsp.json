@@ -1,0 +1,122 @@
+{
+  "id": "1773990456737t8rsp",
+  "title": "New Conversation",
+  "date": "2026-03-20T07:07:36.737Z",
+  "lastUpdated": "2026-03-20T07:07:38.036Z",
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "user",
+      "content": "hi",
+      "attachment": null,
+      "timestamp": "2026-03-20T07:10:28.512Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! Here's a friendly welcome page to get you started! (1883 tokens [full/full])",
+      "model": "sonnet",
+      "timestamp": "2026-03-20T07:10:42.036Z"
+    }
+  ],
+  "code": {
+    "html": "<div class=\"container-1700000000\">\n  <div class=\"card-1700000000\">\n    <div class=\"emoji-1700000000\">👋</div>\n    <h1 class=\"title-1700000000\">Hey there!</h1>\n    <p class=\"subtitle-1700000000\">Welcome to your Web Dev Playground. Start building something awesome!</p>\n    <button class=\"btn-1700000000\" onclick=\"handleClick1700000000()\">Let's Go!</button>\n  </div>\n</div>",
+    "css": ".container-1700000000 {\n  min-height: 100vh;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n  margin: 0;\n  padding: 20px;\n  box-sizing: border-box;\n}\n\n.card-1700000000 {\n  background: white;\n  border-radius: 20px;\n  padding: 50px 40px;\n  text-align: center;\n  box-shadow: 0 20px 60px rgba(0,0,0,0.2);\n  max-width: 420px;\n  width: 100%;\n  animation: fadeIn1700000000 0.6s ease;\n}\n\n@keyframes fadeIn1700000000 {\n  from { opacity: 0; transform: translateY(30px); }\n  to { opacity: 1; transform: translateY(0); }\n}\n\n.emoji-1700000000 {\n  font-size: 64px;\n  margin-bottom: 16px;\n  animation: wave1700000000 1.5s ease-in-out infinite;\n  display: inline-block;\n}\n\n@keyframes wave1700000000 {\n  0%, 100% { transform: rotate(0deg); }\n  25% { transform: rotate(20deg); }\n  75% { transform: rotate(-10deg); }\n}\n\n.title-1700000000 {\n  font-size: 2rem;\n  color: #333;\n  margin: 0 0 12px 0;\n  font-weight: 700;\n}\n\n.subtitle-1700000000 {\n  font-size: 1rem;\n  color: #777;\n  margin: 0 0 30px 0;\n  line-height: 1.6;\n}\n\n.btn-1700000000 {\n  background: linear-gradient(135deg, #667eea, #764ba2);\n  color: white;\n  border: none;\n  padding: 14px 36px;\n  border-radius: 50px;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);\n}\n\n.btn-1700000000:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);\n}\n\n.btn-1700000000:active {\n  transform: translateY(0);\n}",
+    "js": "function handleClick1700000000() {\n  const btn = document.querySelector('.btn-1700000000');\n  const title = document.querySelector('.title-1700000000');\n  const subtitle = document.querySelector('.subtitle-1700000000');\n  const emoji = document.querySelector('.emoji-1700000000');\n\n  if (btn && title && subtitle && emoji) {\n    btn.textContent = '🚀 Ready!';\n    title.textContent = 'You\\'re all set!';\n    subtitle.textContent = 'Start editing the code and watch the magic happen in real time.';\n    emoji.textContent = '🎉';\n    btn.disabled = true;\n    btn.style.opacity = '0.7';\n  }\n}"
+  },
+  "history": [
+    {
+      "html": "<div class=\"container\">\n    <h1>Welcome to Web Dev Playground</h1>\n    <p>Start coding and see live results!</p>\n</div>",
+      "css": "",
+      "js": ""
+    },
+    {
+      "html": "<div class=\"container-1700000000\">\n  <div class=\"card-1700000000\">\n    <div class=\"emoji-1700000000\">👋</div>\n    <h1 class=\"title-1700000000\">Hey there!</h1>\n    <p class=\"subtitle-1700000000\">Welcome to your Web Dev Playground. Start building something awesome!</p>\n    <button class=\"btn-1700000000\" onclick=\"handleClick1700000000()\">Let's Go!</button>\n  </div>\n</div>",
+      "css": ".container-1700000000 {\n  min-height: 100vh;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n  margin: 0;\n  padding: 20px;\n  box-sizing: border-box;\n}\n\n.card-1700000000 {\n  background: white;\n  border-radius: 20px;\n  padding: 50px 40px;\n  text-align: center;\n  box-shadow: 0 20px 60px rgba(0,0,0,0.2);\n  max-width: 420px;\n  width: 100%;\n  animation: fadeIn1700000000 0.6s ease;\n}\n\n@keyframes fadeIn1700000000 {\n  from { opacity: 0; transform: translateY(30px); }\n  to { opacity: 1; transform: translateY(0); }\n}\n\n.emoji-1700000000 {\n  font-size: 64px;\n  margin-bottom: 16px;\n  animation: wave1700000000 1.5s ease-in-out infinite;\n  display: inline-block;\n}\n\n@keyframes wave1700000000 {\n  0%, 100% { transform: rotate(0deg); }\n  25% { transform: rotate(20deg); }\n  75% { transform: rotate(-10deg); }\n}\n\n.title-1700000000 {\n  font-size: 2rem;\n  color: #333;\n  margin: 0 0 12px 0;\n  font-weight: 700;\n}\n\n.subtitle-1700000000 {\n  font-size: 1rem;\n  color: #777;\n  margin: 0 0 30px 0;\n  line-height: 1.6;\n}\n\n.btn-1700000000 {\n  background: linear-gradient(135deg, #667eea, #764ba2);\n  color: white;\n  border: none;\n  padding: 14px 36px;\n  border-radius: 50px;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);\n}\n\n.btn-1700000000:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);\n}\n\n.btn-1700000000:active {\n  transform: translateY(0);\n}",
+      "js": "function handleClick1700000000() {\n  const btn = document.querySelector('.btn-1700000000');\n  const title = document.querySelector('.title-1700000000');\n  const subtitle = document.querySelector('.subtitle-1700000000');\n  const emoji = document.querySelector('.emoji-1700000000');\n\n  if (btn && title && subtitle && emoji) {\n    btn.textContent = '🚀 Ready!';\n    title.textContent = 'You\\'re all set!';\n    subtitle.textContent = 'Start editing the code and watch the magic happen in real time.';\n    emoji.textContent = '🎉';\n    btn.disabled = true;\n    btn.style.opacity = '0.7';\n  }\n}"
+    }
+  ],
+  "historyIndex": 1
+}

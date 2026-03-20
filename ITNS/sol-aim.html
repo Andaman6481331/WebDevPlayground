@@ -1,0 +1,385 @@
+<style>
+    .target-section-4819 {
+        width: 100%;
+        background-color: #ffffff;
+        padding: 60px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Noto Sans Thai', sans-serif;
+        box-sizing: border-box;
+    }
+
+    .target-inner-4819 {
+        max-width: 1600px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 60px;
+    }
+
+    .target-image-4819 {
+        flex: 0 0 800px;
+        width: 630px;
+        height: 570px;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+    }
+
+    .target-image-4819 img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .target-content-4819 {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+    }
+
+    .target-block-4819 {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .target-block-heading-4819 {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .target-block-icon-4819 {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #fff3ea 0%, #ffe0c8 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .target-block-title-4819 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .target-block-desc-4819 {
+        font-size: 16px;
+        font-weight: 400;
+        color: #444444;
+        line-height: 1.85;
+        margin: 0;
+        padding-left: 62px;
+    }
+
+    .target-benefits-list-4819 {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        padding-left: 62px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .target-benefits-list-4819 li {
+        font-size: 16px;
+        color: #444444;
+        line-height: 1.7;
+        padding-left: 16px;
+        position: relative;
+    }
+
+    .target-benefits-list-4819 li::before {
+        content: '•';
+        position: absolute;
+        left: 0;
+        color: #f5861f;
+        font-weight: 700;
+    }
+
+    /* Tablet */
+    @media (max-width: 1024px) {
+        .target-inner-4819 {
+            gap: 40px;
+        }
+
+        .target-image-4819 {
+            flex: 0 0 380px;
+            width: 380px;
+            height: 420px;
+        }
+
+        .target-block-title-4819 {
+            font-size: 24px;
+        }
+
+        .target-block-desc-4819,
+        .target-benefits-list-4819 li {
+            font-size: 15px;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .target-section-4819 {
+            padding: 40px 20px;
+        }
+
+        .target-inner-4819 {
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .target-image-4819 {
+            flex: none;
+            width: 100%;
+            height: 260px;
+        }
+
+        .target-block-title-4819 {
+            font-size: 22px;
+        }
+
+        .target-block-desc-4819 {
+            padding-left: 0;
+            font-size: 15px;
+        }
+
+        .target-benefits-list-4819 {
+            padding-left: 0;
+        }
+
+        .target-benefits-list-4819 li {
+            font-size: 15px;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 480px) {
+        .target-section-4819 {
+            padding: 32px 16px;
+        }
+
+        .target-image-4819 {
+            height: 220px;
+        }
+
+        .target-block-title-4819 {
+            font-size: 20px;
+        }
+
+        .target-block-desc-4819,
+        .target-benefits-list-4819 li {
+            font-size: 14px;
+        }
+
+        .target-block-icon-4819 {
+            width: 40px;
+            height: 40px;
+        }
+    }
+</style>
+
+<div class="target-section-4819">
+    <div class="target-inner-4819">
+        <div class="target-image-4819">
+            <img src="" alt="" class="target-img-tag">
+        </div>
+        <div class="target-content-4819">
+            <div class="target-block-4819">
+                <div class="target-block-heading-4819">
+                    <div class="target-block-icon-4819 target-icon1-slot"></div>
+                    <h3 class="target-block-title-4819 target-title1-slot"></h3>
+                </div>
+                <p class="target-block-desc-4819 target-desc1-slot"></p>
+            </div>
+            <div class="target-block-4819">
+                <div class="target-block-heading-4819">
+                    <div class="target-block-icon-4819 target-icon2-slot"></div>
+                    <h3 class="target-block-title-4819 target-title2-slot"></h3>
+                </div>
+                <ul class="target-benefits-list-4819 target-benefits-slot"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const icon1SVG = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#f5861f" stroke-width="2"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#f5861f" stroke-width="2"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#f5861f" stroke-width="2"/>
+        <circle cx="17.5" cy="17.5" r="3.5" stroke="#f5861f" stroke-width="2"/>
+        <path d="M17.5 16v1.5l1 1" stroke="#f5861f" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`;
+
+    const icon2SVG = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="#f5861f" stroke-width="2"/>
+        <path d="M8 12l3 3 5-5" stroke="#f5861f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+
+    const targetSectionMap = {
+        'sol-ai-contact-center': {
+            image: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3cef9fa6b6ae8458936f4.webp',
+            imageAlt: 'AI Contact Center',
+            title1: 'กลุ่มเป้าหมาย',
+            desc1: 'ธนาคาร, ประกันภัย, โรงพยาบาล, สายการบิน, โทรคมนาคม, E-commerce, หน่วยงานราชการ, บริการหลังการขาย — ทุกองค์กรที่มีลูกค้าติดต่อเข้ามาจำนวนมาก หรือต้องการให้บริการ 24/7',
+            title2: 'ประโยชน์ที่ได้รับ',
+            benefits: [
+                'ลดต้นทุนพนักงานรับสาย',
+                'ไม่มีสายตก, ให้บริการได้ 24/7',
+                'ตอบได้หลายภาษา',
+                'ลดเวลารอสาย',
+                'เพิ่ม Customer Satisfaction Score (CSAT)',
+                'วัดผล ROI ได้ตั้งแต่เดือนแรก',
+            ],
+        },
+        'sol-ai-agent-assist': {
+            image: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3cf5efa6b6ae8458936f8.webp',
+            imageAlt: 'AI Agent Assist',
+            title1: 'กลุ่มเป้าหมาย',
+            desc1: 'Call Center ทุกขนาด, IT Helpdesk, Customer Service, Technical Support, Helpdesk ภายในองค์กร — เหมาะกับองค์กรที่ต้องการยกระดับคุณภาพบริการ โดยไม่ต้องเพิ่มพนักงาน',
+            title2: 'ประโยชน์ที่ได้รับ',
+            benefits: ['ลด AHT 20-40%',
+                'ลด ACW 50-70%',
+                'เพิ่ม FCR, Onboard',
+                'พนักงานใหม่เร็วขึ้น 3 เท่า',
+                'ลดค่าฝึกอบรม, เพิ่ม CSAT',
+                'ลดอัตรา Turnover ของเจ้าหน้าที่'],
+        },
+        'sol-ai-knowledge-hub': {
+            image: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3cf72fa6b6ae8458936fc.webp',
+            imageAlt: 'AI Knowledge Hub',
+            title1: 'กลุ่มเป้าหมาย',
+            desc1: 'ทุกองค์กรที่มีเอกสารจำนวนมาก: ฝ่ายกฎหมาย, ฝ่ายบุคคล, ฝ่ายขาย, IT, R&D, ฝ่ายสนับสนุนลูกค้า, สถาบันการศึกษา, หน่วยงานราชการ, โรงพยาบาล',
+            title2: 'ประโยชน์ที่ได้รับ',
+            benefits: ['ค้นหาข้อมูลเร็วขึ้น 10 เท่า',
+                'ลดเวลาค้นหาจากชั่วโมงเหลือไม่กี่วินาที',
+                'ลด Rework จากข้อมูลผิดพลาด',
+                'เพิ่ม Productivity พนักงาน',
+                'ลดการพึ่งพาผู้เชี่ยวชาญเฉพาะด้าน'],
+        },
+        'sol-ai-doc-automation': {
+            image: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3cf92fa6b6ae845893700.webp',
+            imageAlt: 'AI Doc Automation',
+            title1: 'กลุ่มเป้าหมาย',
+            desc1: 'ฝ่ายกฎหมาย, ฝ่ายจัดซื้อ, ฝ่ายบุคคล, ฝ่ายการเงิน, บริษัทที่ปรึกษา, สำนักงานบัญชี, ธนาคาร, ประกันภัย, หน่วยงานราชการ',
+            title2: 'ประโยชน์ที่ได้รับ',
+            benefits: ['ลดเวลาจัดทำเอกสาร 70%',
+                'ลดข้อผิดพลาดจากมนุษย์',
+                'เอกสารได้มาตรฐานเดียวกันทุกครั้ง',
+                'Audit Trail ครบถ้วน',
+                'ลดกระดาษ',
+                'เร่ง Cycle Time การอนุมัติ'],
+        },
+        'sol-ai-recept-kiosk-ai': {
+            image: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3cfa8fa6b6ae845893704.webp',
+            imageAlt: 'AI Receptionist Kiosk',
+            title1: 'กลุ่มเป้าหมาย',
+            desc1: 'อาคารสำนักงาน, โรงพยาบาล, โรงแรม, มหาวิทยาลัย, หน่วยงานราชการ, ศูนย์การค้า, สนามบิน, สถานทูต — ทุกสถานที่ที่มีผู้เข้าเยี่ยมชม',
+            title2: 'ประโยชน์ที่ได้รับ',
+            benefits: ['ลดภาระพนักงานต้อนรับ',
+                'ให้บริการ 24/7',
+                'รองรับผู้เข้าพบหลายภาษา',
+                'สร้างประสบการณ์ระดับพรีเมียม',
+                'ลดเวลารอคอย',
+                'บันทึกข้อมูลผู้เข้าพบอัตโนมัติ'],
+        },
+        'ai-video-analytics': {
+            image: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3cfd4fa6b6ae845893708.webp',
+            imageAlt: 'AI Video Analytics',
+            title1: 'กลุ่มเป้าหมาย',
+            desc1: 'โรงงาน, คลังสินค้า, ค้าปลีก, ศูนย์การค้า, อาคารสำนักงาน, โรงพยาบาล, สนามบิน, เมืองอัจฉริยะ, นิคมอุตสาหกรรม',
+            title2: 'ประโยชน์ที่ได้รับ',
+            benefits: ['ลดความเสี่ยงด้านความปลอดภัย',
+                'ไม่ต้องมีคนเฝ้าจอ 24 ชม.',
+                'วิเคราะห์ข้อมูลเชิงลึกจากกล้อง',
+                'ลดอุบัติเหตุในโรงงาน',
+                'เพิ่มยอดขายจาก Customer Behavior Analytics'],
+        },
+        'sol-ai-monitoring-smart-alert': {
+            image: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3cfe5fa6b6ae84589370c.webp',
+            imageAlt: 'AI Monitoring Smart Alert',
+            title1: 'กลุ่มเป้าหมาย',
+            desc1: 'ฝ่าย IT, Data Center, NOC, โรงงาน, สายการผลิต, คลังสินค้า, พลังงาน, สาธารณูปโภค, โทรคมนาคม — ทุกองค์กรที่มีระบบที่ต้อง Monitor',
+            title2: 'ประโยชน์ที่ได้รับ',
+            benefits: ['ลด Alert Fatigue 80%',
+                'ลด MTTR (Mean Time To Resolve)',
+                'ลด Downtime',
+                'ลดค่าซ่อมบำรุงจาก Predictive Maintenance',
+                'เพิ่ม Uptime',
+                'ลดความเสี่ยงระบบล่ม'],
+        },
+        'sol-ai-learning-assistant': {
+            image: 'https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/13/69b3cffefa6b6ae845893710.webp',
+            imageAlt: 'AI Learning Assistant',
+            title1: 'กลุ่มเป้าหมาย',
+            desc1: 'มหาวิทยาลัย, โรงเรียน, สถาบันอบรม, Corporate Training, E-learning Platform — ทุกสถาบันที่มีระบบ LMS หรือต้องการสร้าง Smart Classroom',
+            title2: 'ประโยชน์ที่ได้รับ',
+            benefits: ['ผู้เรียนได้รับคำตอบทันทีไม่ต้องรออาจารย์',
+                'ลดภาระอาจารย์ตอบคำถามซ้ำ',
+                'เพิ่ม Engagement ผู้เรียน',
+                'วิเคราะห์ Learning Gap',
+                'สร้างข้อสอบได้เร็วขึ้น 10 เท่า'],
+        },
+    };
+    function applyTargetSection() {
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        let content = null;
+
+        for (const segment of pathSegments) {
+            if (targetSectionMap[segment]) {
+                content = targetSectionMap[segment];
+                break;
+            }
+        }
+
+        if (!content) return;
+
+        // Image
+        const img = document.querySelector('.target-img-tag');
+        if (img) {
+            img.src = content.image || '';
+            img.alt = content.imageAlt || '';
+        }
+
+        // Icons — always the same
+        const icon1 = document.querySelector('.target-icon1-slot');
+        if (icon1) icon1.innerHTML = icon1SVG;
+
+        const icon2 = document.querySelector('.target-icon2-slot');
+        if (icon2) icon2.innerHTML = icon2SVG;
+
+        // Title 1
+        const title1 = document.querySelector('.target-title1-slot');
+        if (title1 && content.title1) title1.textContent = content.title1;
+
+        // Desc 1
+        const desc1 = document.querySelector('.target-desc1-slot');
+        if (desc1 && content.desc1) desc1.textContent = content.desc1;
+
+        // Title 2
+        const title2 = document.querySelector('.target-title2-slot');
+        if (title2 && content.title2) title2.textContent = content.title2;
+
+        // Benefits list
+        const benefits = document.querySelector('.target-benefits-slot');
+        if (benefits && content.benefits?.length) {
+            benefits.innerHTML = content.benefits
+                .map(b => `<li>${b}</li>`)
+                .join('');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyTargetSection);
+</script>

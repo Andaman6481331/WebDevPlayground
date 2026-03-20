@@ -60,6 +60,9 @@ const savedComponents = ref([]);
 const pages = ref([]);
 const currentPageId = ref(null);
 const isPageMode = ref(false);
+const inspectedElement = ref(null);
+const livePreviewRef = ref(null);
+const assistantChatRef = ref(null);
 
 // Computed current page
 const currentPage = computed(() => {
@@ -82,10 +85,12 @@ const historyIndex = ref(-1);
 const MAX_HISTORY = 20;
 
 // ========== LIFECYCLE ==========
-onMounted(() => {
-    loadConversationsData();
+onMounted(async () => {
+    await loadConversationsData();
+    
+    // Only initialize if we still have nothing after loading
     if (conversations.value.length === 0) {
-        initializeConversation();
+        await initializeConversation();
     }
     
     // Set initial history
@@ -109,115 +114,155 @@ const toggleSidebar = () => {
 };
 
 // Conversations
-const loadConversationsData = () => {
-    const saved = localStorage.getItem('webdev_conversations');
-    if (saved) {
-        conversations.value = JSON.parse(saved);
-        if (conversations.value.length > 0) {
-            // Load most recent or first
-            loadConversation(conversations.value[0].id);
+const loadConversationsData = async () => {
+    try {
+        console.log('📡 Fetching conversations from server...');
+        const response = await fetch('/api/conversations');
+        if (response.ok) {
+            const summaries = await response.json();
+            console.log(`📋 Found ${summaries.length} conversations on server.`);
+            
+            // If server is empty but localStorage has data, we need to migrate FULL data
+            const saved = localStorage.getItem('webdev_conversations');
+            if (summaries.length === 0 && saved) {
+                try {
+                    const localData = JSON.parse(saved);
+                    // Migration only happens if we have actual message/code history in the local format
+                    if (localData.length > 0 && (localData[0].messages || localData[0].code)) {
+                        console.log('📦 Migrating local data to server...');
+                        for (const conv of localData) {
+                            await saveConversations(conv);
+                        }
+                        const reResponse = await fetch('/api/conversations');
+                        conversations.value = await reResponse.json();
+                    } else {
+                        conversations.value = summaries;
+                    }
+                } catch (e) {
+                    console.error('Migration failed:', e);
+                    conversations.value = summaries;
+                }
+            } else {
+                conversations.value = summaries;
+            }
+
+            if (conversations.value.length > 0) {
+                await loadConversation(conversations.value[0].id);
+            }
+        } else {
+            console.warn('⚠️ Server conversations API failed, using local storage.');
+            const saved = localStorage.getItem('webdev_conversations');
+            if (saved) conversations.value = JSON.parse(saved);
         }
+    } catch (err) {
+        console.error('Error in loadConversationsData:', err);
     }
 };
 
-const saveConversations = () => {
+const saveConversations = async (specificConversation = null) => {
     try {
-        // Create a deep copy to avoid modifying the reactive state
-        const dataToSave = JSON.parse(JSON.stringify(conversations.value));
-        
-        // Optimization: Strip large base64 data from attachments before saving
-        dataToSave.forEach(conv => {
-            if (conv.messages) {
-                conv.messages.forEach(msg => {
+        // 1. Sync current conversation to memory list
+        if (currentConversationId.value) {
+            const current = conversations.value.find(c => c.id === currentConversationId.value);
+            if (current) {
+                current.code = { html: htmlCode.value, css: cssCode.value, js: jsCode.value };
+                current.messages = [...chatMessages.value];
+                current.history = [...codeHistory.value];
+                current.historyIndex = historyIndex.value;
+            }
+        }
+
+        // 2. Save current conversation to server
+        const convToSave = specificConversation || conversations.value.find(c => c.id === currentConversationId.value);
+        if (convToSave) {
+            // Deep copy to strip large base64 before sending
+            const cleanConv = JSON.parse(JSON.stringify(convToSave));
+            if (cleanConv.messages) {
+                cleanConv.messages.forEach(msg => {
                     if (msg.attachment && msg.attachment.dataUrl && msg.attachment.dataUrl.startsWith('data:')) {
-                        // Keep a placeholder or the URL if we have it, but remove the huge base64
-                        msg.attachment.dataUrl = msg.attachment.url || '(Large image removed to save space)';
+                        msg.attachment.dataUrl = msg.attachment.url || '(Large image removed)';
                     }
                 });
             }
-        });
 
-        localStorage.setItem('webdev_conversations', JSON.stringify(dataToSave));
-    } catch (error) {
-        console.error('Failed to save conversations to localStorage:', error);
-        if (error.name === 'QuotaExceededError') {
-            console.warn('Storage quota exceeded. Pruning old histories and trying again...');
-            // Emergency prune: Keep only the most recent state for all but the current conversation
-            conversations.value.forEach(conv => {
-                if (conv.id !== currentConversationId.value) {
-                    if (conv.history && conv.history.length > 2) {
-                        conv.history = conv.history.slice(-2);
-                        conv.historyIndex = 1;
-                    }
-                }
+            await fetch('/api/save-conversation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cleanConv)
             });
-            // Try saving again after pruning
-            try {
-                localStorage.setItem('webdev_conversations', JSON.stringify(conversations.value));
-            } catch (retryError) {
-                console.error('Pruning failed to free enough space.');
-            }
         }
+
+        // 3. Fallback: Save summaries to localStorage
+        const summaries = conversations.value.map(c => ({
+            id: c.id,
+            title: c.title,
+            date: c.date
+        }));
+        localStorage.setItem('webdev_conversations', JSON.stringify(summaries));
+    } catch (error) {
+        console.error('Failed to save conversations:', error);
     }
 };
 
-const initializeConversation = () => {
-    const conversationId = Date.now().toString();
+const initializeConversation = async () => {
+    const conversationId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
     const conversation = {
         id: conversationId,
         title: 'New Conversation',
         date: new Date().toISOString(),
         messages: [],
         code: {
-            html: '<p>Hello World</p>',
+            html: '<div class="container">\n    <h1>Welcome to Web Dev Playground</h1>\n    <p>Start coding and see live results!</p>\n</div>',
             css:  '',
             js: ''
         },
-        history: [{ html: '<p>Hello World</p>', css: '', js: '' }],
+        history: [{ html: '<div class="container">\n    <h1>Welcome to Web Dev Playground</h1>\n    <p>Start coding and see live results!</p>\n</div>', css: '', js: '' }],
         historyIndex: 0
     };
     conversations.value.unshift(conversation);
-    saveConversations();
-    loadConversation(conversationId);
+    await saveConversations(conversation);
+    await loadConversation(conversationId);
 };
 
-const loadConversation = (id) => {
-    // Save current state and history to the active conversation before switching
-    if (currentConversationId.value) {
-        const prevConv = conversations.value.find(c => c.id === currentConversationId.value);
-        if (prevConv) {
-            prevConv.code = { html: htmlCode.value, css: cssCode.value, js: jsCode.value };
-            prevConv.history = [...codeHistory.value];
-            prevConv.historyIndex = historyIndex.value;
-        }
+const loadConversation = async (id) => {
+    if (!id) return;
+    
+    // 1. Safety Reset
+    if (livePreviewRef.value) livePreviewRef.value.resetTools();
+    if (assistantChatRef.value) assistantChatRef.value.resetDraft();
+
+    // 2. Save current state before switching
+    if (currentConversationId.value && currentConversationId.value !== id) {
+        await saveConversations();
     }
 
-    const conversation = conversations.value.find(c => c.id === id);
-    if (conversation) {
-        currentConversationId.value = id;
-        
-        if (conversation.code) {
-            htmlCode.value = conversation.code.html || '';
-            cssCode.value = conversation.code.css || '';
-            jsCode.value = conversation.code.js || '';
+    try {
+        const response = await fetch(`/api/conversations/${id}`);
+        if (response.ok) {
+            const conversation = await response.json();
+            currentConversationId.value = id;
+            
+            htmlCode.value = conversation.code?.html || '';
+            cssCode.value = conversation.code?.css || '';
+            jsCode.value = conversation.code?.js || '';
+            
+            const welcomeMsg = { role: 'assistant', content: "Welcome! I'm your coding assistant. Ask me anything about web development." };
+            chatMessages.value = [
+                welcomeMsg,
+                ...(conversation.messages || [])
+            ];
+            
+            codeHistory.value = conversation.history || [{ html: htmlCode.value, css: cssCode.value, js: jsCode.value }];
+            historyIndex.value = conversation.historyIndex !== undefined ? conversation.historyIndex : 0;
+            
+            // Update in the memory list
+            const idx = conversations.value.findIndex(c => c.id === id);
+            if (idx !== -1) {
+                conversations.value[idx] = { ...conversations.value[idx], ...conversation };
+            }
         }
-        
-        chatMessages.value = [
-            { role: 'assistant', content: "Welcome! I'm your coding assistant. Ask me anything about web development." },
-            ...(conversation.messages || [])
-        ];
-        
-        // Load history for the selected conversation or initialize if missing
-        if (conversation.history && Array.isArray(conversation.history)) {
-            codeHistory.value = [...conversation.history];
-            historyIndex.value = conversation.historyIndex !== undefined ? conversation.historyIndex : codeHistory.value.length - 1;
-        } else {
-            codeHistory.value = [{ html: htmlCode.value, css: cssCode.value, js: jsCode.value }];
-            historyIndex.value = 0;
-            conversation.history = [...codeHistory.value];
-            conversation.historyIndex = historyIndex.value;
-            saveConversations();
-        }
+    } catch (err) {
+        console.error('Failed to load conversation from server:', err);
     }
 };
 
@@ -433,10 +478,19 @@ const calculateBilledTokens = (usage) => {
 // Chat & AI — Adaptive Pipeline
 const handleSendMessage = async ({ text, attachment, intent, type }) => {
     const targetConversationId = currentConversationId.value;
+    console.log('✉️ handleSendMessage:', { text, targetConversationId, numConvs: conversations.value.length });
+    
     const conv = conversations.value.find(c => c.id === targetConversationId);
     
     if (!conv) {
-        console.error('No target conversation found for message');
+        console.error('❌ No target conversation found for message. Current ID:', targetConversationId);
+        // If we have conversations but none match, try to use the first one as fallback
+        if (conversations.value.length > 0) {
+            console.warn('⚠️ Falling back to first conversation');
+            currentConversationId.value = conversations.value[0].id;
+            handleSendMessage({ text, attachment, intent, type });
+            return;
+        }
         return;
     }
 
@@ -584,6 +638,15 @@ const handleAIEdit = (message) => {
     // When editing via shape selection, we send the selection context as the message
     // We DON'T assume an attachment unless explicitly added (which isn't supported in this flow yet)
     handleSendMessage({ text: message, attachment: null });
+};
+
+const handleInspectElement = (elementData) => {
+    console.log('🔍 Inspecting element:', elementData);
+    inspectedElement.value = elementData;
+    // Clear it after a bit so it can be re-triggered even if it's the same element
+    setTimeout(() => {
+        inspectedElement.value = null;
+    }, 100);
 };
 
 const handleUpdateAllCode = ({ html, css, js }) => {
@@ -759,15 +822,18 @@ const handleModernizeResult = async ({ screenshotUrl, theme, color }) => {
     }
 };
 
-const resetChat = () => {
+const resetChat = async () => {
     if (confirm('Clear chat and reset code for this conversation?')) {
+        // 0. Safety Reset
+        if (livePreviewRef.value) livePreviewRef.value.resetTools();
+
         // 1. Reset chat messages
         chatMessages.value = [
             { role: 'assistant', content: "Welcome! I'm your coding assistant. Ask me anything about web development." }
         ];
         
         // 2. Reset code state
-        const defaultHtml = '<p>Hello World</p>';
+        const defaultHtml = '<div class="container">\n    <h1>Welcome to Web Dev Playground</h1>\n    <p>Start coding and see live results!</p>\n</div>';
         const defaultCss = '';
         const defaultJs = '';
         
@@ -780,15 +846,8 @@ const resetChat = () => {
         codeHistory.value = [initialState];
         historyIndex.value = 0;
         
-        // 4. Update the active conversation object
-        const conv = conversations.value.find(c => c.id === currentConversationId.value);
-        if (conv) {
-            conv.messages = [];
-            conv.code = { ...initialState };
-            conv.history = [...codeHistory.value];
-            conv.historyIndex = 0;
-            saveConversations();
-        }
+        // 4. Update and Save
+        await saveConversations();
     }
 };
 
@@ -995,6 +1054,7 @@ const generateFullHTML = (page) => {
             <div class="display-sections">
                 <!-- Live Preview -->
                 <LivePreview 
+                    ref="livePreviewRef"
                     :html-code="htmlCode"
                     :css-code="cssCode"
                     :js-code="jsCode"
@@ -1004,6 +1064,7 @@ const generateFullHTML = (page) => {
                     @add-responsive="handleResponsiveEdit"
                     @direct-update-code="(code) => { htmlCode = code }"
                     @update-all-code="handleUpdateAllCode"
+                    @inspect-element="handleInspectElement"
                 />
                 
                 <!-- Code Editor -->
@@ -1011,12 +1072,14 @@ const generateFullHTML = (page) => {
                     v-model:htmlCode="htmlCode"
                     v-model:cssCode="cssCode"
                     v-model:jsCode="jsCode"
+                    :inspected-element="inspectedElement"
                 />
             </div>
             
             <!-- Chat -->
             <div class="chat-section">
                 <AssistantChat 
+                    ref="assistantChatRef"
                     :messages="chatMessages"
                     :is-loading="isChatLoading"
                     @send-message="handleSendMessage"

@@ -21,3 +21,7 @@ assignment
 ### Example Prompt ###
 "สร้างการ์ดสินค้าแบบ e-commerce ที่มีรูปสินค้าหมุนได้ 360 องศา ด้านล่างมีปุ่มเลือกสี เลือกแล้วรูปสินค้าเปลี่ยนตาม มีปุ่ม wishlist รูปหัวใจที่กดแล้วเด้งๆ แล้วก็มี countdown timer สำหรับโปรโมชั่น"
 
+###Possible Improvement###
+view attrachment image
+code inspect mode
+better text config mode

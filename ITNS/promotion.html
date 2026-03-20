@@ -1,0 +1,294 @@
+<script>
+    const slides = [
+
+        {
+            img: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/12/69b28065fa6b6ae8458933b4.webp",
+            alt: "AI Voice Contact Center banner",
+            url: "#",
+        },
+        {
+            img: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/12/69b2809dfa6b6ae8458933c0.webp",
+            alt: "Cloud PBX Solution banner",
+            url: "#",
+        },
+        {
+            img: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/12/69b28065fa6b6ae8458933b4.webp",
+            alt: "AI Voice Contact Center banner",
+            url: "#",
+        },
+        {
+            img: "https://d2rqrtkkjz90lb.cloudfront.net/production/cms/article/2026/3/12/69b2809dfa6b6ae8458933c0.webp",
+            alt: "Cloud PBX Solution banner",
+            url: "#",
+        },
+    ];
+    function getImageVariants(url) {
+        var base = url.replace(/\.(avif|webp|png|jpg|jpeg)(\?.*)?$/i, '');
+        return {
+            avif: base + '.avif',
+            webp: base + '.webp',
+            png: base + '.png',
+        };
+    }
+
+    /**
+     * makePicture(url, alt, linkUrl)
+     *   url     – original image URL (used as <img> fallback src)
+     *   alt     – alt text
+     *   linkUrl – if truthy, wraps picture in <a href="linkUrl">
+     */
+    function makePicture(url, alt, linkUrl) {
+        var v = getImageVariants(url);
+        var picture =
+            '<picture>'
+            + '<source srcset="' + v.avif + '" type="image/avif">'
+            + '<source srcset="' + v.webp + '" type="image/webp">'
+            + '<source srcset="' + v.png + '" type="image/png">'
+            + '<img src="' + url + '" alt="' + (alt || '') + '" loading="lazy" decoding="async">'
+            + '</picture>';
+
+        if (linkUrl) {
+            return '<a href="' + linkUrl + '" class="slide-link" tabindex="-1" aria-label="' + (alt || '') + '">' + picture + '</a>';
+        }
+        return picture;
+    }
+</script>
+
+<style>
+    .banner-section {
+        margin: 60px 80px;
+        font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;
+    }
+
+    .banner-section-title {
+        text-align: center;
+        font-size: clamp(20px, 2.2vw, 28px);
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 22px;
+        letter-spacing: -0.3px;
+    }
+
+    /* Slider shell — position:relative so arrows anchor to it */
+    .banner-slider {
+        position: relative;
+        padding: 0 28px;
+    }
+
+    /* Viewport clips the scrolling track */
+    .slider-viewport {
+        overflow: hidden;
+        border-radius: 20px;
+    }
+
+    /* Track — all slides in one flex row */
+    .slides-track {
+        display: flex;
+        gap: 16px;
+        transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+    }
+
+    /* Individual slide — image only, 16:7 ratio */
+    .slide {
+        flex-shrink: 0;
+        width: calc(50% - 8px);
+        /* two visible; gap=16px → each = 50% - 8px */
+        aspect-ratio: 16 / 7;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+        background: #e5e7eb;
+        /* placeholder colour while loading */
+        position: relative;
+    }
+
+    /* picture, a.slide-link, and picture inside a — all fill the slide */
+    .slide picture,
+    .slide .slide-link,
+    .slide .slide-link picture {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* img fills the slide, object-fit keeps it cropped nicely */
+    .slide picture img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center center;
+        /* Gentle fade-in once the image is ready */
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .slide picture img.loaded {
+        opacity: 1;
+    }
+
+    .slide-link {
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    /* ── Dots ── */
+    .dots {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 18px;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.18);
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+        border: none;
+        padding: 0;
+    }
+
+    .dot.active {
+        background: #1a2540;
+        transform: scale(1.35);
+    }
+
+    /* ── Side arrows ── */
+    .arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(0, 0, 0, 0.12);
+        background: rgba(255, 255, 255, 0.90);
+        backdrop-filter: blur(6px);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+        transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+    }
+
+    .arrow:hover {
+        background: #ffffff;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+        transform: translateY(-50%) scale(1.08);
+    }
+
+    .arrow.left {
+        left: -20px;
+    }
+
+    .arrow.right {
+        right: -20px;
+    }
+
+    .no-arrows .arrow {
+        display: none;
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+
+<div class="banner-section">
+    <h2 class="banner-section-title">สินค้าราคาพิเศษ อัปเดตใหม่ตลอดปี</h2>
+
+    <div class="banner-slider" id="slider">
+        <button class="arrow left" id="prev" aria-label="Previous">
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                <path d="M11 14L6 9L11 4" stroke="#1a2540" stroke-width="2.2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </button>
+        <button class="arrow right" id="next" aria-label="Next">
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                <path d="M7 4L12 9L7 14" stroke="#1a2540" stroke-width="2.2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </button>
+
+        <div class="slider-viewport">
+            <div class="slides-track" id="track"></div>
+        </div>
+    </div>
+
+    <div class="dots" id="dots"></div>
+</div>
+
+<script>
+    const track = document.getElementById('track');
+    const dotsEl = document.getElementById('dots');
+    const slider = document.getElementById('slider');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+
+    const VISIBLE = 2;
+    const GAP = 16; // px — must match CSS gap
+
+    const totalPages = slides.length - (VISIBLE - 1);
+    if (slides.length <= VISIBLE) slider.classList.add('no-arrows');
+
+    // Build slides
+    slides.forEach(function (s) {
+        var slide = document.createElement('div');
+        slide.className = 'slide';
+        slide.innerHTML = makePicture(s.img, s.alt, s.url || '');
+
+        // Fade-in once image loads
+        var img = slide.querySelector('img');
+        if (img) {
+            if (img.complete && img.naturalWidth) {
+                img.classList.add('loaded');
+            } else {
+                img.addEventListener('load', function () { img.classList.add('loaded'); });
+            }
+        }
+
+        track.appendChild(slide);
+    });
+
+    // Build dots
+    for (var i = 0; i < totalPages; i++) {
+        var dot = document.createElement('button');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        dot.addEventListener('click', (function (idx) {
+            return function () { goTo(idx); };
+        })(i));
+        dotsEl.appendChild(dot);
+    }
+
+    var current = 0;
+
+    function goTo(n) {
+        if (totalPages <= 0) return;
+        current = (n + totalPages) % totalPages;
+
+        var viewport = track.parentElement.offsetWidth;
+        var slideWidth = (viewport - GAP) / VISIBLE;
+        var offset = current * (slideWidth + GAP);
+
+        track.style.transform = 'translateX(-' + offset + 'px)';
+
+        document.querySelectorAll('.dot').forEach(function (d, i) {
+            d.classList.toggle('active', i === current);
+        });
+    }
+
+    prevBtn.addEventListener('click', function () { goTo(current - 1); });
+    nextBtn.addEventListener('click', function () { goTo(current + 1); });
+    window.addEventListener('resize', function () { goTo(current); });
+
+    if (slides.length > VISIBLE) {
+        setInterval(function () { goTo(current + 1); }, 5000);
+    }
+</script>

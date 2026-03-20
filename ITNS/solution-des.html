@@ -1,0 +1,243 @@
+<style>
+    .contact-center-section-1748 {
+        width: 100%;
+        background-color: #ffffff;
+        padding: 60px 20px 60px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .content-wrapper-1748 {
+        max-width: 1400px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .main-title-1748 {
+        font-size: 50px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 24px;
+        line-height: 1.4;
+        letter-spacing: 0.01em;
+    }
+
+    .subtitle-block-1748 {
+        margin-bottom: 32px;
+    }
+
+    .subtitle-line1-1748 {
+        font-size: 32px;
+        color: #e05a00;
+        line-height: 1.6;
+        margin-bottom: 4px;
+    }
+
+    .subtitle-line2-1748 {
+        font-size: 32px;
+        color: #e05a00;
+        line-height: 1.6;
+    }
+
+    .description-block-1748 {
+        text-align: center;
+    }
+
+    .desc-para-1748 {
+        font-size: 20px;
+        font-weight: 400;
+        color: #444444;
+        line-height: 1.9;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .desc-para-1748:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Tablet */
+    @media (max-width: 1024px) {
+        .contact-center-section-1748 {
+            padding: 50px 32px;
+        }
+
+        .main-title-1748 {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .subtitle-line1-1748,
+        .subtitle-line2-1748 {
+            font-size: 26px;
+        }
+
+        .desc-para-1748 {
+            font-size: 18px;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .contact-center-section-1748 {
+            padding: 40px 20px;
+        }
+
+        .main-title-1748 {
+            font-size: 28px;
+            margin-bottom: 16px;
+            letter-spacing: 0;
+        }
+
+        .subtitle-block-1748 {
+            margin-bottom: 24px;
+        }
+
+        .subtitle-line1-1748,
+        .subtitle-line2-1748 {
+            font-size: 20px;
+            line-height: 1.5;
+        }
+
+        .desc-para-1748 {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 480px) {
+        .contact-center-section-1748 {
+            padding: 32px 16px;
+        }
+
+        .main-title-1748 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle-line1-1748,
+        .subtitle-line2-1748 {
+            font-size: 17px;
+        }
+
+        .desc-para-1748 {
+            font-size: 15px;
+            line-height: 1.75;
+        }
+    }
+</style>
+<div class="contact-center-section-1748">
+    <div class="content-wrapper-1748">
+        <h1 class="main-title-1748"></h1>
+        <div class="subtitle-block-1748">
+            <p class="subtitle-line1-1748 sub1"></p>
+            <p class="subtitle-line2-1748 sub2"></p>
+        </div>
+        <div class="description-block-1748">
+            <p class="desc-para-1748 des1"></p>
+            <p class="desc-para-1748 des2"></p>
+        </div>
+    </div>
+</div>
+<script>
+    const pageTitleMap = {
+        'sol-ai-contact-center': {
+            title: 'ศูนย์บริการลูกค้าอัจฉริยะ',
+            description: 'AI Contact Center ของ ITNS คือระบบศูนย์บริการลูกค้ารุ่นใหม่ที่ใช้เทคโนโลยี AI Voicebot สนทนาด้วยเสียงภาษาไทยธรรมชาติ ร่วมกับ AI Chatbot ที่ตอบข้อความบน LINE, Facebook Messenger, Web Chat และช่องทางอื่น ๆ แบบ Omni-channel ทุกช่องทางเชื่อมเป็นบทสนทนาเดียว ลูกค้าไม่ต้องเล่าซ้ำ',
+            description2: 'ระบบเรียนรู้จากข้อมูลจริงขององค์กรผ่านเทคโนโลยี RAG (Retrieval-Augmented Generation) ทำให้ตอบคำถามได้แม่นยำ อ้างอิงแหล่งข้อมูลได้ ไม่แต่งคำตอบเอง\nรองรับการโอนสายไปยังเจ้าหน้าที่จริงเมื่อจำเป็น (Warm Transfer) พร้อมรายงานสถิติสายโทรเข้า เวลาเฉลี่ยในการตอบ อัตราแก้ปัญหาสำเร็จแบบ Real-time',
+            subtitle: 'Voicebot + Chatbot + Omni-channel',
+            subtitle2: 'รับสายได้ไม่จำกัด ตอบลูกค้า 24/7 ไม่ต้องเพิ่มพนักงาน',
+        },
+        'sol-ai-agent-assist': {
+            title: 'ผู้ช่วย AI สำหรับเจ้าหน้าที่ Call Center / Helpdesk',
+            subtitle: 'AI ที่ทำงานเคียงข้างเจ้าหน้าที่แบบ Real-time ',
+            subtitle2: 'ไม่ได้มาแทน แต่มาช่วยให้ทำงานดีขึ้น',
+            description: 'AI Agent Assist ของ ITNS ทำงานเคียงข้างเจ้าหน้าที่ Call Center แบบ Real-time โดยฟังบทสนทนาระหว่างเจ้าหน้าที่กับลูกค้าแล้วแนะนำคำตอบที่เหมาะสมจากฐานข้อมูล SOP และ Knowledge Base ขององค์กร พร้อมสรุปบทสนทนาอัตโนมัติเมื่อจบสาย',
+            description2: 'ระบบวิเคราะห์อารมณ์ลูกค้า (Sentiment Analysis) แบบ Real-time แจ้งเตือนหัวหน้าทีมเมื่อลูกค้าไม่พอใจ ช่วยลด Average Handle Time (AHT), ลด After-Call Work (ACW) และเพิ่ม First Contact Resolution (FCR) ได้อย่างมีนัยสำคัญ ช่วย Onboard พนักงานใหม่ได้เร็วขึ้น ลดเวลาฝึกสอน',
+        },
+        'sol-ai-knowledge-hub': {
+            title: 'ระบบค้นหาความรู้จากเอกสารองค์กรด้วย RAG',
+            subtitle: 'ถาม AI แล้วได้คำตอบพร้อมอ้างอิงแหล่งที่มาทันท',
+            subtitle2: 'ไม่ต้องเปิดไฟล์ทีละไฟล์อีกต่อไป',
+            description: 'AI Knowledge Hub ของ ITNS เปลี่ยนวิธีค้นหาข้อมูลในองค์กร จากการเปิดไฟล์ทีละไฟล์ เป็นการถาม AI แล้วได้คำตอบพร้อมอ้างอิงแหล่งที่มาทันที ใช้เทคโนโลยี RAG (Retrieval-Augmented Generation) ดึงข้อมูลจาก PDF, Word, Excel, PowerPoint, Wiki ภายในองค์กร และฐานข้อมูลที่กำหนด',
+            description2: 'สิ่งที่ต่างจาก Search ทั่วไปคือ AI Knowledge Hub เข้าใจบริบทของคำถาม สามารถเชื่อมโยงข้อมูลจากหลายเอกสาร สร้างคำตอบที่อ่านง่าย พร้อมลิงก์ไปยังเอกสารต้นทาง เจ้าหน้าที่สามารถตรวจสอบความถูกต้องได้ทุกเมื่อ ระบบไม่แต่งคำตอบเอง (No Hallucination)',
+        },
+
+        'sol-ai-doc-automation': {
+            title: 'ระบบจัดการเอกสารอัจฉริยะ พร้อม Workflow อนุมัติ',
+            subtitle: 'ร่าง สรุป ตรวจเอกสาร + Workflow อนุมัติดิจิทัล',
+            subtitle2: 'ลดเวลาจัดทำเอกสาร 70%',
+            description: 'AI Document Automation ของ ITNS ช่วยจัดการเอกสารทั้งวงจร ตั้งแต่ร่างเอกสารจากเทมเพลตที่กำหนด สรุปเอกสารยาวให้กระชับเหลือไม่กี่ย่อหน้า ตรวจสอบความถูกต้องและความสอดคล้อง เปรียบเทียบเวอร์ชันเอกสาร จนถึงจัดการ Workflow อนุมัติแบบดิจิทัล ',
+            description2: 'เหมาะสำหรับองค์กรที่มีเอกสารจำนวนมาก เช่น สัญญา รายงานประจำปี เอกสารทางกฎหมาย ใบเสนอราคา เอกสารนโยบาย ลดเวลาจัดทำเอกสารได้ถึง 70% ลดข้อผิดพลาดจากมนุษย์ สร้างเอกสารที่ได้มาตรฐานเดียวกันทุกครั้ง',
+        },
+
+        'sol-ai-recept-kiosk-ai': {
+            title: 'ระบบต้อนรับอัจฉริยะ รองรับหลายภาษา',
+            subtitle: 'ต้อนรับ คัดกรอง นำทาง ด้วยเสียงและข้อความ',
+            subtitle2: 'ไม่ใช่ตู้กดปุ่มเลือกเมนูแบบเดิม',
+            description: 'AI Receptionist ของ ITNS ไม่ใช่ตู้ Kiosk กดปุ่มเลือกเมนูแบบเดิม แต่เป็นระบบที่สนทนาด้วยเสียงและข้อความแบบธรรมชาติ รองรับภาษาไทย อังกฤษ จีน ญี่ปุ่น เหมาะสำหรับอาคารสำนักงาน โรงพยาบาล โรงแรม สถาบันการศึกษา และหน่วยงานราชการ',
+            description2: 'ระบบสามารถคัดกรองผู้เข้าพบ ตรวจสอบนัดหมาย แนะนำเส้นทางภายในอาคาร (Wayfinding) จองห้องประชุม แจ้งเจ้าหน้าที่ที่เกี่ยวข้อง เชื่อมต่อกับระบบ Access Control และ Visitor Management ขององค์กร ให้ผู้เข้าใช้บริการได้รับประสบการณ์ที่ดีตั้งแต่ก้าวแรก',
+        },
+
+        'ai-video-analytics': {
+            title: 'วิเคราะห์ภาพจากกล้อง CCTV ด้วย AI',
+            subtitle: 'เปลี่ยน CCTV จากระบบบันทึกภาพ เป็นระบบวิเคราะห์เหตุการณ์อัจฉริยะ',
+            subtitle2: 'ใช้กับกล้องเดิมได้',
+            description: 'AI Video Analytics ของ ITNS เปลี่ยนกล้อง CCTV ที่มีอยู่เดิมจากระบบบันทึกภาพ เป็นระบบวิเคราะห์เหตุการณ์อัจฉริยะ ตรวจจับเหตุการณ์ผิดปกติแบบอัตโนมัติ ไม่ต้องมีคนเฝ้าจอ 24 ชั่วโมง แจ้งเตือนแบบ Real-time ผ่าน LINE, SMS หรือ Dashboard',
+            description2: 'รองรับการใช้งานหลากหลาย ตั้งแต่ค้าปลีก (นับคน, Heat Map, วิเคราะห์พฤติกรรมลูกค้า), โรงงาน (ตรวจจับ PPE, ความปลอดภัย), อาคารสำนักงาน (ตรวจจับใบหน้า, ผู้บุกรุก), ไปจนถึงเมืองอัจฉริยะ (การจราจร, ฝูงชน) ใช้ได้กับกล้อง CCTV เดิมโดยไม่ต้องเปลี่ยนอุปกรณ์ ปฏิบัติตาม PDPA',
+        },
+
+        'sol-ai-monitoring-smart-alert': {
+            title: 'วิเคราะห์เหตุการณ์ระบบ IT/Ops/Industrial พร้อมแจ้งเตือน Actionable',
+            subtitle: 'ไม่ใช่แค่ Alert Spam - AI กลั่นกรอง วิเคราะห์สาเหตุ แนะนำวิธีแก้ไข',
+            subtitle2: '',
+            description: 'AI Monitoring & Smart Alert ของ ITNS ไม่ใช่แค่ระบบแจ้งเตือนทั่วไปที่ส่ง Alert มาเป็นร้อย ๆ ต่อวันจนไม่มีใครอ่าน แต่เป็นระบบที่ใช้ AI วิเคราะห์เหตุการณ์ กลั่นกรองความสำคัญ และส่งแจ้งเตือนแบบ Actionable — บอกว่าเกิดอะไร สาเหตุน่าจะเป็นอะไร และแนะนำขั้นตอนการแก้ไข',
+            description2: 'รองรับการ Monitor ทั้งระบบ IT Infrastructure (Server, Network, Cloud), ระบบ Operations (สายการผลิต, คลังสินค้า), และระบบ Industrial (เครื่องจักร, อุปกรณ์โรงงาน) สามารถตรวจจับความผิดปกติก่อนเกิดปัญหาจริง (Predictive) ช่วยลดเวลา Downtime และค่าใช้จ่ายซ่อมบำรุง',
+        },
+
+        'sol-ai-learning-assistant': {
+            title: 'ผู้ช่วยสอนอัจฉริยะสำหรับ LMS และ Smart Classroom',
+            subtitle: 'ผู้เรียนถามได้ทุกเมื่อ AI ตอบจากบทเรียนจริง - ไม่แต่งคำตอบเอง',
+            subtitle2: '',
+            description: 'AI Learning Assistant ของ ITNS เปลี่ยนระบบ LMS และห้องเรียนให้เป็น Smart Classroom ที่ผู้เรียนสามารถถามคำถามจากบทเรียนได้ทุกเมื่อ AI จะตอบจากเนื้อหาที่อาจารย์กำหนดเท่านั้น ไม่แต่งคำตอบเอง (No Hallucination) พร้อมอ้างอิงบทเรียนที่เกี่ยวข้อง',
+            description2: 'ระบบวิเคราะห์จุดอ่อนของผู้เรียนแต่ละคน แนะนำเนื้อหาทบทวน สร้างข้อสอบ Practice Test จากเนื้อหาบทเรียน ปรับระดับความยากตามผู้เรียน (Personalized Learning) ช่วยให้ผู้สอนเข้าใจผู้เรียนดีขึ้นและโฟกัสกับการสอนที่สร้างสรรค์',
+        },
+    };
+
+    function applyBannerContent() {
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        let content = null;
+
+        for (const segment of pathSegments) {
+            if (pageTitleMap[segment]) {
+                content = pageTitleMap[segment];
+                break;
+            }
+        }
+
+        if (!content) return; // no match, leave defaults
+
+        // Map each key to a CSS selector — add/remove as needed
+        const selectorMap = {
+            title: '.main-title-1748',
+            description: '.des1',
+            description2: '.des2',
+            subtitle: '.sub1',
+            subtitle2: '.sub2',
+        };
+
+        for (const [key, selector] of Object.entries(selectorMap)) {
+            const el = document.querySelector(selector);
+            if (el && content[key]) {
+                el.textContent = content[key];
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyBannerContent);
+
+</script>

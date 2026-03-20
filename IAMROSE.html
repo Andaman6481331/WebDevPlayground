@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>I Am Roses – Paper Flowers & Craft Supply, Wholesale from Thailand</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"
+            rel="stylesheet">
+
+        <style>
+            :root {
+                --primary: #8b3a6e;
+                --primary-light: #c47aaa;
+                --primary-dark: #5c1e47;
+                --accent: #d4896a;
+                --accent-light: #f5d5c5;
+                --bg: #fdf8f6;
+                --bg-alt: #f5ede8;
+                --bg-dark: #2a1a24;
+                --text: #2d1a28;
+                --text-muted: #7a6070;
+                --border: #e8d5dc;
+                --white: #ffffff;
+                --gold: #b8860b;
+                --success: #3d7a4a;
+                --warning: #c0392b;
+                --font-display: 'Cormorant Garamond', Georgia, serif;
+                --font-body: 'DM Sans', Helvetica, sans-serif;
+                --radius: 10px;
+                --radius-lg: 18px;
+                --shadow: 0 2px 16px rgba(139, 58, 110, 0.08);
+                --shadow-hover: 0 8px 32px rgba(139, 58, 110, 0.18);
+                --transition: 0.25s ease;
+            }
+
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: var(--font-body);
+                background: var(--bg);
+                color: var(--text);
+                font-size: 15px;
+                line-height: 1.6;
+                overflow-x: hidden;
+            }
+
+            a {
+                color: inherit;
+                text-decoration: none;
+            }
+
+            img {
+                max-width: 100%;
+                display: block;
+            }
+
+            /* ── ANNOUNCEMENT STRIP ── */
+            .announce-strip {
+                background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+                color: var(--white);
+                font-size: 13px;
+                font-family: var(--font-body);
+                padding: 0;
+                overflow: hidden;
+                position: relative;
+                z-index: 200;
+            }
+
+            .announce-strip .strip-inner {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                gap: 0 28px;
+                padding: 8px 16px;
+                text-align: center;
+            }
+
+            .announce-strip .alert-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 3px 0;
+            }
+
+            .announce-strip .alert-item .icon {
+                font-size: 14px;
+            }
+
+            .announce-strip a {
+                color: #ffd4b8;
+                text-decoration: underline;
+            }
+
+            .announce-strip strong {
+                color: #ffe0a0;
+            }
+
+            /* ── STICKY NAV ── */
+            .site-nav {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: rgba(253, 248, 246, 0.97);
+                border-bottom: 1px solid var(--border);
+                backdrop-filter: blur(10px);
+                transition: box-shadow var(--transition);
+            }
+
+            .site-nav.scrolled {
+                box-shadow: 0 2px 24px rgba(139, 58, 110, 0.12);
+            }
+
+            .nav-inner {
+                max-width: 1300px;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                gap: 0;
+                padding: 0 20px;
+                height: 64px;
+            }
+
+            .nav-logo {
+                display: flex;
+                flex-direction: column;
+                line-height: 1.1;
+                margin-right: 32px;
+                flex-shrink: 0;
+            }
+
+            .nav-logo .brand-name {
+                font-family: var(--font-display);
+                font-size: 22px;
+                font-weight: 700;
+                color: var(--primary);
+                letter-spacing: -0.5px;
+            }
+
+            .nav-logo .brand-sub {
+                font-size: 10px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                font-weight: 500;
+            }
+
+            .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                flex: 1;
+            }
+
+            .nav-links a {
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--text-muted);
+                padding: 8px 14px;
+                border-radius: 6px;
+                transition: all var(--transition);
+                white-space: nowrap;
+            }
+
+            .nav-links a:hover {
+                color: var(--primary);
+                background: var(--bg-alt);
+            }
+
+            .nav-links a.active {
+                color: var(--primary);
+                font-weight: 600;
+            }
+
+            .nav-actions {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-left: auto;
+            }
+
+            .btn-cart {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                background: var(--primary);
+                color: var(--white);
+                padding: 9px 18px;
+                border-radius: var(--radius);
+                font-size: 13px;
+                font-weight: 600;
+                transition: all var(--transition);
+                white-space: nowrap;
+            }
+
+            .btn-cart:hover {
+                background: var(--primary-dark);
+                transform: translateY(-1px);
+            }
+
+            .btn-outline {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                border: 1.5px solid var(--border);
+                color: var(--text-muted);
+                padding: 8px 14px;
+                border-radius: var(--radius);
+                font-size: 13px;
+                font-weight: 500;
+                transition: all var(--transition);
+                white-space: nowrap;
+            }
+
+            .btn-outline:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+            }
+
+            .hamburger {
+                display: none;
+                flex-direction: column;
+                gap: 5px;
+                cursor: pointer;
+                padding: 6px;
+                background: none;
+                border: none;
+            }
+
+            .hamburger span {
+                width: 22px;
+                height: 2px;
+                background: var(--text);
+                border-radius: 2px;
+                transition: all var(--transition);
+            }
+
+            /* ── HERO ── */
+            .hero {
+                background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #a0456e 100%);
+                position: relative;
+                overflow: hidden;
+                min-height: 440px;
+                display: flex;
+                align-items: center;
+            }
+
+            .hero::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: url('https://www.iamroses.com/images/sub_1383283523/1383341737.jpg') center/cover no-repeat;
+                opacity: 0.18;
+                filter: saturate(1.4);
+            }
+
+            .hero-inner {
+                max-width: 1300px;
+                margin: 0 auto;
+                padding: 60px 20px;
+                position: relative;
+                z-index: 2;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 48px;
+                align-items: center;
+                width: 100%;
+            }
+
+            .hero-text h1 {
+                font-family: var(--font-display);
+                font-size: clamp(36px, 5vw, 62px);
+                font-weight: 700;
+                color: var(--white);
+                line-height: 1.1;
+                margin-bottom: 16px;
+            }
+
+            .hero-text h1 em {
+                color: #ffd4c8;
+                font-style: italic;
+            }
+
+            .hero-text p {
+                color: rgba(255, 255, 255, 0.85);
+                font-size: 16px;
+                margin-bottom: 28px;
+                max-width: 440px;
+                line-height: 1.7;
+            }
+
+            .hero-btns {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .btn-primary {
+                background: var(--white);
+                color: var(--primary-dark);
+                padding: 14px 28px;
+                border-radius: var(--radius);
+                font-weight: 700;
+                font-size: 15px;
+                transition: all var(--transition);
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .btn-primary:hover {
+                background: var(--accent-light);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-hover);
+            }
+
+            .btn-secondary {
+                background: rgba(255, 255, 255, 0.15);
+                color: var(--white);
+                padding: 14px 28px;
+                border-radius: var(--radius);
+                font-weight: 600;
+                font-size: 15px;
+                border: 1.5px solid rgba(255, 255, 255, 0.4);
+                transition: all var(--transition);
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .btn-secondary:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: translateY(-2px);
+            }
+
+            .hero-image-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .hero-img-card {
+                border-radius: var(--radius-lg);
+                overflow: hidden;
+                aspect-ratio: 1;
+                position: relative;
+            }
+
+            .hero-img-card img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s ease;
+            }
+
+            .hero-img-card:hover img {
+                transform: scale(1.05);
+            }
+
+            .hero-img-card.tall {
+                grid-row: span 2;
+            }
+
+            /* ── TRUST BAR ── */
+            .trust-bar {
+                background: var(--white);
+                border-bottom: 1px solid var(--border);
+            }
+
+            .trust-bar-inner {
+                max-width: 1300px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: flex;
+                align-items: stretch;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+
+            .trust-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 18px 16px;
+                flex: 1;
+                min-width: 200px;
+                border-right: 1px solid var(--border);
+            }
+
+            .trust-item:last-child {
+                border-right: none;
+            }
+
+            .trust-icon {
+                width: 40px;
+                height: 40px;
+                background: var(--bg-alt);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+                flex-shrink: 0;
+            }
+
+            .trust-label strong {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text);
+            }
+
+            .trust-label span {
+                font-size: 12px;
+                color: var(--text-muted);
+            }
+
+            /* ── LAYOUT ── */
+            .page-layout {
+                max-width: 1300px;
+                margin: 0 auto;
+                padding: 40px 20px;
+                display: grid;
+                grid-template-columns: 260px 1fr;
+                gap: 32px;
+                align-items: start;
+            }
+
+            /* ── SIDEBAR ── */
+            .sidebar {
+                position: sticky;
+                top: 80px;
+                background: var(--white);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                overflow: hidden;
+                box-shadow: var(--shadow);
+            }
+
+            .sidebar-header {
+                background: linear-gradient(135deg, var(--primary), var(--primary-light));
+                color: var(--white);
+                padding: 16px 20px;
+                font-family: var(--font-display);
+                font-size: 18px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+            }
+
+            /* Search in sidebar */
+            .sidebar-search {
+                padding: 14px 16px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .search-wrap {
+                display: flex;
+                gap: 8px;
+            }
+
+            .search-wrap input {
+                flex: 1;
+                padding: 9px 12px;
+                border: 1.5px solid var(--border);
+                border-radius: var(--radius);
+                font-family: var(--font-body);
+                font-size: 13px;
+                outline: none;
+                transition: border-color var(--transition);
+                background: var(--bg);
+                color: var(--text);
+            }
+
+            .search-wrap input:focus {
+                border-color: var(--primary);
+            }
+
+            .search-wrap button {
+                background: var(--primary);
+                color: var(--white);
+                border: none;
+                padding: 9px 14px;
+                border-radius: var(--radius);
+                cursor: pointer;
+                font-size: 13px;
+                font-family: var(--font-body);
+                font-weight: 600;
+                transition: background var(--transition);
+            }
+
+            .search-wrap button:hover {
+                background: var(--primary-dark);
+            }
+
+            /* Accordion */
+            .cat-group {
+                border-bottom: 1px solid var(--border);
+            }
+
+            .cat-group-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 13px 16px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 13px;
+                color: var(--text);
+                transition: background var(--transition);
+                user-select: none;
+            }
+
+            .cat-group-header:hover {
+                background: var(--bg-alt);
+            }
+
+            .cat-group-header .chevron {
+                font-size: 10px;
+                color: var(--text-muted);
+                transition: transform var(--transition);
+            }
+
+            .cat-group-header.open .chevron {
+                transform: rotate(180deg);
+            }
+
+            .cat-group-body {
+                display: none;
+                padding: 4px 0 8px 0;
+            }
+
+            .cat-group-body.open {
+                display: block;
+            }
+
+            .cat-group-body a {
+                display: block;
+                padding: 7px 16px 7px 28px;
+                font-size: 13px;
+                color: var(--text-muted);
+                transition: all var(--transition);
+                border-left: 3px solid transparent;
+            }
+
+            .cat-group-body a:hover {
+                color: var(--primary);
+                background: var(--bg-alt);
+                border-left-color: var(--primary-light);
+                padding-left: 32px;
+            }
+
+            /* Sidebar links */
+            .sidebar-util {
+                padding: 12px 16px;
+            }
+
+            .sidebar-util a {
+                display: block;
+                padding: 7px 8px;
+                font-size: 13px;
+                color: var(--text-muted);
+                border-radius: 6px;
+                transition: all var(--transition);
+                font-weight: 500;
+            }
+
+            .sidebar-util a:hover {
+                color: var(--primary);
+                background: var(--bg-alt);
+            }
+
+            /* Login card */
+            .login-card {
+                margin: 0 16px 16px;
+                background: var(--bg-alt);
+                border-radius: var(--radius);
+                padding: 14px;
+                border: 1px solid var(--border);
+            }
+
+            .login-card h4 {
+                font-size: 13px;
+                font-weight: 700;
+                margin-bottom: 10px;
+                color: var(--text);
+                font-family: var(--font-body);
+            }
+
+            .login-card input[type="text"],
+            .login-card input[type="password"] {
+                width: 100%;
+                padding: 8px 10px;
+                margin-bottom: 8px;
+                border: 1.5px solid var(--border);
+                border-radius: 6px;
+                font-family: var(--font-body);
+                font-size: 12px;
+                background: var(--white);
+                outline: none;
+                transition: border-color var(--transition);
+                color: var(--text);
+            }
+
+            .login-card input:focus {
+                border-color: var(--primary);
+            }
+
+            .login-card .login-actions {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+            }
+
+            .login-card button {
+                background: var(--primary);
+                color: var(--white);
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-family: var(--font-body);
+                font-size: 12px;
+                font-weight: 600;
+                transition: background var(--transition);
+            }
+
+            .login-card button:hover {
+                background: var(--primary-dark);
+            }
+
+            .login-card .login-links {
+                font-size: 11px;
+                color: var(--text-muted);
+                display: flex;
+                gap: 10px;
+            }
+
+            .login-card .login-links a {
+                color: var(--primary);
+            }
+
+            .login-card .login-links a:hover {
+                text-decoration: underline;
+            }
+
+            .guest-note {
+                font-size: 11px;
+                color: var(--text-muted);
+                text-align: center;
+                padding: 0 16px 12px;
+                font-style: italic;
+            }
+
+            /* ── MAIN CONTENT ── */
+            .main-content {
+                min-width: 0;
+            }
+
+            .section-title {
+                font-family: var(--font-display);
+                font-size: 28px;
+                font-weight: 700;
+                color: var(--text);
+                margin-bottom: 6px;
+                line-height: 1.2;
+            }
+
+            .section-subtitle {
+                font-size: 14px;
+                color: var(--text-muted);
+                margin-bottom: 24px;
+            }
+
+            .section-head {
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-between;
+                margin-bottom: 24px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .view-all {
+                font-size: 13px;
+                color: var(--primary);
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                transition: gap var(--transition);
+                white-space: nowrap;
+            }
+
+            .view-all:hover {
+                gap: 8px;
+            }
+
+            /* Notice cards */
+            .notice-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                gap: 16px;
+                margin-bottom: 40px;
+            }
+
+            .notice-card {
+                border-radius: var(--radius);
+                padding: 18px 20px;
+                border-left: 4px solid var(--primary);
+                font-size: 13.5px;
+                line-height: 1.6;
+            }
+
+            .notice-card.warning {
+                background: #fff5f5;
+                border-left-color: var(--warning);
+            }
+
+            .notice-card.info {
+                background: #f0f5ff;
+                border-left-color: #3a6bc8;
+            }
+
+            .notice-card.success {
+                background: #f0fff4;
+                border-left-color: var(--success);
+            }
+
+            .notice-card.gold {
+                background: #fffbf0;
+                border-left-color: var(--gold);
+            }
+
+            .notice-card strong {
+                display: block;
+                margin-bottom: 4px;
+                font-size: 14px;
+            }
+
+            .notice-card a {
+                color: var(--primary);
+                text-decoration: underline;
+            }
+
+            /* Featured image banner */
+            .featured-banner {
+                border-radius: var(--radius-lg);
+                overflow: hidden;
+                margin-bottom: 40px;
+                position: relative;
+                cursor: pointer;
+            }
+
+            .featured-banner img {
+                width: 100%;
+                height: 220px;
+                object-fit: cover;
+                transition: transform 0.4s ease;
+            }
+
+            .featured-banner:hover img {
+                transform: scale(1.02);
+            }
+
+            .featured-banner .banner-overlay {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(transparent, rgba(44, 10, 36, 0.75));
+                padding: 28px 24px 20px;
+                color: var(--white);
+            }
+
+            .featured-banner .banner-overlay h3 {
+                font-family: var(--font-display);
+                font-size: 22px;
+                font-weight: 700;
+                margin-bottom: 4px;
+            }
+
+            .featured-banner .banner-overlay p {
+                font-size: 13px;
+                opacity: 0.85;
+            }
+
+            /* Category cards grid */
+            .cat-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+                gap: 16px;
+                margin-bottom: 40px;
+            }
+
+            .cat-card {
+                background: var(--white);
+                border-radius: var(--radius-lg);
+                overflow: hidden;
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                transition: all var(--transition);
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .cat-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-hover);
+                border-color: var(--primary-light);
+            }
+
+            .cat-card-img {
+                width: 100%;
+                aspect-ratio: 1;
+                background: var(--bg-alt);
+                overflow: hidden;
+                position: relative;
+            }
+
+            .cat-card-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s ease;
+            }
+
+            .cat-card:hover .cat-card-img img {
+                transform: scale(1.08);
+            }
+
+            .cat-card-img .cat-placeholder {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 32px;
+                background: linear-gradient(135deg, var(--bg-alt), var(--accent-light));
+            }
+
+            .cat-card-body {
+                padding: 12px 12px 14px;
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .cat-card-body span {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text);
+                text-align: center;
+                line-height: 1.3;
+            }
+
+            /* Rose size section */
+            .size-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+                margin-bottom: 40px;
+            }
+
+            .size-chip {
+                background: var(--white);
+                border: 1.5px solid var(--border);
+                border-radius: var(--radius);
+                padding: 12px 10px;
+                text-align: center;
+                transition: all var(--transition);
+                cursor: pointer;
+            }
+
+            .size-chip:hover {
+                border-color: var(--primary);
+                background: var(--bg-alt);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow);
+            }
+
+            .size-chip a {
+                display: block;
+                font-size: 12.5px;
+                font-weight: 600;
+                color: var(--text);
+            }
+
+            .size-chip:hover a {
+                color: var(--primary);
+            }
+
+            /* Product image rows */
+            .product-row {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+                margin-bottom: 32px;
+            }
+
+            .product-img-card {
+                border-radius: var(--radius-lg);
+                overflow: hidden;
+                aspect-ratio: 1;
+                position: relative;
+                cursor: pointer;
+                box-shadow: var(--shadow);
+                transition: all var(--transition);
+            }
+
+            .product-img-card:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-hover);
+            }
+
+            .product-img-card img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s ease;
+            }
+
+            .product-img-card:hover img {
+                transform: scale(1.06);
+            }
+
+            /* Color search chips */
+            .color-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 40px;
+            }
+
+            .color-chip {
+                padding: 10px 18px;
+                border-radius: 24px;
+                font-size: 13px;
+                font-weight: 600;
+                border: 1.5px solid var(--border);
+                background: var(--white);
+                transition: all var(--transition);
+                cursor: pointer;
+                color: var(--text);
+            }
+
+            .color-chip:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow);
+                border-color: var(--primary-light);
+                color: var(--primary);
+                background: var(--bg-alt);
+            }
+
+            /* Section divider */
+            .section-divider {
+                border: none;
+                border-top: 1px solid var(--border);
+                margin: 40px 0;
+            }
+
+            /* Section block */
+            .content-section {
+                margin-bottom: 48px;
+            }
+
+            /* ── INFO BLOCKS ── */
+            .info-blocks {
+                background: var(--bg-alt);
+                padding: 56px 20px;
+                border-top: 1px solid var(--border);
+            }
+
+            .info-blocks-inner {
+                max-width: 1300px;
+                margin: 0 auto;
+            }
+
+            .info-blocks-title {
+                font-family: var(--font-display);
+                font-size: 30px;
+                font-weight: 700;
+                text-align: center;
+                margin-bottom: 36px;
+                color: var(--text);
+            }
+
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+
+            .info-card {
+                background: var(--white);
+                border-radius: var(--radius-lg);
+                padding: 28px 20px;
+                text-align: center;
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                transition: all var(--transition);
+            }
+
+            .info-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-hover);
+            }
+
+            .info-card .info-icon {
+                font-size: 32px;
+                margin-bottom: 14px;
+            }
+
+            .info-card h4 {
+                font-family: var(--font-display);
+                font-size: 18px;
+                font-weight: 700;
+                margin-bottom: 8px;
+                color: var(--text);
+            }
+
+            .info-card p {
+                font-size: 13px;
+                color: var(--text-muted);
+                line-height: 1.6;
+                margin-bottom: 14px;
+            }
+
+            .info-card a {
+                font-size: 12px;
+                color: var(--primary);
+                font-weight: 600;
+                text-decoration: underline;
+            }
+
+            .info-card a:hover {
+                color: var(--primary-dark);
+            }
+
+            /* ── SOCIAL STRIP ── */
+            .social-strip {
+                background: var(--white);
+                padding: 32px 20px;
+                border-top: 1px solid var(--border);
+                border-bottom: 1px solid var(--border);
+            }
+
+            .social-strip-inner {
+                max-width: 1300px;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            .social-strip p {
+                font-family: var(--font-display);
+                font-size: 18px;
+                color: var(--text-muted);
+                margin-right: 8px;
+            }
+
+            .social-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 20px;
+                border-radius: var(--radius);
+                font-size: 14px;
+                font-weight: 600;
+                transition: all var(--transition);
+                border: 1.5px solid var(--border);
+            }
+
+            .social-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow);
+            }
+
+            .social-btn.facebook {
+                color: #1877f2;
+                border-color: #1877f2;
+            }
+
+            .social-btn.instagram {
+                color: #e1306c;
+                border-color: #e1306c;
+            }
+
+            .social-btn.blog {
+                color: var(--primary);
+                border-color: var(--primary);
+            }
+
+            /* ── FOOTER ── */
+            footer {
+                background: var(--bg-dark);
+                color: rgba(255, 255, 255, 0.75);
+                padding: 56px 20px 0;
+            }
+
+            .footer-inner {
+                max-width: 1300px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: 2fr 1fr 1fr 1fr;
+                gap: 40px;
+                padding-bottom: 48px;
+            }
+
+            .footer-brand .brand-name {
+                font-family: var(--font-display);
+                font-size: 26px;
+                font-weight: 700;
+                color: var(--white);
+                margin-bottom: 6px;
+            }
+
+            .footer-brand .brand-tagline {
+                font-size: 12px;
+                color: var(--primary-light);
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin-bottom: 16px;
+            }
+
+            .footer-brand p {
+                font-size: 13px;
+                line-height: 1.7;
+                margin-bottom: 14px;
+            }
+
+            .footer-brand .contact-info {
+                font-size: 13px;
+            }
+
+            .footer-brand .contact-info strong {
+                color: var(--white);
+            }
+
+            .footer-brand .contact-info a {
+                color: var(--primary-light);
+            }
+
+            .footer-col h5 {
+                font-size: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                color: var(--white);
+                margin-bottom: 16px;
+            }
+
+            .footer-col a {
+                display: block;
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.6);
+                margin-bottom: 9px;
+                transition: color var(--transition);
+            }
+
+            .footer-col a:hover {
+                color: var(--primary-light);
+            }
+
+            .footer-bottom {
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 20px 0;
+                text-align: center;
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.35);
+                max-width: 1300px;
+                margin: 0 auto;
+            }
+
+            /* ── MOBILE MENU OVERLAY ── */
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(44, 10, 36, 0.6);
+                z-index: 150;
+                backdrop-filter: blur(4px);
+            }
+
+            .mobile-menu {
+                position: fixed;
+                top: 0;
+                left: -300px;
+                width: 280px;
+                height: 100vh;
+                background: var(--white);
+                z-index: 160;
+                overflow-y: auto;
+                transition: left 0.3s ease;
+                box-shadow: var(--shadow-hover);
+                padding-bottom: 40px;
+            }
+
+            .mobile-menu.open {
+                left: 0;
+            }
+
+            .mobile-overlay.open {
+                display: block;
+            }
+
+            .mobile-menu-header {
+                background: var(--primary);
+                color: var(--white);
+                padding: 16px 20px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .mobile-menu-header .brand {
+                font-family: var(--font-display);
+                font-size: 20px;
+                font-weight: 700;
+            }
+
+            .mobile-close {
+                background: none;
+                border: none;
+                color: var(--white);
+                font-size: 22px;
+                cursor: pointer;
+                line-height: 1;
+            }
+
+            .mobile-nav-links {
+                padding: 16px 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .mobile-nav-links a {
+                display: block;
+                padding: 12px 20px;
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--text);
+                border-bottom: 1px solid var(--bg-alt);
+            }
+
+            .mobile-nav-links a:hover {
+                background: var(--bg-alt);
+                color: var(--primary);
+            }
+
+            .mobile-cats {
+                padding: 8px 0;
+            }
+
+            .mobile-cats-title {
+                padding: 12px 20px 6px;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                color: var(--text-muted);
+            }
+
+            .mobile-cats a {
+                display: block;
+                padding: 10px 20px 10px 28px;
+                font-size: 14px;
+                color: var(--text);
+                border-bottom: 1px solid var(--bg-alt);
+            }
+
+            .mobile-cats a:hover {
+                background: var(--bg-alt);
+                color: var(--primary);
+            }
+
+            /* ── RESPONSIVE ── */
+            @media (max-width: 1024px) {
+                .page-layout {
+                    grid-template-columns: 220px 1fr;
+                    gap: 24px;
+                }
+
+                .info-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .footer-inner {
+                    grid-template-columns: 1fr 1fr;
+                    gap: 32px;
+                }
+
+                .hero-inner {
+                    grid-template-columns: 1fr;
+                }
+
+                .hero-image-grid {
+                    display: none;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .page-layout {
+                    grid-template-columns: 1fr;
+                }
+
+                .sidebar {
+                    display: none;
+                }
+
+                .hamburger {
+                    display: flex;
+                }
+
+                .nav-links {
+                    display: none;
+                }
+
+                .hero-inner {
+                    padding: 40px 20px;
+                }
+
+                .product-row {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .cat-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+
+                .info-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+
+                .footer-inner {
+                    grid-template-columns: 1fr;
+                    gap: 24px;
+                }
+
+                .trust-bar-inner {
+                    flex-direction: column;
+                    gap: 0;
+                }
+
+                .trust-item {
+                    border-right: none;
+                    border-bottom: 1px solid var(--border);
+                }
+
+                .trust-item:last-child {
+                    border-bottom: none;
+                }
+
+                .size-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+            }
+
+            @media (max-width: 480px) {
+                .cat-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .product-row {
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+                }
+
+                .size-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .info-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .hero-btns {
+                    flex-direction: column;
+                }
+
+                .btn-primary,
+                .btn-secondary {
+                    justify-content: center;
+                }
+
+                .announce-strip .strip-inner {
+                    flex-direction: column;
+                    gap: 6px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <!-- ── ANNOUNCEMENT STRIP ── -->
+        <div class="announce-strip">
+            <div class="strip-inner">
+                <div class="alert-item">
+                    <span class="icon">⚠️</span>
+                    <span><strong>Ukraine:</strong> Only express shipping available — <a
+                            href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538651878">contact us before
+                            purchase</a></span>
+                </div>
+                <div class="alert-item">
+                    <span class="icon">📦</span>
+                    <span>Post office shipping now open for <strong>Russia / South Africa / Ukraine</strong></span>
+                </div>
+                <div class="alert-item">
+                    <span class="icon">⏰</span>
+                    <span>Delivery: <strong>15–30 business days</strong> after ship — No rush orders</span>
+                </div>
+                <div class="alert-item">
+                    <span class="icon">🚫</span>
+                    <span><strong>FREE Express 5–7 days NOT available</strong> at this time to all countries. <a
+                            href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538972134">Details
+                            →</a></span>
+                </div>
+                <div class="alert-item">
+                    <span class="icon">🌍</span>
+                    <span><a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=2147614642">EU Zone /
+                            Brazil customers may need Tax ID</a></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── STICKY NAV ── -->
+        <nav class="site-nav" id="siteNav">
+            <div class="nav-inner">
+                <a href="https://www.iamroses.com/" class="nav-logo">
+                    <span class="brand-name">I Am Roses</span>
+                    <span class="brand-sub">Paper Flowers · Wholesale Thailand</span>
+                </a>
+                <div class="nav-links">
+                    <a href="https://www.iamroses.com/" class="active">Home</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=540054997">Catalog</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538723881">FAQ</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538723878"
+                        target="_blank">Russian FAQ</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538650566">Contact Us</a>
+                </div>
+                <div class="nav-actions">
+                    <a class="btn-outline" href="https://www.iamroses.com/index.php?lay=show&ac=cat_order_status">📋
+                        Order Status</a>
+                    <a class="btn-cart" href="https://www.iamroses.com/index.php?lay=show&ac=order_view">🛒 My Cart</a>
+                </div>
+                <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- ── MOBILE MENU ── -->
+        <div class="mobile-overlay" id="mobileOverlay"></div>
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="brand">I Am Roses</span>
+                <button class="mobile-close" id="mobileClose">✕</button>
+            </div>
+            <div class="mobile-nav-links">
+                <a href="https://www.iamroses.com/">🏠 Home</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=540054997">📋 Catalog</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538723881">❓ FAQ</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538650566">✉️ Contact Us</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=order_view">🛒 My Cart</a>
+            </div>
+            <div class="mobile-cats">
+                <div class="mobile-cats-title">All Categories</div>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141550">Baskets</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148783">Butterfly</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148783">Buttercups</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=57213">Carnation (CA1)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20618">Cherry Blossoms</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=22730">Crochet</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20921">Curly Roses
+                    (G1.2.3)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20922">Daisy - Medium
+                    (D1)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141583">Daisy - Small
+                    (D2A)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=144112">Daisy - Small
+                    (D2B)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=140483">Flower Head</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20549">Gardenia (GS.GB)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=67998">Gold / Silver</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=539861215">Kits- Mix&Match</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=61043">Lily Medium (LY1)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=68000">Lily Mini (LY3)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=137812">Orchids</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148823">Peony Medium (3
+                    cm)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148396">Peony Mini (2
+                    cm)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12985">Rose Buds</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=68414">S4 Flowers</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141132">S10 Achillea
+                    Cottage</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141552">S11 Summer
+                    Cottage</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141501">S15 Spring
+                    Cottage</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12986">Scrapbook (Die
+                    Cut)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=53905">Spray</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=25879">Stamen</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=147141">Sunflowers</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=61376">Tulip</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=147815">Leaves (STEM)</a>
+                <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=58041">Leaves (No Stem)</a>
+            </div>
+        </div>
+
+        <!-- ── HERO ── -->
+        <section class="hero">
+            <div class="hero-inner">
+                <div class="hero-text">
+                    <h1>Handmade <em>Paper Flowers</em> Wholesale from Thailand</h1>
+                    <p>Exquisite mulberry paper flowers for weddings, scrapbooking, and crafts. No minimum order — get
+                        exactly what you need, shipped worldwide.</p>
+                    <div class="hero-btns">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=540054997"
+                            class="btn-primary">🌸 Browse Full Catalog</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652159&Ntype=777"
+                            class="btn-secondary">How to Buy →</a>
+                    </div>
+                </div>
+                <div class="hero-image-grid">
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148823"
+                        class="hero-img-card tall">
+                        <img src="https://www.iamroses.com/images/intro_1205974721/Peony Flowers.jpg"
+                            alt="Peony Flowers">
+                    </a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=3&cid=148030"
+                        class="hero-img-card">
+                        <img src="https://www.iamroses.com/images/intro_1205974721/Rosebuds A.JPG" alt="Rose Buds">
+                    </a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148396"
+                        class="hero-img-card">
+                        <img src="https://www.iamroses.com/images/intro_1205974721/AA1 50 อ(1).jpg" alt="Mini Peony">
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── TRUST BAR ── -->
+        <div class="trust-bar">
+            <div class="trust-bar-inner">
+                <div class="trust-item">
+                    <div class="trust-icon">🚚</div>
+                    <div class="trust-label">
+                        <strong>$4.75 Flat Rate Shipping</strong>
+                        <span>On all orders under $70</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">🎁</div>
+                    <div class="trust-label">
+                        <strong>Free Registered Airmail</strong>
+                        <span>On orders over $70 (net after discount)</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">🌺</div>
+                    <div class="trust-label">
+                        <strong>No Minimum Order</strong>
+                        <span>Get exactly what you need (USA min. $35)</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">✈️</div>
+                    <div class="trust-label">
+                        <strong>DHL Express Available</strong>
+                        <span>Contact us before purchase</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">🇹🇭</div>
+                    <div class="trust-label">
+                        <strong>Made in Thailand</strong>
+                        <span>Handcrafted paper flowers since 2010</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── MAIN LAYOUT ── -->
+        <div class="page-layout">
+
+            <!-- ── SIDEBAR ── -->
+            <aside class="sidebar">
+                <div class="sidebar-header">🌸 Browse Categories</div>
+
+                <!-- Search -->
+                <div class="sidebar-search">
+                    <form action="https://www.iamroses.com/template/mysearch.php" method="post">
+                        <div class="search-wrap">
+                            <input type="text" name="searchword" placeholder="Search (e.g. R2-839, P700…)">
+                            <button type="submit">🔍</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Flowers A–Z group -->
+                <div class="cat-group">
+                    <div class="cat-group-header open" onclick="toggleGroup(this)">
+                        <span>🌸 Flowers A–Z</span>
+                        <span class="chevron">▼</span>
+                    </div>
+                    <div class="cat-group-body open">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141550">Baskets</a>
+                        <a
+                            href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148783">Butterfly</a>
+                        <a
+                            href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148783">Buttercups</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=57213">Carnation
+                            (CA1)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20618">Cherry
+                            Blossoms</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12987"
+                            target="_blank">Christmas</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=22730">Crochet</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20921">Curly Roses
+                            (G1.2.3)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20922">Daisy -
+                            Medium (D1)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141583">Daisy -
+                            Small (D2A)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=144112">Daisy -
+                            Small (D2B)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=140483">Flower
+                            Head</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20549">Gardenia
+                            (GS.GB)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=67998">Gold /
+                            Silver</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=539861215">Kits-
+                            Mix&amp;Match</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=61043">Lily Medium
+                            (LY1)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=68000">Lily Mini
+                            (LY3)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=137812">Orchids</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148823">Peony Medium
+                            (3 cm)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148396">Peony Mini
+                            (2 cm)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12985">Rose Buds</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=68414">S4
+                            Flowers</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141132">S10 Achillea
+                            Cottage</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141552">S11 Summer
+                            Cottage</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141501">S15 Spring
+                            Cottage</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12986">Scrapbook
+                            (Die Cut)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=53905">Spray</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=25879">Stamen</a>
+                        <a
+                            href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=147141">Sunflowers</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=61376">Tulip</a>
+                    </div>
+                </div>
+
+                <!-- Roses by Size -->
+                <div class="cat-group">
+                    <div class="cat-group-header" onclick="toggleGroup(this)">
+                        <span>🌹 Roses by Size</span>
+                        <span class="chevron">▼</span>
+                    </div>
+                    <div class="cat-group-body">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12978">R2 – 1cm /
+                            10mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=13013">R8 – 1.5cm /
+                            15mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12979">R3 – 2cm /
+                            20mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60252">R4 – 2cm /
+                            20mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12980">R5 – 2.5cm /
+                            25mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60228">R6 – 2.5cm /
+                            25mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=61079">R19 – 2.5cm /
+                            25mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=142118">R77s – 2.5cm
+                            / 25mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148106">R75 –
+                            Magnolia</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12981">R22 – 3.2cm /
+                            32mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12982">R21 – 3.7cm /
+                            37mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=142047">R77m – 3.7cm
+                            / 37mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12983">R40 – 5cm /
+                            50mm</a>
+                        <a
+                            href="https://www.iamroses.com/index.php?lay=show&ac=cat_show_pro_detail&cid=141068&pid=1206853">R42
+                            – 5cm / 50mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=62267">R43 – 5cm /
+                            50mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60231">R60 – 5cm /
+                            50mm</a>
+                        <a href="https://www.iamroses.com/R77">R77 L – 5cm / 50mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12984">R78 – 6.2cm /
+                            62mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60250">R50 – 7.5cm /
+                            75mm</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=60015">GB5 – 10cm /
+                            100mm</a>
+                    </div>
+                </div>
+
+                <!-- Leaves -->
+                <div class="cat-group">
+                    <div class="cat-group-header" onclick="toggleGroup(this)">
+                        <span>🍃 Leaves & Foliage</span>
+                        <span class="chevron">▼</span>
+                    </div>
+                    <div class="cat-group-body">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=147815">Leaves
+                            (Stem)</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=58041">Leaves (No
+                            Stem)</a>
+                    </div>
+                </div>
+
+                <!-- Member login -->
+                <div style="padding: 16px 16px 6px;">
+                    <div class="login-card">
+                        <h4>Member Log in</h4>
+                        <form action="/template/lib_function/member_checkpass.php" method="post">
+                            <input type="text" name="memberlogin" placeholder="E-Mail">
+                            <input type="password" name="memberpassword" placeholder="Password">
+                            <input type="hidden" name="memberdo" value="login">
+                            <input type="hidden" name="account" value="iamrosescom">
+                            <input type="hidden" name="backurl" value="www.iamroses.com/">
+                            <div class="login-actions">
+                                <button type="submit">Log in</button>
+                                <div class="login-links">
+                                    <a href="/index.php?lay=show&ac=member_lostpassword">Lost Password</a>
+                                    <a href="/index.php?lay=show&ac=member_reg">Register</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <p class="guest-note">You can purchase items without logging in.</p>
+                </div>
+
+                <!-- Utility links -->
+                <div class="sidebar-util">
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652159&Ntype=777">📖 How to
+                        Buy</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652162&Ntype=777">💳 Payment
+                        Method</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652166&Ntype=777">🚚 Shipping
+                        Method</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_order_status">📋 Check Order Status</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538724076&Ntype=7">⭐
+                        Satisfaction</a>
+                </div>
+            </aside>
+
+            <!-- ── MAIN CONTENT ── -->
+            <main class="main-content">
+
+                <!-- Shipping Notices -->
+                <div class="content-section">
+                    <div class="notice-grid">
+                        <div class="notice-card warning">
+                            <strong>⚠️ Ukraine — Express Only</strong>
+                            Only express shipping is available. Please <a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538651878">contact
+                                us</a> before making a purchase.
+                        </div>
+                        <div class="notice-card info">
+                            <strong>⏰ No Rush Orders</strong>
+                            Delivery time: <strong>15–30 business days</strong> after ship. Rush orders — please contact
+                            us before purchase.
+                        </div>
+                        <div class="notice-card gold">
+                            <strong>🌍 EU Zone &amp; Brazil</strong>
+                            <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=2147614642">Customers
+                                from EU Zone / Brazil may need Tax ID.</a>
+                        </div>
+                        <div class="notice-card success">
+                            <strong>📬 Post Office Shipping Open</strong>
+                            Now open for <strong>Russia / South Africa / Ukraine</strong>.
+                        </div>
+                    </div>
+
+                    <!-- Airmail restrictions -->
+                    <div class="notice-card warning" style="margin-bottom: 16px;">
+                        <strong>🚫 NO Airmail Registered Shipping Countries:</strong>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538972134">Azerbaijan /
+                            Belarus / Iceland / Kazakhstan / Latvia / Lithuania / Uzbekistan — Caribbean – Oceana
+                            Countries</a><br>
+                        <br><strong>FREE Express 5–7 days is NOT available at this time to all countries.</strong><br>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538972134">Express Shipping
+                            Available — Please contact us before purchase →</a>
+                    </div>
+                </div>
+
+                <hr class="section-divider">
+
+                <!-- Featured Products Banner -->
+                <div class="content-section">
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148823"
+                        class="featured-banner">
+                        <img src="https://www.iamroses.com/images/intro_1205974721/Peony Flowers.jpg"
+                            alt="Peony Paper Flowers">
+                        <div class="banner-overlay">
+                            <h3>New — Peony Collection</h3>
+                            <p>Mini (2 cm) &amp; Medium (3 cm) handmade peonies in dozens of colours</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Browse by Category -->
+                <div class="content-section">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Browse by Category</h2>
+                            <p class="section-subtitle">Handcrafted paper flowers made in Thailand — perfect for
+                                weddings, scrapbooking &amp; crafts</p>
+                        </div>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=540054997"
+                            class="view-all">Full Catalog →</a>
+                    </div>
+                    <div class="cat-grid">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12985"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">🌹</div>
+                            </div>
+                            <div class="cat-card-body"><span>Rose Buds</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148823"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <img src="https://www.iamroses.com/images/intro_1205974721/Peony Flowers.jpg"
+                                    alt="Peony Medium">
+                            </div>
+                            <div class="cat-card-body"><span>Peony Medium (3cm)</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148396"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">🌸</div>
+                            </div>
+                            <div class="cat-card-body"><span>Peony Mini (2cm)</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20618"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">🌺</div>
+                            </div>
+                            <div class="cat-card-body"><span>Cherry Blossoms</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20922"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">🌼</div>
+                            </div>
+                            <div class="cat-card-body"><span>Daisy Medium (D1)</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=137812"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">🌿</div>
+                            </div>
+                            <div class="cat-card-body"><span>Orchids</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=61043"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">🌷</div>
+                            </div>
+                            <div class="cat-card-body"><span>Lily Medium (LY1)</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=147141"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">🌻</div>
+                            </div>
+                            <div class="cat-card-body"><span>Sunflowers</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=57213"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">💐</div>
+                            </div>
+                            <div class="cat-card-body"><span>Carnation (CA1)</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=67998"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">✨</div>
+                            </div>
+                            <div class="cat-card-body"><span>Gold / Silver</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12986"
+                            class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">✂️</div>
+                            </div>
+                            <div class="cat-card-body"><span>Scrapbook (Die Cut)</span></div>
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=539861215" class="cat-card">
+                            <div class="cat-card-img">
+                                <div class="cat-placeholder">🎁</div>
+                            </div>
+                            <div class="cat-card-body"><span>Kits – Mix &amp; Match</span></div>
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="section-divider">
+
+                <!-- Featured Product Images -->
+                <div class="content-section">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Featured Products</h2>
+                            <p class="section-subtitle">Handpicked favourites from our Thailand workshop</p>
+                        </div>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=540054997"
+                            class="view-all">More Flowers →</a>
+                    </div>
+                    <div class="product-row">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=3&cid=148030"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/0000000000.jpg" alt="Rose Buds">
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=3&cid=148030"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/Rosebuds A.JPG"
+                                alt="Rose Buds A">
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=3&cid=148030"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/Rosebuds Ar.JPG"
+                                alt="Rose Buds Ar">
+                        </a>
+                    </div>
+                    <div class="product-row">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=147853"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/Daisy Paper  flowers  Pastel.JPG"
+                                alt="Daisy Pastel">
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=147856"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/Daisy Paper  flowers  candy.JPG"
+                                alt="Daisy Candy">
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=147854"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/Daisy Paper  flowers  Pink Wedding.JPG"
+                                alt="Daisy Pink Wedding">
+                        </a>
+                    </div>
+
+                    <!-- Large banner -->
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=147567"
+                        class="featured-banner" style="margin-bottom: 20px;">
+                        <img src="https://www.iamroses.com/images/intro_1205974721/roses flowers crafts iamroses.jpg"
+                            alt="Roses Flowers Crafts" style="height:180px;">
+                        <div class="banner-overlay">
+                            <h3>Roses — Craft &amp; Wedding Collection</h3>
+                            <p>Explore our full range of handmade rose varieties</p>
+                        </div>
+                    </a>
+
+                    <!-- Pantone colours banner -->
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=146297"
+                        class="featured-banner">
+                        <img src="https://www.iamroses.com/images/intro_1205974721/Pantone Color Flowers R21.jpg"
+                            alt="Pantone Color Flowers" style="height:150px;">
+                        <div class="banner-overlay">
+                            <h3>Pantone Colour Range</h3>
+                            <p>R21 roses available in Pantone-matched colours for weddings</p>
+                        </div>
+                    </a>
+                </div>
+
+                <hr class="section-divider">
+
+                <!-- Roses by Size -->
+                <div class="content-section">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Roses by Size</h2>
+                            <p class="section-subtitle">Find the perfect size for your project — from tiny 10mm to large
+                                100mm blooms</p>
+                        </div>
+                    </div>
+                    <div class="size-grid">
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12978">R2 —
+                                10mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=13013">R8 —
+                                15mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12979">R3 —
+                                20mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60252">R4 —
+                                20mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12980">R5 —
+                                25mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60228">R6 —
+                                25mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=61079">R19 —
+                                25mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=142118">R77s —
+                                25mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148106">R75
+                                Magnolia</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12981">R22 —
+                                32mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12982">R21 —
+                                37mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=142047">R77m —
+                                37mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12983">R40 —
+                                50mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_show_pro_detail&cid=141068&pid=1206853">R42
+                                — 50mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=62267">R43 —
+                                50mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60231">R60 —
+                                50mm</a></div>
+                        <div class="size-chip"><a href="https://www.iamroses.com/R77">R77 L — 50mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12984">R78 —
+                                62mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60250">R50 —
+                                75mm</a></div>
+                        <div class="size-chip"><a
+                                href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=60015">GB5 —
+                                100mm</a></div>
+                    </div>
+                </div>
+
+                <hr class="section-divider">
+
+                <!-- Shop by Colour -->
+                <div class="content-section">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Shop by Colour</h2>
+                            <p class="section-subtitle">Find your perfect wedding or craft palette</p>
+                        </div>
+                    </div>
+                    <div class="color-chips">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=search_vela_product&search=blush&pparamCount=0&searchvela=dosearch&pageId=1"
+                            class="color-chip" style="border-color:#f4c0c0; color:#b05070;">🌸 Blush Pink</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=search_vela_product&search=nude&pparamCount=0&searchvela=dosearch&pageId=1"
+                            class="color-chip" style="border-color:#e8c9a0; color:#8a6040;">🤍 Nude</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=search_vela_product&search=Dusty%20pink&pparamCount=0&searchvela=dosearch"
+                            class="color-chip" style="border-color:#d4a0b0; color:#8a4060;">🌺 Dusty Pink</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=search_vela_product&search=Mauve%20Purple&pparamCount=0&searchvela=dosearch"
+                            class="color-chip" style="border-color:#b08090; color:#604060;">💜 Mauve Purple</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=search_vela_product&search=Unicorn&pparamCount=0&searchvela=dosearch&pageId=1"
+                            class="color-chip" style="border-color:#d0b0e0; color:#7040a0;">🦄 Unicorn Pastel</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12987"
+                            class="color-chip" style="border-color:#c0d0e0; color:#204060;">❄️ Christmas</a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=67998"
+                            class="color-chip" style="border-color:#d4a020; color:#806000;">✨ Gold &amp; Silver</a>
+                    </div>
+
+                    <!-- Mum flowers -->
+                    <div class="product-row" style="margin-top: 24px;">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=145390"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/Mum Handmade paper flowers for wedding crafts nn.jpg"
+                                alt="Mum Flowers Wedding">
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=search_vela_product&search=mum&pparamCount=0&searchvela=dosearch"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/MUM flowers.jpg"
+                                alt="Mum Flowers">
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=141068"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/1559829033(1).jpg"
+                                alt="Paper Flowers">
+                        </a>
+                    </div>
+
+                    <!-- Unicorn pastel banner -->
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=search_vela_product&search=Unicorn&pparamCount=0&searchvela=dosearch&pageId=1"
+                        class="featured-banner" style="margin-top: 20px;">
+                        <img src="https://www.iamroses.com/images/intro_1205974721/Unicorn Patel Paper flowers.jpg"
+                            alt="Unicorn Pastel Paper Flowers" style="height:180px;">
+                        <div class="banner-overlay">
+                            <h3>🦄 Unicorn Pastel Collection</h3>
+                            <p>Dreamy soft-toned paper flowers for fantasy &amp; celebration themes</p>
+                        </div>
+                    </a>
+                </div>
+
+                <hr class="section-divider">
+
+                <!-- On Sale notice -->
+                <div class="content-section">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Sale Items</h2>
+                            <p class="section-subtitle">Many items currently on sale — check the catalog for latest
+                                deals</p>
+                        </div>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=62329"
+                            class="view-all" style="color: #c0392b;">Sale Items →</a>
+                    </div>
+                    <div class="product-row">
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60231"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/1669260369.jpg"
+                                alt="Sale Flowers">
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=2&cid=148266"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/850 IAR(1).jpg" alt="Sale IAR">
+                        </a>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=60231"
+                            class="product-img-card">
+                            <img src="https://www.iamroses.com/images/intro_1205974721/1669261939.jpg"
+                                alt="Sale Flowers 2">
+                        </a>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+        <!-- ── SOCIAL STRIP ── -->
+        <div class="social-strip">
+            <div class="social-strip-inner">
+                <p>Follow us for inspiration:</p>
+                <a href="https://www.facebook.com/iamrosesofficial/" target="_blank" class="social-btn facebook">
+                    <img src="/images_profiles/banner148267.jpg" alt="Facebook"
+                        style="height:20px; width:auto; display:inline-block;">
+                    Facebook
+                </a>
+                <a href="https://www.instagram.com/iamroses_official/?hl=en" target="_blank"
+                    class="social-btn instagram">
+                    <img src="/images_profiles/banner148503.jpg" alt="Instagram"
+                        style="height:20px; width:auto; display:inline-block;">
+                    Instagram
+                </a>
+                <a href="http://iamroses-challenge.blogspot.com/" target="_blank" class="social-btn blog">
+                    <img src="/images_profiles/banner53276.jpg" alt="Blog"
+                        style="height:20px; width:auto; display:inline-block;">
+                    Craft Blog
+                </a>
+            </div>
+        </div>
+
+        <!-- ── INFO BLOCKS ── -->
+        <section class="info-blocks">
+            <div class="info-blocks-inner">
+                <h2 class="info-blocks-title">Everything You Need to Know</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-icon">🛒</div>
+                        <h4>How to Buy</h4>
+                        <p>No account required — guest checkout available. Minimum order $35 for USA, no minimum
+                            elsewhere.</p>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652159&Ntype=777">Read
+                            guide →</a>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">💳</div>
+                        <h4>Payment Methods</h4>
+                        <p>Multiple secure payment options available. Contact us for details on your preferred method.
+                        </p>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652162&Ntype=777">View
+                            options →</a>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">✈️</div>
+                        <h4>Shipping Info</h4>
+                        <p>$4.75 flat rate under $70. Free Registered Airmail over $70. DHL Express available on
+                            request.</p>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652166&Ntype=777">Shipping
+                            details →</a>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">⭐</div>
+                        <h4>Satisfaction</h4>
+                        <p>We take pride in quality and customer satisfaction. Read our policy and reach out with any
+                            concerns.</p>
+                        <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538724076&Ntype=7">Our policy
+                            →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── FOOTER ── -->
+        <footer>
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <div class="brand-name">I Am Roses</div>
+                    <div class="brand-tagline">Paper Flowers &amp; Craft Supply · Thailand</div>
+                    <p>Handcrafted paper flowers wholesale directly from Thailand since 2010. Perfect for weddings,
+                        scrapbooking, card making, and all craft projects worldwide.</p>
+                    <div class="contact-info">
+                        <strong>Tel:</strong> +66-061-601-4060<br>
+                        <strong>Email:</strong> <a href="mailto:info@iamroses.com">info@iamroses.com</a> (24 hrs)<br>
+                        <strong>Web:</strong> <a href="https://www.iamroses.com">www.iamroses.com</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h5>Flowers</h5>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=12985">Rose Buds</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148823">Peony Medium</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=148396">Peony Mini</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20618">Cherry
+                        Blossoms</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=20922">Daisy Medium</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=137812">Orchids</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=147141">Sunflowers</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_showcat&l=1&cid=61376">Tulip</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=540054997">More Flowers →</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Customer Care</h5>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652159&Ntype=777">How to
+                        Buy</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652162&Ntype=777">Payment
+                        Method</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538652166&Ntype=777">Shipping
+                        Method</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538662608&Ntype=777">Privacy
+                        Policy</a>
+                    <a
+                        href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538724076&Ntype=7">Satisfaction</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=cat_order_status">Check Order Status</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=2147614642">EU / Brazil Tax
+                        ID</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538972134">Shipping
+                        Restrictions</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Navigation</h5>
+                    <a href="https://www.iamroses.com/">Home</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=540054997">Full Catalog</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538723881">FAQ</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538723878"
+                        target="_blank">Russian FAQ</a>
+                    <a href="https://www.iamroses.com/index.php?lay=show&ac=article&Id=538651878">Contact Us</a>
+                    <a href="/index.php?lay=show&ac=member_reg">Register</a>
+                    <a href="/index.php?lay=show&ac=member_lostpassword">Lost Password</a>
+                    <a href="https://www.facebook.com/iamrosesofficial/" target="_blank">Facebook</a>
+                    <a href="https://www.instagram.com/iamroses_official/?hl=en" target="_blank">Instagram</a>
+                    <a href="http://iamroses-challenge.blogspot.com/" target="_blank">Craft Blog</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                Copyright &copy; 2010 All Rights Reserved. www.iamroses.com &nbsp;·&nbsp; Thailand &nbsp;·&nbsp; Tel.
+                +66-061-601-4060 &nbsp;·&nbsp; <a href="mailto:info@iamroses.com"
+                    style="color: rgba(255,255,255,0.4);">info@iamroses.com</a>
+            </div>
+        </footer>
+
+        <script>
+            // ── Sticky nav scroll effect
+            const nav = document.getElementById('siteNav');
+            window.addEventListener('scroll', () => {
+                nav.classList.toggle('scrolled', window.scrollY > 40);
+            });
+
+            // ── Mobile menu
+            const hamburger = document.getElementById('hamburgerBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const mobileClose = document.getElementById('mobileClose');
+
+            function openMenu() {
+                mobileMenu.classList.add('open');
+                mobileOverlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeMenu() {
+                mobileMenu.classList.remove('open');
+                mobileOverlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+            hamburger.addEventListener('click', openMenu);
+            mobileClose.addEventListener('click', closeMenu);
+            mobileOverlay.addEventListener('click', closeMenu);
+
+            // ── Sidebar accordion
+            function toggleGroup(header) {
+                const body = header.nextElementSibling;
+                const isOpen = body.classList.contains('open');
+                header.classList.toggle('open', !isOpen);
+                body.classList.toggle('open', !isOpen);
+            }
+        </script>
+
+    </body>
+
+    </html>
+    <script>
+
+    </script>
+</body>
+
+</html>

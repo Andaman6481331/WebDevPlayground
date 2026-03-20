@@ -7,7 +7,7 @@ const props = defineProps({
     jsCode: String
 });
 
-const emit = defineEmits(['undo', 'redo', 'update-code', 'direct-update-code', 'add-responsive']);
+const emit = defineEmits(['undo', 'redo', 'update-code', 'direct-update-code', 'add-responsive', 'inspect-element']);
 
 const previewFrame = ref(null);
 const previewWrapper = ref(null);
@@ -28,6 +28,17 @@ const imageSources = ref([]); // For <picture> support
 // State
 const isSelectionMode = ref(false);
 const isTextEditMode = ref(false);
+const editingTextElement = ref(null);
+const textStyleBar = ref({
+    show: false,
+    top: 0,
+    left: 0,
+    fontSize: '16px',
+    fontFamily: 'sans-serif',
+    fontWeight: 'normal',
+    color: '#000000'
+});
+const isInspectMode = ref(false);
 const selectedShape = ref(null);
 const isDrawing = ref(false);
 const startX = ref(0);
@@ -186,16 +197,33 @@ function activateSelectionMode() {
 
 function deactivateSelectionMode() {
     isSelectionMode.value = false;
+    selectedShape.value = null;
+    isDrawing.value = false;
+    const ctx = selectionCanvas.value.getContext('2d');
+    ctx.clearRect(0, 0, selectionCanvas.value.width, selectionCanvas.value.height);
+    
+    allSelections.value = [];
+    selectionCounter.value = 1;
+}
+
+const resetTools = () => {
+    isInspectMode.value = false;
+    isTextEditMode.value = false;
+    isImageEditMode.value = false;
+    isSelectionMode.value = false;
+    editingTextElement.value = null;
+    editingImgElement.value = null;
+    textStyleBar.value.show = false;
     
     if (selectionCanvas.value) {
         const ctx = selectionCanvas.value.getContext('2d');
         ctx.clearRect(0, 0, selectionCanvas.value.width, selectionCanvas.value.height);
     }
-    
-    allSelections.value = [];
-    selectionCounter.value = 1;
-    selectedShape.value = null;
-}
+};
+
+defineExpose({
+    resetTools
+});
 
 function handleSelectionStart(e) {
     if (!isSelectionMode.value || !selectedShape.value) return;
@@ -509,10 +537,65 @@ const toggleTextEditMode = () => {
         } else {
             iframeDoc.designMode = 'off';
             console.log('Text Edit Mode: OFF');
+            textStyleBar.value.show = false;
             // Re-render to discard unsaved changes if they just toggled it off without saving
             updatePreview();
         }
+
+        // Add/Remove click listeners for styling
+        if (isTextEditMode.value) {
+            iframeDoc.addEventListener('click', handleTextEditClick);
+        } else {
+            iframeDoc.removeEventListener('click', handleTextEditClick);
+        }
     }
+};
+
+const handleTextEditClick = (e) => {
+    if (!isTextEditMode.value) return;
+    
+    // Check if clicked inside our style bar if we had one in iframe (but it's in parent)
+    const target = e.target;
+    if (target.tagName === 'BODY' || target.tagName === 'HTML') {
+        textStyleBar.value.show = false;
+        return;
+    }
+
+    editingTextElement.value = target;
+    
+    const rect = target.getBoundingClientRect();
+    const iframeRect = previewFrame.value.getBoundingClientRect();
+    
+    // Position style bar above the element
+    textStyleBar.value.top = iframeRect.top + rect.top - 50;
+    textStyleBar.value.left = iframeRect.left + rect.left;
+    textStyleBar.value.show = true;
+
+    // Load current styles
+    const style = window.getComputedStyle(target);
+    textStyleBar.value.fontSize = style.fontSize;
+    textStyleBar.value.fontFamily = style.fontFamily;
+    textStyleBar.value.fontWeight = style.fontWeight;
+    
+    // Hex color conversion
+    const color = style.color;
+    textStyleBar.value.color = rgbToHex(color);
+};
+
+const applyTextStyle = (prop, value) => {
+    if (!editingTextElement.value) return;
+    editingTextElement.value.style[prop] = value;
+    textStyleBar.value[prop] = value;
+};
+
+const rgbToHex = (rgb) => {
+    if (!rgb || !rgb.startsWith('rgb')) return '#000000';
+    const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (!match) return '#000000';
+    const r = parseInt(match[1]);
+    const g = parseInt(match[2]);
+    const b = parseInt(match[3]);
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 };
 
 const saveTextChanges = () => {
@@ -544,6 +627,96 @@ const saveTextChanges = () => {
     emit('direct-update-code', cleanedHtml);
     
     // updatePreview will be called by the watcher when props update
+};
+
+// ========== INSPECT MODE LOGIC ==========
+const toggleInspectMode = () => {
+    if (isSelectionMode.value) deactivateSelectionMode();
+    if (isTextEditMode.value) toggleTextEditMode();
+    if (isImageEditMode.value) toggleImageEditMode();
+
+    isInspectMode.value = !isInspectMode.value;
+
+    if (isInspectMode.value) {
+        setupInspectListeners();
+    } else {
+        removeInspectListeners();
+    }
+};
+
+const setupInspectListeners = () => {
+    if (!previewFrame.value) return;
+    const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
+
+    // Inject highlight styles
+    const style = iframeDoc.createElement('style');
+    style.id = 'inspect-mode-styles';
+    style.textContent = `
+        .inspect-highlight {
+            outline: 2px solid #3b82f6 !important;
+            outline-offset: -2px !important;
+            background-color: rgba(59, 130, 246, 0.1) !important;
+            cursor: pointer !important;
+        }
+    `;
+    iframeDoc.head.appendChild(style);
+
+    iframeDoc.addEventListener('mouseover', handleInspectMouseOver);
+    iframeDoc.addEventListener('mouseout', handleInspectMouseOut);
+    iframeDoc.addEventListener('click', handleInspectClick, true);
+};
+
+const removeInspectListeners = () => {
+    if (!previewFrame.value) return;
+    const iframeDoc = previewFrame.value.contentDocument || previewFrame.value.contentWindow.document;
+
+    const style = iframeDoc.getElementById('inspect-mode-styles');
+    if (style) style.remove();
+
+    iframeDoc.querySelectorAll('.inspect-highlight').forEach(el => el.classList.remove('inspect-highlight'));
+    
+    iframeDoc.removeEventListener('mouseover', handleInspectMouseOver);
+    iframeDoc.removeEventListener('mouseout', handleInspectMouseOut);
+    iframeDoc.removeEventListener('click', handleInspectClick, true);
+};
+
+const handleInspectMouseOver = (e) => {
+    e.target.classList.add('inspect-highlight');
+};
+
+const handleInspectMouseOut = (e) => {
+    e.target.classList.remove('inspect-highlight');
+};
+
+const handleInspectClick = (e) => {
+    if (!isInspectMode.value) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const target = e.target;
+    
+    // Find approximate position or selector
+    const tagName = target.tagName.toLowerCase();
+    const id = target.id ? `#${target.id}` : '';
+    const classes = Array.from(target.classList).filter(c => c !== 'inspect-highlight').map(c => `.${c}`).join('');
+    
+    // Create a unique-ish snippet to search for
+    let snippet = target.outerHTML;
+    // Clean up our temporary classes if any
+    snippet = snippet.replace(' inspect-highlight', '');
+    
+    emit('inspect-element', {
+        tagName,
+        id,
+        classes,
+        outerHTML: snippet,
+        innerHTML: target.innerHTML,
+        textContent: target.textContent.trim()
+    });
+
+    // Optionally turn off inspect mode after one click, or keep it on
+    // isInspectMode.value = false;
+    // removeInspectListeners();
 };
 
 // ========== IMAGE EDIT MODE LOGIC ==========
@@ -732,6 +905,13 @@ const applyResponsiveness = (type) => {
     closeResponsivenessModal();
 };
 
+const fontOptions = [
+    { label: 'Sans-Serif', value: 'sans-serif' },
+    { label: 'Serif', value: 'serif' },
+    { label: 'Monospace', value: 'monospace' },
+    { label: 'System', value: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }
+];
+
 </script>
 
 <template>
@@ -798,13 +978,25 @@ const applyResponsiveness = (type) => {
                         v-if="isTextEditMode"
                         class="text-edit-btn save-btn" 
                         @click="saveTextChanges" 
-                        title="Save text changes"
+                        title="Save changes"
                     >
                         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </button>
                 </div>
+
+                <!-- Inspect Tool -->
+                <button 
+                    class="inspect-btn" 
+                    :class="{ active: isInspectMode }"
+                    @click="toggleInspectMode" 
+                    title="Inspect & Sync Code"
+                >
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                    </svg>
+                </button>
 
                 <!-- Image Edit Tool -->
                 <button 
@@ -854,10 +1046,7 @@ const applyResponsiveness = (type) => {
                 @mousemove="handleSelectionMove"
                 @mouseup="handleSelectionEnd"
             ></canvas>
-
-
         </div>
-
         <!-- Tool Picker -->
         <dialog ref="shapeModal" class="modal">
             <div class="modal-content">
@@ -985,6 +1174,39 @@ const applyResponsiveness = (type) => {
                 </div>
             </div>
         </dialog>
+
+        <!-- Style Toolbar for Text Edit -->
+        <div v-if="textStyleBar.show" 
+             class="style-toolbar" 
+             :style="{ top: textStyleBar.top + 'px', left: textStyleBar.left + 'px' }">
+            <div class="style-group">
+                <label>Size</label>
+                <input type="number" 
+                       :value="parseInt(textStyleBar.fontSize)" 
+                       @input="applyTextStyle('fontSize', $event.target.value + 'px')" 
+                       min="8" max="100">
+            </div>
+            <div class="style-group">
+                <label>Font</label>
+                <select :value="textStyleBar.fontFamily" @change="applyTextStyle('fontFamily', $event.target.value)">
+                    <option v-for="font in fontOptions" :key="font.value" :value="font.value">{{ font.label }}</option>
+                </select>
+            </div>
+            <div class="style-group">
+                <label>Weight</label>
+                <select :value="textStyleBar.fontWeight" @change="applyTextStyle('fontWeight', $event.target.value)">
+                    <option value="normal">Normal</option>
+                    <option value="bold">Bold</option>
+                    <option value="300">Light</option>
+                    <option value="900">Black</option>
+                </select>
+            </div>
+            <div class="style-group">
+                <label>Color</label>
+                <input type="color" :value="textStyleBar.color" @input="applyTextStyle('color', $event.target.value)">
+            </div>
+            <button class="close-toolbar" @click="textStyleBar.show = false">×</button>
+        </div>
     </main>
 </template>
 
@@ -1086,6 +1308,28 @@ const applyResponsiveness = (type) => {
 
 .text-edit-info {
     border-left: 4px solid #ff4757 !important;
+}
+
+.inspect-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.inspect-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.inspect-btn.active {
+    background: #3b82f6;
+    color: white;
 }
 
 .image-edit-btn {
@@ -1398,5 +1642,73 @@ const applyResponsiveness = (type) => {
 .option-text span {
     font-size: 12px;
     color: #aaa;
+}
+
+/* Style Toolbar */
+.style-toolbar {
+    position: fixed;
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    border: 1px solid #444;
+    z-index: 2000;
+    animation: toolSlideIn 0.2s ease;
+}
+
+@keyframes toolSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.style-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.style-group label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #888;
+    font-weight: bold;
+}
+
+.style-group input, .style-group select {
+    background: #111;
+    border: 1px solid #444;
+    color: white;
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    outline: none;
+}
+
+.style-group input[type="number"] {
+    width: 45px;
+}
+
+.style-group input[type="color"] {
+    width: 30px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+}
+
+.close-toolbar {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 4px;
+}
+
+.close-toolbar:hover {
+    color: white;
 }
 </style>

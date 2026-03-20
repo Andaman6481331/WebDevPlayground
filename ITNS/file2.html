@@ -1,0 +1,183 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap');
+
+    #brand-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 32px 24px;
+        width: 100%;
+        margin: 0 auto;
+        max-width: 1251px;
+        margin-bottom: 24px;
+    }
+
+    .brand-card {
+        display: block;
+        text-decoration: none;
+        color: black;
+    }
+
+    .brand-inner {
+        background: #f7fafd;
+        border-radius: 15px;
+        padding: 24px 48px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 135px;
+        min-height: 175px;
+        position: relative;
+        box-sizing: border-box;
+        border: 1px solid transparent;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .brand-inner picture,
+    .brand-inner img {
+        width: 100%;
+        max-width: 113px;
+        height: 90px;
+        object-fit: contain;
+        display: block;
+    }
+
+    .brand-name {
+        color: #000000;
+        text-align: center;
+        font-family: 'Noto Sans Thai', sans-serif;
+        font-size: 16px;
+        line-height: 24px;
+        font-weight: 500;
+        position: relative;
+    }
+
+    .brand-card:hover .brand-inner {
+        background: #e6f3ff;
+        transform: translateY(-4px);
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 4px rgba(26, 115, 232, .2);
+    }
+
+    .brand-title {
+        text-align: center;
+        margin: 40px auto 30px auto;
+        width: 100%;
+        font-family: 'Noto Sans Thai', sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+    }
+
+    .brand-section {
+        padding-bottom: 60px;
+    }
+</style>
+<div class="brand-section">
+    <h2 class="brand-title">แบรนด์สินค้า</h2>
+    <div id="brand-grid"></div>
+</div>
+
+<script>
+    const brands = [
+        {
+            name: 'ACM Audio',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/acmaudio_Logo.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=ACM Audio',
+        },
+        {
+            name: 'AKG',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/AKG-logo.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=AKG',
+        },
+        {
+            name: 'ALTO',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/Alto-Logo.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=ALTO',
+        },
+        {
+            name: 'AMX',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/AMX-Logo1.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=AMX',
+        },
+        {
+            name: 'APPLE',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/Apple-Logo1.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=APPLE',
+        },
+        {
+            name: 'ART',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/ARTISUL-Logo.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=ART',
+        },
+        {
+            name: 'ARTISUL',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/ARTISUL-Logo.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=ARTISUL',
+        },
+        {
+            name: 'ASHLY',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/ASHLY_Logo.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=ASHLY',
+        },
+        {
+            name: 'AT',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/novation-Logo.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=AT',
+        },
+        {
+            name: 'Acer',
+            image:
+                'https://rcommerce-assets-dev.s3.ap-southeast-1.amazonaws.com/phumiapiluk/terminal/brand/acer_Logo1.png',
+            href: '/brands/product?filter.tags_6923e54963856e7db42721b6=Acer',
+        },
+
+    ]
+
+    function createOptimizedPictureHTML(originalUrl, altName) {
+        const baseUrl = originalUrl.replace(/\.png$/, '');
+
+        return `
+            <picture>
+             
+                 <source
+                    srcset="${baseUrl}.png" 
+                    type="image/png" 
+                />
+                <img src="${originalUrl}" alt="${altName}" loading="lazy" />
+            </picture>
+        `;
+    }
+
+    function renderBrands() {
+        const grid = document.getElementById("brand-grid");
+        grid.innerHTML = '';
+
+        brands.forEach(item => {
+            const optimizedImageHTML = createOptimizedPictureHTML(item.image, item.name);
+
+            const card = `
+                <a class="brand-card" href="${item.href}">
+                    <div class="brand-inner">
+                        ${optimizedImageHTML}
+                        <div class="brand-name">${item.name}</div>
+                    </div>
+                </a>
+            `;
+            grid.insertAdjacentHTML("beforeend", card);
+        });
+    }
+
+    renderBrands();
+</script>
