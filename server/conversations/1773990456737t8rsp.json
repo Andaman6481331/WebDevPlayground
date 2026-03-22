@@ -89,6 +89,18 @@
       "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
     },
     {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome! I'm your coding assistant. Ask me anything about web development."
+    },
+    {
       "role": "user",
       "content": "hi",
       "attachment": null,

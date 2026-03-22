@@ -274,15 +274,16 @@ watch(() => props.inspectedElement, (elementData) => {
 <style scoped>
 /* ========== RIGHT PANEL (CODE EDITORS) ========== */
 .editor-panel {
-    grid-column: 3;
-    grid-row: 1;
+    width: var(--editor-width, 400px);
+    flex-shrink: 0;
+    min-width: 0;
     background: #282c34;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     border-left: 1px solid #2a2a2a;
-    height: 100%; /* Ensure it takes full height */
-    transition: all 0.3s ease;
+    height: 100%;
+    transition: none;
 }
 
 .editor-panel.fullscreen {

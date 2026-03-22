@@ -268,8 +268,7 @@ defineExpose({
 <style scoped>
 /* ========== BOTTOM PANEL (AI CHAT - TERMINAL STYLE) ========== */
 .chat-panel {
-    grid-column: 2 / 4;
-    grid-row: 2;
+    flex: 1;
     background: linear-gradient(180deg, #1a1a1a 0%, #151515 100%);
     border-top: 1px solid #2a2a2a;
     display: flex;

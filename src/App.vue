@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import Sidebar from './view/SideBar.vue';
 import LivePreview from './view/LivePreview.vue';
 import AssistantChat from './view/AssistantChat.vue';
@@ -39,6 +39,90 @@ const jsCode = ref(`// Add interactivity to your page
 console.log('Welcome to Web Dev Playground!');`);
 
 const isSidebarCollapsed = ref(localStorage.getItem('sidebar-collapsed') === 'true');
+
+// ========== PANEL RESIZE STATE ==========
+const sidebarWidth = ref(parseInt(localStorage.getItem('panel-sidebar-width')) || 240);
+const editorWidth = ref(parseInt(localStorage.getItem('panel-editor-width')) || 400);
+const chatHeight = ref(parseInt(localStorage.getItem('panel-chat-height')) || 300);
+
+const SIDEBAR_MIN = 160;
+const SIDEBAR_MAX = 480;
+const EDITOR_MIN = 260;
+const EDITOR_MAX = 700;
+const CHAT_MIN = 140;
+const CHAT_MAX_RATIO = 0.65; // max 65% of window height
+
+const applyPanelSizes = () => {
+    const width = isSidebarCollapsed.value ? 48 : sidebarWidth.value;
+    document.documentElement.style.setProperty('--sidebar-width', width + 'px');
+    document.documentElement.style.setProperty('--editor-width', editorWidth.value + 'px');
+    document.documentElement.style.setProperty('--chat-height', chatHeight.value + 'px');
+};
+
+// Sidebar drag resize
+let sidebarDragging = false;
+const startSidebarResize = (e) => {
+    if (isSidebarCollapsed.value) return;
+    sidebarDragging = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+};
+
+// Editor (LivePreview ↔ CodeEditor) drag resize
+let editorDragging = false;
+const startEditorResize = (e) => {
+    editorDragging = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+};
+
+// Chat (TopSection ↔ Chat) drag resize
+let chatDragging = false;
+const startChatResize = (e) => {
+    chatDragging = true;
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+};
+
+const onGlobalMouseMove = (e) => {
+    if (sidebarDragging) {
+        const newWidth = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, e.clientX));
+        sidebarWidth.value = newWidth;
+        applyPanelSizes();
+    }
+    if (editorDragging) {
+        const sideW = isSidebarCollapsed.value ? 48 : sidebarWidth.value;
+        const mainW = window.innerWidth - sideW;
+        const mouseRelMain = e.clientX - sideW;
+        // editor width = mainW - mouseRelMain (editor is on the right)
+        const newEditorW = Math.min(EDITOR_MAX, Math.max(EDITOR_MIN, mainW - mouseRelMain));
+        editorWidth.value = newEditorW;
+        applyPanelSizes();
+    }
+    if (chatDragging) {
+        const maxChat = Math.floor(window.innerHeight * CHAT_MAX_RATIO);
+        const newChatH = Math.min(maxChat, Math.max(CHAT_MIN, window.innerHeight - e.clientY));
+        chatHeight.value = newChatH;
+        applyPanelSizes();
+    }
+};
+
+const onGlobalMouseUp = () => {
+    if (sidebarDragging || editorDragging || chatDragging) {
+        sidebarDragging = false;
+        editorDragging = false;
+        chatDragging = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        // Persist sizes
+        localStorage.setItem('panel-sidebar-width', sidebarWidth.value);
+        localStorage.setItem('panel-editor-width', editorWidth.value);
+        localStorage.setItem('panel-chat-height', chatHeight.value);
+    }
+};
 const currentModel = ref('sonnet');
 const conversations = ref([]);
 const currentConversationId = ref(null);
@@ -100,7 +184,17 @@ onMounted(async () => {
     loadSavedComponents();
     loadPages();
     
-    document.documentElement.style.setProperty('--sidebar-width', isSidebarCollapsed.value ? '48px' : '240px');
+    // Apply all panel sizes
+    applyPanelSizes();
+
+    // Global drag listeners for resizing
+    window.addEventListener('mousemove', onGlobalMouseMove);
+    window.addEventListener('mouseup', onGlobalMouseUp);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('mousemove', onGlobalMouseMove);
+    window.removeEventListener('mouseup', onGlobalMouseUp);
 });
 
 // ========== LOGIC ==========
@@ -108,9 +202,8 @@ onMounted(async () => {
 // Sidebar
 const toggleSidebar = () => {
     isSidebarCollapsed.value = !isSidebarCollapsed.value;
-    const newWidth = isSidebarCollapsed.value ? '48px' : '240px';
-    document.documentElement.style.setProperty('--sidebar-width', newWidth);
     localStorage.setItem('sidebar-collapsed', isSidebarCollapsed.value);
+    applyPanelSizes();
 };
 
 // Conversations
@@ -1037,6 +1130,14 @@ const generateFullHTML = (page) => {
             @modernize-web="handleModernizeResult"
         />
 
+        <!-- Sidebar Resize Handle -->
+        <div 
+            class="resize-handle resize-handle--vertical"
+            :class="{ hidden: isSidebarCollapsed }"
+            title="Drag to resize sidebar"
+            @mousedown="startSidebarResize"
+        ></div>
+
         <!-- Page Builder Mode -->
         <PageLayout 
             v-if="isPageMode && currentPage"
@@ -1066,6 +1167,13 @@ const generateFullHTML = (page) => {
                     @update-all-code="handleUpdateAllCode"
                     @inspect-element="handleInspectElement"
                 />
+
+                <!-- LivePreview ↔ CodeEditor Resize Handle -->
+                <div 
+                    class="resize-handle resize-handle--vertical resize-handle--inner"
+                    title="Drag to resize editor"
+                    @mousedown="startEditorResize"
+                ></div>
                 
                 <!-- Code Editor -->
                 <CodeEditor 
@@ -1075,6 +1183,13 @@ const generateFullHTML = (page) => {
                     :inspected-element="inspectedElement"
                 />
             </div>
+
+            <!-- TopSection ↔ Chat Resize Handle -->
+            <div 
+                class="resize-handle resize-handle--horizontal"
+                title="Drag to resize chat panel"
+                @mousedown="startChatResize"
+            ></div>
             
             <!-- Chat -->
             <div class="chat-section">
@@ -1099,27 +1214,105 @@ const generateFullHTML = (page) => {
     overflow: hidden;
     background: #0f0f0f;
     color: #e0e0e0;
+    position: relative;
 }
 
 .main-container {
     flex: 1;
-    display: grid;
-    grid-template-rows: 1fr 300px; /* Chat height fixed at bottom */
+    display: flex;
+    flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    min-width: 0;
 }
 
 .display-sections {
-    display: grid;
-    grid-template-columns: 1fr 400px; /* Editor width fixed on right */
-    height: 100%;
+    /* LivePreview takes remaining space; CodeEditor takes --editor-width */
+    display: flex;
+    flex-direction: row;
+    flex: 1;
     overflow: hidden;
+    min-height: 0;
 }
 
-/* Responsive adjustments if needed */
-@media (max-width: 1024px) {
-    .display-sections {
-        grid-template-columns: 1fr 1fr;
-    }
+.chat-section {
+    height: var(--chat-height, 300px);
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* ===== RESIZE HANDLES ===== */
+.resize-handle {
+    flex-shrink: 0;
+    background: transparent;
+    position: relative;
+    z-index: 50;
+    transition: background 0.15s ease;
+}
+
+.resize-handle--vertical {
+    width: 5px;
+    cursor: col-resize;
+    height: 100%;
+}
+
+.resize-handle--vertical:hover,
+.resize-handle--vertical:active {
+    background: rgba(102, 126, 234, 0.6);
+}
+
+.resize-handle--horizontal {
+    height: 5px;
+    cursor: row-resize;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.resize-handle--horizontal:hover,
+.resize-handle--horizontal:active {
+    background: rgba(102, 126, 234, 0.6);
+}
+
+/* Grip dots indicator on the center of each handle */
+.resize-handle::after {
+    content: '';
+    position: absolute;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.18);
+    transition: background 0.15s;
+}
+
+.resize-handle--vertical::after {
+    width: 2px;
+    height: 40px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.resize-handle--horizontal::after {
+    height: 2px;
+    width: 40px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.resize-handle:hover::after {
+    background: rgba(102, 126, 234, 0.9);
+}
+
+.resize-handle.hidden {
+    display: none;
+}
+
+/* The inner handle between LivePreview and CodeEditor */
+.resize-handle--inner {
+    background: #1a1a1a;
+    border-left: 1px solid #2a2a2a;
+    border-right: 1px solid #2a2a2a;
 }
 </style>

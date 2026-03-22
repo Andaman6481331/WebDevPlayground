@@ -893,15 +893,16 @@ const cancelModernization = () => {
     display: flex;
     flex-direction: column;
     height: 100%;
-    width: 280px;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),  /* ✅ specific properties only */
-              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: var(--sidebar-width, 240px);
+    min-width: 0;
+    flex-shrink: 0;
     position: relative;
     overflow: hidden;
+    transition: opacity 0.2s ease;
 }
 
 .sidebar.collapsed {
-    width: 60px;
+    width: 48px;
 }
 
 .sidebar-header {

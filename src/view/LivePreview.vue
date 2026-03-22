@@ -1212,8 +1212,8 @@ const fontOptions = [
 
 <style scoped>
 .preview-panel {
-    grid-column: 1 / -1;
-    grid-row: 1;
+    flex: 1;
+    min-width: 0;
     background: #f5f5f7;
     display: flex;
     flex-direction: column;
