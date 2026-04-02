@@ -2,15 +2,17 @@
   <!-- Trigger Button — drop this anywhere in your sidebar/toolbar -->
 <button
   class="tool-btn"
-  @click="openModal"
-  :disabled="isLoading"
-  title="Modernize Website"
+  :class="{ 'tool-btn--loading': isLoading }"
+  @click="isLoading ? null : openModal()"
+  :style="{ '--progress': progressPct + '%' }"
+  :title="isLoading ? 'Modernizing in background...' : 'Modernize Website'"
 >
-  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg v-if="!isLoading" class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h14a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
   </svg>
-  <span>{{ isLoading ? 'Modernizing...' : 'Modernize' }}</span>
+  <div v-else class="tool-btn__spinner"></div>
+  <span>{{ isLoading ? `Modernizing... ${progressPct}%` : 'Modernize' }}</span>
 </button>
 
   <!-- Modal -->
@@ -37,15 +39,15 @@
             type="url"
             class="modernize-modal__input"
             placeholder="https://www.old-website.com"
-            @keydown.enter="startModernize"
+            @keydown.enter="goToColors"
             :disabled="isLoading"
           />
           <button
             class="modernize-modal__go-btn"
-            @click="startModernize"
+            @click="goToColors"
             :disabled="isLoading || !urlInput.trim()"
           >
-            {{ isLoading ? 'Working...' : 'Modernize →' }}
+            Next →
           </button>
         </div>
 
@@ -65,64 +67,58 @@
           </div>
         </div>
 
-        <!-- Loading state -->
-        <div v-if="isLoading" class="modernize-modal__progress">
-          <div class="modernize-modal__progress-bar">
-            <div class="modernize-modal__progress-fill" :style="{ width: progressPct + '%' }"></div>
-          </div>
-          <p class="modernize-modal__progress-text">{{ progressLabel }}</p>
-        </div>
-
         <p v-if="error" class="modernize-modal__error">⚠ {{ error }}</p>
       </div>
 
-      <!-- Step 2: Preview result -->
-      <div v-if="step === 'preview'" class="modernize-modal__body modernize-modal__body--wide">
+      <!-- Step 2: Color picker -->
+      <div v-if="step === 'colors'" class="modernize-modal__body">
+        <p class="modernize-modal__hint">Choose a color theme for the modernized website. Claude will use these as the primary and secondary brand colors.</p>
 
-        <!-- Analysis -->
-        <div v-if="result.analysis" class="modernize-modal__analysis">
-          <span class="modernize-modal__analysis-label">Claude's Analysis</span>
-          <p>{{ result.analysis }}</p>
+        <div class="modernize-modal__color-section">
+          <label class="modernize-modal__label">Primary Color</label>
+          <div class="modernize-modal__color-row">
+            <input type="color" v-model="primaryColor" class="modernize-modal__color-input" />
+            <span class="modernize-modal__color-hex">{{ primaryColor }}</span>
+            <div class="modernize-modal__color-swatch" :style="{ background: primaryColor }"></div>
+          </div>
+          <div class="modernize-modal__presets">
+            <button v-for="c in colorPresets" :key="c.value"
+              class="modernize-modal__preset-bubble"
+              :style="{ background: c.value, outline: primaryColor === c.value ? '2px solid #fff' : 'none' }"
+              :title="c.name"
+              @click="primaryColor = c.value"
+            />
+          </div>
         </div>
 
-        <!-- Changes list -->
-        <div v-if="result.changes?.length" class="modernize-modal__changes">
-          <p class="modernize-modal__changes-title">What changed</p>
-          <ul>
-            <li v-for="(c, i) in result.changes" :key="i">{{ c }}</li>
-          </ul>
+        <div class="modernize-modal__color-section">
+          <label class="modernize-modal__label">Secondary Color</label>
+          <div class="modernize-modal__color-row">
+            <input type="color" v-model="secondaryColor" class="modernize-modal__color-input" />
+            <span class="modernize-modal__color-hex">{{ secondaryColor }}</span>
+            <div class="modernize-modal__color-swatch" :style="{ background: secondaryColor }"></div>
+          </div>
+          <div class="modernize-modal__presets">
+            <button v-for="c in colorPresets" :key="c.value"
+              class="modernize-modal__preset-bubble"
+              :style="{ background: c.value, outline: secondaryColor === c.value ? '2px solid #fff' : 'none' }"
+              :title="c.name"
+              @click="secondaryColor = c.value"
+            />
+          </div>
         </div>
 
-        <!-- Token usage -->
-        <div v-if="result.usage" class="modernize-modal__usage">
-          <span>{{ result.usage.input_tokens.toLocaleString() }} in</span>
-          <span class="modernize-modal__usage-sep">·</span>
-          <span>{{ result.usage.output_tokens.toLocaleString() }} out</span>
-          <span v-if="result.truncated" class="modernize-modal__truncated">⚠ truncated</span>
-        </div>
-
-        <!-- HTML Preview iframe -->
-        <div class="modernize-modal__preview-wrap">
-          <iframe
-            ref="previewFrame"
-            class="modernize-modal__iframe"
-            sandbox="allow-scripts allow-same-origin"
-            title="Modernized website preview"
-          ></iframe>
-        </div>
-
-        <!-- Actions -->
-        <div class="modernize-modal__actions">
-          <button class="modernize-modal__action-btn modernize-modal__action-btn--outline" @click="step = 'input'">
-            ← Try Another URL
-          </button>
-          <button class="modernize-modal__action-btn modernize-modal__action-btn--outline" @click="downloadHtml">
-            ⬇ Download HTML
-          </button>
-          <button class="modernize-modal__action-btn modernize-modal__action-btn--primary" @click="applyToEditor">
-            Apply to Editor →
+        <div class="modernize-modal__actions" style="justify-content: space-between;">
+          <button class="modernize-modal__action-btn modernize-modal__action-btn--outline" @click="step = 'input'">← Back</button>
+          <button class="modernize-modal__go-btn" @click="startModernize" :disabled="isLoading">
+            {{ isLoading ? 'Working...' : 'Modernize →' }}
           </button>
         </div>
+      </div>
+
+      <!-- Loading state (removed modal block as it's now in the header button) -->
+      <div v-if="isLoading && step === 'colors'" class="modernize-modal__body">
+        <p class="modernize-modal__progress-text">Modernization has started in the background. You can close this modal and keep working!</p>
       </div>
 
     </div>
@@ -138,7 +134,7 @@ const emit = defineEmits(['modernize-website']);
 // ── State ─────────────────────────────────────────────────────
 const modalRef    = ref(null);
 const previewFrame = ref(null);
-const step        = ref('input');   // 'input' | 'preview'
+const step        = ref('input');   // 'input' | 'colors' | 'preview'
 const urlInput    = ref('');
 const isLoading   = ref(false);
 const error       = ref('');
@@ -146,6 +142,23 @@ const result      = ref(null);
 const progressPct = ref(0);
 const progressLabel = ref('');
 const selectedModel = ref('sonnet');
+const primaryColor  = ref('#3b82f6');
+const secondaryColor = ref('#10b981');
+
+const colorPresets = [
+  { name: 'Blue',    value: '#3b82f6' },
+  { name: 'Indigo',  value: '#6366f1' },
+  { name: 'Purple',  value: '#a855f7' },
+  { name: 'Pink',    value: '#ec4899' },
+  { name: 'Red',     value: '#ef4444' },
+  { name: 'Orange',  value: '#f97316' },
+  { name: 'Amber',   value: '#f59e0b' },
+  { name: 'Green',   value: '#22c55e' },
+  { name: 'Teal',    value: '#14b8a6' },
+  { name: 'Cyan',    value: '#06b6d4' },
+  { name: 'Slate',   value: '#64748b' },
+  { name: 'Black',   value: '#1a1a1a' },
+];
 
 const modelOptions = [
   { value: 'sonnet', label: 'Sonnet 4.6 — recommended' },
@@ -190,12 +203,25 @@ function openModal() {
   error.value   = '';
   result.value  = null;
   urlInput.value = '';
+  primaryColor.value = '#3b82f6';
+  secondaryColor.value = '#10b981';
   modalRef.value?.showModal();
 }
 
 function closeModal() {
   if (isLoading.value) return;
   modalRef.value?.close();
+}
+
+// ── Validate URL and go to color picker ───────────────────────
+function goToColors() {
+  const url = urlInput.value.trim();
+  if (!url.startsWith('http')) {
+    error.value = 'Please enter a full URL starting with http:// or https://';
+    return;
+  }
+  error.value = '';
+  step.value = 'colors';
 }
 
 // ── Main action ───────────────────────────────────────────────
@@ -208,13 +234,17 @@ async function startModernize() {
 
   isLoading.value = true;
   error.value     = '';
+  
+  // Close the modal immediately so user can do other things
+  closeModal();
+  
   startProgress();
 
   try {
     const response = await fetch('/api/modernize-website', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, model: selectedModel.value })
+      body: JSON.stringify({ url, model: selectedModel.value, primaryColor: primaryColor.value, secondaryColor: secondaryColor.value })
     });
 
     const data = await response.json();
@@ -225,16 +255,15 @@ async function startModernize() {
 
     stopProgress();
     result.value = data;
-    step.value   = 'preview';
-
-    // Inject HTML into iframe after DOM update
-    await nextTick();
-    injectPreview(data.html);
+    
+    // Automatically apply to editor (creates conversation in App.vue)
+    applyToEditor();
 
   } catch (err) {
     stopProgress();
-    error.value = err.message || 'Something went wrong.';
+    // Re-open modal with error if possible, or just log
     console.error('Modernize error:', err);
+    alert('Modernization failed: ' + err.message);
   } finally {
     isLoading.value = false;
   }
@@ -301,11 +330,29 @@ function applyToEditor() {
   cursor: pointer;
   transition: all 0.2s;
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
-.tool-btn:hover {
+.tool-btn--loading {
+  background: linear-gradient(to right, rgba(124, 58, 237, 0.2) var(--progress), #18181b var(--progress));
+  border-color: #7c3aed;
+  color: #fafafa;
+}
+.tool-btn:hover:not(.tool-btn--loading) {
   background: #27272a;
   border-color: #3f3f46;
   color: #fafafa;
+}
+.tool-btn__spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 .icon { width: 20px; height: 20px; }
 /* ── Trigger button ────────────────────────────────── */
@@ -495,6 +542,66 @@ function applyToEditor() {
   padding: 10px 14px;
   border-radius: 8px;
   border: 1px solid #fecaca;
+}
+
+/* ── Color Picker Step ─────────────────────────────── */
+.modernize-modal__hint {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+.modernize-modal__color-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modernize-modal__color-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.modernize-modal__color-input {
+  width: 40px;
+  height: 40px;
+  border: none;
+  padding: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+}
+.modernize-modal__color-hex {
+  font-size: 13px;
+  font-family: monospace;
+  color: #374151;
+  background: #f3f4f6;
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+.modernize-modal__color-swatch {
+  flex: 1;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: background 0.2s;
+}
+.modernize-modal__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.modernize-modal__preset-bubble {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  outline-offset: 2px;
+}
+.modernize-modal__preset-bubble:hover {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 /* ── Analysis ──────────────────────────────────────── */

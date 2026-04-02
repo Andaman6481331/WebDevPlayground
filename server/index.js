@@ -1130,9 +1130,13 @@ Incorporate the ${theme} theme with ${color} as the primary color. Use state-of-
       return res.status(500).json({ error: "AI response did not contain valid HTML/CSS tags. Try again." });
     }
 
-    console.log(`✅ Extracted: HTML(${(html || '').length}), CSS(${(css || '').length}), JS(${(javascript || '').length})`);
-
-    res.json({ message: message || "Modernization complete.", html, css, javascript });
+    res.json({ 
+      message: message || "Modernization complete.", 
+      html, 
+      css, 
+      javascript,
+      usage: msg.usage
+    });
   } catch (err) {
     console.error("❌ Error in /api/modernize-direct:", err);
     res.status(500).json({ error: "Failed to modernize website" });
@@ -1182,8 +1186,7 @@ app.post("/api/factor-components", async (req, res) => {
 
     const responseText = msg.content[0].text;
     const extractedText = cleanJSON(responseText);
-    const parsedResponse = JSON.parse(extractedText);
-
+    parsedResponse.usage = msg.usage;
     res.json(parsedResponse);
   } catch (err) {
     console.error("❌ Error in /api/factor-components:", err);

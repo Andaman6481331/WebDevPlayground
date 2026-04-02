@@ -2,6 +2,9 @@
 const props = defineProps({
     isCollapsed: Boolean,
     currentModel: String,
+    htmlCode: { type: String, default: '' },
+    cssCode:  { type: String, default: '' },
+    jsCode:   { type: String, default: '' },
     conversations: {
         type: Array,
         default: () => []
@@ -37,23 +40,27 @@ const emit = defineEmits([
     'load-page',
     'delete-page',
     'close-page',
-    'dissect-website',
-    'modernize-web'
+    'dissect-sections',
+    'modernize-web',
+    'modernize-website-complete',
+    'reset-stats'
 ]);
 
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import ModernizeWebsite from './ModernizeWebsite.vue';
+import DissectHTML from './DissectHTML.vue';
+import { parseFullCode } from '../utils/codeParser';
 
 const handleModernizeResult = (data) => {
-  emit('dissect-website', {
-    ...data,
-    sections: [{
-      name: 'Modernized Website',
-      description: data.analysis,
-      html: data.html,
-      css: '',
-      javascript: ''
-    }]
+  const { html, css, js } = parseFullCode(data.html);
+  
+  emit('modernize-website-complete', {
+    html: html,
+    css: css,
+    js: js,
+    url: data.url,
+    analysis: data.analysis,
+    usage: data.usage
   });
 };
 
@@ -152,193 +159,6 @@ const handleDelete = (id) => {
     }
 };
 
-// Website Dissection Logic
-const dissectionModal = ref(null);
-const reviewContentModal = ref(null);
-const dissectionUrl = ref('');
-const isDissecting = ref(false);
-const isFetchingContent = ref(false);
-const fetchedContent = ref(null);
-const dissectionPrimaryColor = ref('#3b82f6');
-const dissectionSecondaryColor = ref('#10b981');
-
-// Drag Selection State
-const selectionActive = ref(false);
-const selectionStart = ref({ x: 0, y: 0 });
-const selectionEnd = ref({ x: 0, y: 0 });
-const modalContentRef = ref(null);
-
-const groupedNavigation = computed(() => {
-    if (!fetchedContent.value?.navigation) return [];
-    return groupItems(fetchedContent.value.navigation);
-});
-
-const groupedMainContent = computed(() => {
-    if (!fetchedContent.value?.mainContent) return [];
-    return groupItems(fetchedContent.value.mainContent);
-});
-
-const toggleGroup = (group, select) => {
-    group.items.forEach(item => item.selected = select);
-};
-
-// Drag Selection Handlers
-const startDragSelect = (e) => {
-    if (e.button !== 0) return; // Left click only
-    const rect = modalContentRef.value.getBoundingClientRect();
-    selectionActive.value = true;
-    selectionStart.value = {
-        x: e.clientX - rect.left + modalContentRef.value.scrollLeft,
-        y: e.clientY - rect.top + modalContentRef.value.scrollTop
-    };
-    selectionEnd.value = { ...selectionStart.value };
-    
-    // Prevent text selection during drag
-    e.preventDefault();
-};
-
-const onDragSelect = (e) => {
-    if (!selectionActive.value) return;
-    const rect = modalContentRef.value.getBoundingClientRect();
-    selectionEnd.value = {
-        x: e.clientX - rect.left + modalContentRef.value.scrollLeft,
-        y: e.clientY - rect.top + modalContentRef.value.scrollTop
-    };
-};
-
-const endDragSelect = () => {
-    if (!selectionActive.value) return;
-    
-    const dx = Math.abs(selectionEnd.value.x - selectionStart.value.x);
-    const dy = Math.abs(selectionEnd.value.y - selectionStart.value.y);
-    
-    // Only process if it was a real drag (more than 5px)
-    if (dx > 5 || dy > 5) {
-        const containerRect = modalContentRef.value.getBoundingClientRect();
-        const selectRect = {
-            left: Math.min(selectionStart.value.x, selectionEnd.value.x),
-            top: Math.min(selectionStart.value.y, selectionEnd.value.y),
-            right: Math.max(selectionStart.value.x, selectionEnd.value.x),
-            bottom: Math.max(selectionStart.value.y, selectionEnd.value.y)
-        };
-
-        const items = modalContentRef.value.querySelectorAll('.draggable-item');
-        items.forEach(el => {
-            const rect = el.getBoundingClientRect();
-            const itemRect = {
-                left: rect.left - containerRect.left + modalContentRef.value.scrollLeft,
-                top: rect.top - containerRect.top + modalContentRef.value.scrollTop,
-                right: rect.right - containerRect.left + modalContentRef.value.scrollLeft,
-                bottom: rect.bottom - containerRect.top + modalContentRef.value.scrollTop
-            };
-
-            const intersects = !(itemRect.left > selectRect.right || 
-                                 itemRect.right < selectRect.left || 
-                                 itemRect.top > selectRect.bottom || 
-                                 itemRect.bottom < selectRect.top);
-
-            if (intersects) {
-                const id = el.getAttribute('data-id');
-                let item = fetchedContent.value.navigation?.find(i => i.id === id);
-                if (!item) item = fetchedContent.value.mainContent?.find(i => i.id === id);
-                
-                if (item) {
-                    item.selected = !item.selected;
-                }
-            }
-        });
-    }
-
-    selectionActive.value = false;
-};
-
-const openDissectionModal = () => {
-    dissectionModal.value?.showModal();
-};
-
-const closeDissectionModal = () => {
-    dissectionModal.value?.close();
-    dissectionUrl.value = '';
-};
-
-const handleDissectWebsite = async () => {
-    if (!dissectionUrl.value.trim()) return;
-    
-    isFetchingContent.value = true;
-    try {
-        const response = await fetch('/api/fetch-website-content', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: dissectionUrl.value })
-        });
-        
-        if (!response.ok) throw new Error('Failed to fetch website content');
-        
-        const result = await response.json();
-        fetchedContent.value = result.data;
-        
-        dissectionModal.value?.close();
-        reviewContentModal.value?.showModal();
-    } catch (error) {
-        console.error('Error fetching website:', error);
-        alert('Failed to fetch website: ' + error.message);
-    } finally {
-        isFetchingContent.value = false;
-    }
-};
-const finalizeDissection = async () => {
-    if (!fetchedContent.value) return;
-
-    // STRICT FILTERING: Only pass what the user actually selected
-    const selectedData = {
-        title: fetchedContent.value.title,
-        navigation: (fetchedContent.value.navigation || []).filter(item => item.selected),
-        mainContent: (fetchedContent.value.mainContent || []).filter(item => item.selected)
-    };
-
-    if (selectedData.navigation.length === 0 && selectedData.mainContent.length === 0) {
-        if (!confirm('You haven\'t selected any items. AI will have to guess the content. Proceed anyway?')) return;
-    }
-    
-    isDissecting.value = true;
-    try {
-        const response = await fetch('/api/dissect-website', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                url: dissectionUrl.value,
-                extractedData: selectedData,
-                primaryColor: dissectionPrimaryColor.value,
-                secondaryColor: dissectionSecondaryColor.value
-            })
-        });
-        
-        if (!response.ok) throw new Error('Failed to process website data');
-        
-        const data = await response.json();
-        
-        // Pass the result AND usage stats to the parent
-        emit('dissect-website', {
-            ...data,
-            usage: data.usage
-        });
-        
-        reviewContentModal.value?.close();
-        dissectionUrl.value = '';
-        fetchedContent.value = null;
-    } catch (error) {
-        console.error('Error processing website:', error);
-        alert('Failed to process website: ' + error.message);
-    } finally {
-        isDissecting.value = false;
-    }
-};
-
-const closeReviewModal = () => {
-    reviewContentModal.value?.close();
-    fetchedContent.value = null;
-    dissectionUrl.value = '';
-};
 
 // Modernize Web Logic
 const modernizeModal = ref(null);
@@ -479,12 +299,12 @@ const cancelModernization = () => {
                 <ModernizeWebsite @modernize-website="handleModernizeResult" />
             </div> 
             <div class="secondary-tools">
-                <button class="tool-btn" @click="openDissectionModal" title="Dissect Website">
-                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.631.316a6 6 0 01-3.86.517l-2.387-.477a2 2 0 00-2.12 1.414l-.5 2V21h18v-4l-.5-1.572zM2 12V7a5 5 0 015-5h10a5 5 0 015 5v5M7 8V5M17 8V5M3 12h18"></path>
-                    </svg>
-                    <span>Dissect</span>
-                </button>
+                <DissectHTML
+                    :html-code="htmlCode"
+                    :css-code="cssCode"
+                    :js-code="jsCode"
+                    @dissect-sections="$emit('dissect-sections', $event)"
+                />
             </div>
         </div>
 
@@ -566,171 +386,6 @@ const cancelModernization = () => {
             </div>
         </div>
 
-        <!-- Dissection Modal -->
-        <dialog ref="dissectionModal" class="sidebar-modal">
-            <div class="sidebar-modal-content">
-                <h3>Dissect & Reconstruct</h3>
-                <p>AI will analyze the core content of the website, create a checklist of key information, and rebuild it into a modern, premium design.</p>
-                <div class="sidebar-input-group">
-                    <label>URL</label>
-                    <input 
-                        v-model="dissectionUrl" 
-                        type="url" 
-                        placeholder="https://example.com"
-                        @keyup.enter="handleDissectWebsite"
-                    >
-                </div>
-                <div class="sidebar-modal-actions">
-                    <button @click="closeDissectionModal" class="sidebar-modal-btn secondary" :disabled="isFetchingContent">Cancel</button>
-                    <button @click="handleDissectWebsite" class="sidebar-modal-btn primary" :disabled="isFetchingContent">
-                        {{ isFetchingContent ? 'Fetching...' : 'Fetch Content' }}
-                    </button>
-                </div>
-            </div>
-        </dialog>
-
-        <!-- Review Content Modal -->
-        <dialog ref="reviewContentModal" class="sidebar-modal">
-            <div class="sidebar-modal-content wide review-modal">
-                <div class="modal-premium-header">
-                    <div class="premium-badge">Data Fetched</div>
-                    <h3>Review Source Content</h3>
-                    <p>This is the raw data extracted from the URL. Please verify it before passing it to AI for reconstruction.</p>
-                </div>
-
-                <div class="fetched-content-preview" v-if="fetchedContent" 
-                     ref="modalContentRef"
-                     @mousedown="startDragSelect"
-                     @mousemove="onDragSelect"
-                     @mouseup="endDragSelect"
-                     @mouseleave="endDragSelect">
-                    
-                    <!-- Selection Box Overlay -->
-                    <div v-if="selectionActive" 
-                         class="selection-box-overlay"
-                         :style="{
-                            left: Math.min(selectionStart.x, selectionEnd.x) + 'px',
-                            top: Math.min(selectionStart.y, selectionEnd.y) + 'px',
-                            width: Math.abs(selectionEnd.x - selectionStart.x) + 'px',
-                            height: Math.abs(selectionEnd.y - selectionStart.y) + 'px'
-                         }">
-                    </div>
-
-                    <div class="content-section">
-                        <label>Page Title</label>
-                        <div class="content-value-box title-box">{{ fetchedContent.title }}</div>
-                    </div>
-                    
-                    <div class="content-section" v-if="groupedNavigation.length">
-                        <label>Navigation Items (Smart Grouped)</label>
-                        <p class="section-hint">Elements are automatically grouped by text similarity (>70%). Single items are shown individually.</p>
-                        
-                        <div v-for="(group, gIdx) in groupedNavigation" :key="'nav-group-'+gIdx" 
-                             :class="{ 'selection-group': !group.isSingle, 'single-item-wrapper': group.isSingle }">
-                            
-                            <!-- Only show header for actual groups (2+ items) -->
-                            <div v-if="!group.isSingle" class="group-header">
-                                <span class="group-title">Group {{ gIdx + 1 }} ({{ group.items.length }} items)</span>
-                                <div class="group-actions">
-                                    <button @click="toggleGroup(group, true)" class="group-btn">Select All</button>
-                                    <button @click="toggleGroup(group, false)" class="group-btn secondary">Deselect All</button>
-                                </div>
-                            </div>
-
-                            <div class="selection-list">
-                                <div v-for="item in group.items" :key="item.id" class="selection-item draggable-item" :data-id="item.id">
-                                    <label class="checkbox-container">
-                                        <input type="checkbox" v-model="item.selected">
-                                        <span class="checkmark"></span>
-                                        <span class="item-text">{{ item.text }}</span>
-                                        <span v-if="item.href" class="item-hint">{{ item.href }}</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="content-section" v-if="groupedMainContent.length">
-                        <label>Main Content Items (Smart Grouped)</label>
-                        <p class="section-hint">Drag across items to batch select. Groups show visually similar content pieces.</p>
-                        
-                        <div v-for="(group, gIdx) in groupedMainContent" :key="'main-group-'+gIdx" 
-                             :class="{ 'selection-group': !group.isSingle, 'single-item-wrapper': group.isSingle }">
-                            
-                            <!-- Only show header for actual groups (2+ items) -->
-                            <div v-if="!group.isSingle" class="group-header">
-                                <span class="group-title">Group {{ gIdx + 1 }} ({{ group.items.length }} items)</span>
-                                <div class="group-actions">
-                                    <button @click="toggleGroup(group, true)" class="group-btn">Select Group</button>
-                                    <button @click="toggleGroup(group, false)" class="group-btn secondary">Clear Group</button>
-                                </div>
-                            </div>
-
-                            <div class="selection-grid">
-                                <div v-for="item in group.items" :key="item.id" 
-                                     class="selection-card draggable-item" 
-                                     :class="{ selected: item.selected }"
-                                     :data-id="item.id"
-                                     @click="item.selected = !item.selected">
-                                    <div class="card-checkbox">
-                                        <input type="checkbox" v-model="item.selected" @click.stop>
-                                    </div>
-                                    <div class="card-body">
-                                        <template v-if="item.type === 'image'">
-                                            <img :src="item.src" :alt="item.alt" class="preview-img">
-                                            <div class="item-type-badge">Image</div>
-                                        </template>
-                                        <template v-else>
-                                            <div class="preview-text">{{ item.content }}</div>
-                                            <div class="item-type-badge">{{ item.tag }}</div>
-                                        </template>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-if="!groupedNavigation.length && !groupedMainContent.length" class="empty-state">
-                        <p>No specific targeted content found. AI will attempt to reconstruct using general page info.</p>
-                    </div>
-
-                    <!-- Theme Color Selection -->
-                    <div class="content-section colors-section">
-                        <label>Theme Colors</label>
-                        <p class="section-hint">Select the primary and secondary colors for your new design.</p>
-                        <div class="color-pickers-grid">
-                            <div class="color-picker-item">
-                                <span class="color-picker-label">Primary</span>
-                                <div class="color-input-wrapper">
-                                    <input type="color" v-model="dissectionPrimaryColor">
-                                    <span class="color-hex">{{ dissectionPrimaryColor }}</span>
-                                </div>
-                            </div>
-                            <div class="color-picker-item">
-                                <span class="color-picker-label">Secondary</span>
-                                <div class="color-input-wrapper">
-                                    <input type="color" v-model="dissectionSecondaryColor">
-                                    <span class="color-hex">{{ dissectionSecondaryColor }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sidebar-modal-actions">
-                    <button @click="closeReviewModal" class="sidebar-modal-btn secondary" :disabled="isDissecting">Cancel</button>
-                    <button @click="finalizeDissection" class="sidebar-modal-btn primary" :disabled="isDissecting">
-                        <span v-if="!isDissecting" class="btn-content">
-                            <svg class="icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            Confirm & Reconstruct
-                        </span>
-                        <span v-else>Modernizing with AI...</span>
-                    </button>
-                </div>
-            </div>
-        </dialog>
 
         <!-- Modernize Modal -->
         <!-- <dialog ref="modernizeModal" class="sidebar-modal">
@@ -867,13 +522,16 @@ const cancelModernization = () => {
                                 <td>{{ lastUsage.cache_read_input_tokens?.toLocaleString() || 0 }}</td>
                                 <td>{{ totalUsageStats.cache_read_input_tokens.toLocaleString() }}</td>
                             </tr>
-                            <tr class="total-row">
-                                <td><strong>Estimated Billed</strong></td>
-                                <td><strong>{{ lastUsage.billed_tokens.toLocaleString() }}</strong></td>
-                                <td><strong>{{ totalUsageStats.billed_tokens.toLocaleString() }}</strong></td>
-                            </tr>
-                        </tbody>
+                            </tbody>
                     </table>
+                    <div class="modal-footer-actions">
+                        <button class="reset-stats-btn" @click="$emit('reset-stats')">
+                            <svg class="icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Reset All Stats
+                        </button>
+                    </div>
                     <p class="footnote">
                         * Billed = Input + Output + (Cache Write × 1.25) + (Cache Read × 0.1)<br>
                         Values are estimates based on Anthropic pricing logic.
@@ -1920,4 +1578,46 @@ const cancelModernization = () => {
 ::-webkit-scrollbar-thumb:hover {
     background: #3f3f46;
 }
-</style>
+</style>.usage-table th, .usage-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #333;
+}
+
+.total-row {
+    background: rgba(37, 99, 235, 0.1);
+    color: #60a5fa;
+}
+
+.modal-footer-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.reset-stats-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    color: #f87171;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.reset-stats-btn:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.reset-stats-btn .icon {
+    width: 14px;
+    height: 14px;
+}

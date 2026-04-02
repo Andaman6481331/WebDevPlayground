@@ -326,7 +326,7 @@ Bullet list of every structural change made vs the original.
 // ─── API Route ───────────────────────────────────────────────
 export default function setupModernizeWeb(app, anthropic, modelMap) {
     app.post('/api/modernize-website', async (req, res) => {
-        const { url, model } = req.body;
+        const { url, model, primaryColor, secondaryColor } = req.body;
 
         if (!url || !url.startsWith('http')) {
             return res.status(400).json({ error: 'A valid URL is required.' });
@@ -364,7 +364,26 @@ export default function setupModernizeWeb(app, anthropic, modelMap) {
 
         userMessageContent.push({
             type: 'text',
-            text: `Here is the complete scraped content of the website to modernize:\n\n${promptContent}\n\nApply all 6 steps and produce the modernized HTML.`
+            text: `Here is the complete scraped content of the website to modernize:\n\n${promptContent}\n\n${(primaryColor || secondaryColor) ? `
+═══════════════════════════════════════════════════════════
+MANDATORY COLOR THEME — YOU MUST FOLLOW THIS EXACTLY
+═══════════════════════════════════════════════════════════
+The user has chosen a specific color theme. Ignore whatever colors the original site used.
+Use ONLY these as the foundation of your entire design:
+  Primary color:   ${primaryColor || '#3b82f6'}
+  Secondary color: ${secondaryColor || '#10b981'}
+
+Rules:
+- Set --primary to ${primaryColor || '#3b82f6'} in CSS custom properties
+- Set --secondary to ${secondaryColor || '#10b981'} in CSS custom properties
+- Derive all tints/shades (primary-light, primary-dark, etc.) from these base hues
+- Use the primary color for: navbar background, hero section, CTAs, headings, icons, borders
+- Use the secondary color for: highlights, badges, hover states, accent elements
+- Background colors should be neutral (white / light gray / dark gray) unless they complement the chosen palette
+- Images and icons should feel harmonious with the color theme
+═══════════════════════════════════════════════════════════
+` : ''
+                }\n\nApply all 6 steps and produce the modernized HTML.`
         });
 
         // ── 3. Call Claude ─────────────────────────────────────────
@@ -375,7 +394,7 @@ export default function setupModernizeWeb(app, anthropic, modelMap) {
 
             aiResponse = await anthropic.messages.create({
                 model: selectedModel,
-                max_tokens: 32000,
+                max_tokens: 40000,
                 temperature: 1,  // Claude 4 models require temperature=1 for extended thinking;
                 // set to 0 if you don't want thinking mode
                 system: MODERNIZE_SYSTEM_PROMPT,

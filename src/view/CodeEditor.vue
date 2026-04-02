@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onUnmounted } from 'vue';
+import { parseFullCode } from '../utils/codeParser';
 
 const props = defineProps({
     htmlCode: String,
@@ -69,31 +70,13 @@ ${props.jsCode}
 
 const importPaste = () => {
     const fullCode = pasteInput.value;
-    try {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(fullCode, 'text/html');
+    const { html, css, js } = parseFullCode(fullCode);
+    
+    emit('update:htmlCode', html);
+    emit('update:cssCode', css);
+    emit('update:jsCode', js);
 
-        const styles = Array.from(doc.querySelectorAll('style')).map(s => s.innerHTML).join('\n\n');
-        const scripts = Array.from(doc.querySelectorAll('script')).map(s => s.innerHTML).join('\n\n');
-
-        const bodyClone = doc.body.cloneNode(true);
-        const bodyScripts = bodyClone.querySelectorAll('script');
-        bodyScripts.forEach(s => s.remove());
-        const bodyStyles = bodyClone.querySelectorAll('style');
-        bodyStyles.forEach(s => s.remove());
-
-        let bodyContent = bodyClone.innerHTML;
-        bodyContent = bodyContent.replace(/^\s*\n/gm, '').trim();
-
-        emit('update:htmlCode', bodyContent);
-        emit('update:cssCode', styles.trim());
-        emit('update:jsCode', scripts.trim());
-
-        closePasteModal();
-    } catch (e) {
-        console.error('Error parsing code:', e);
-        alert('Error parsing HTML code. Please ensure it is valid HTML.');
-    }
+    closePasteModal();
 };
 
 const isFullscreen = ref(false);

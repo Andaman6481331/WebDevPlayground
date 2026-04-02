@@ -339,19 +339,32 @@ const loadConversation = async (id) => {
             cssCode.value = conversation.code?.css || '';
             jsCode.value = conversation.code?.js || '';
             
-            const welcomeMsg = { role: 'assistant', content: "Welcome! I'm your coding assistant. Ask me anything about web development." };
-            chatMessages.value = [
-                welcomeMsg,
-                ...(conversation.messages || [])
-            ];
+            const welcomeMsgText = "Welcome! I'm your coding assistant. Ask me anything about web development.";
+            const welcomeMsg = { role: 'assistant', content: welcomeMsgText };
             
+            // Clean up messages: remove duplicates of the welcome message at the start
+            let msgs = conversation.messages || [];
+            
+            // If the first message is the welcome message, don't prepend it again
+            const hasWelcome = msgs.length > 0 && msgs[0].content === welcomeMsgText;
+            
+            chatMessages.value = hasWelcome ? [...msgs] : [welcomeMsg, ...msgs];
+            
+            // Deduplicate massive consecutive welcome messages if they exist (recovery for broken convs)
+            chatMessages.value = chatMessages.value.filter((msg, idx, self) => {
+                if (msg.content === welcomeMsgText) {
+                    return self.findIndex(m => m.content === welcomeMsgText) === idx;
+                }
+                return true;
+            });
+
             codeHistory.value = conversation.history || [{ html: htmlCode.value, css: cssCode.value, js: jsCode.value }];
             historyIndex.value = conversation.historyIndex !== undefined ? conversation.historyIndex : 0;
             
             // Update in the memory list
             const idx = conversations.value.findIndex(c => c.id === id);
             if (idx !== -1) {
-                conversations.value[idx] = { ...conversations.value[idx], ...conversation };
+                conversations.value[idx] = { ...conversations.value[idx], ...conversation, messages: [...chatMessages.value] };
             }
         }
     } catch (err) {
@@ -568,6 +581,79 @@ const calculateBilledTokens = (usage) => {
     return Math.round(input + output + creation + read);
 };
 
+const updateUsageStats = (usage) => {
+    if (!usage) return;
+    console.log('💎 Updating global usage stats:', usage);
+    
+    const billed = calculateBilledTokens(usage);
+    totalTokens.value += billed;
+    lastUsage.value = { ...usage, billed_tokens: billed };
+    
+    totalUsageStats.value.input_tokens += (usage.input_tokens || 0);
+    totalUsageStats.value.output_tokens += (usage.output_tokens || 0);
+    totalUsageStats.value.cache_creation_input_tokens += (usage.cache_creation_input_tokens || 0);
+    totalUsageStats.value.cache_read_input_tokens += (usage.cache_read_input_tokens || 0);
+    totalUsageStats.value.billed_tokens += billed;
+
+    localStorage.setItem('total-tokens', totalTokens.value);
+    localStorage.setItem('last-usage', JSON.stringify(lastUsage.value));
+    localStorage.setItem('total-usage-stats', JSON.stringify(totalUsageStats.value));
+};
+const resetUsageStats = () => {
+    if (confirm('Are you sure you want to reset all token usage statistics? This cannot be undone.')) {
+        totalTokens.value = 0;
+        totalUsageStats.value = {
+            input_tokens: 0,
+            output_tokens: 0,
+            cache_creation_input_tokens: 0,
+            cache_read_input_tokens: 0,
+            billed_tokens: 0
+        };
+        lastUsage.value = {
+            input_tokens: 0,
+            output_tokens: 0,
+            cache_creation_input_tokens: 0,
+            cache_read_input_tokens: 0,
+            billed_tokens: 0
+        };
+        localStorage.setItem('total-tokens', 0);
+        localStorage.setItem('total-usage-stats', JSON.stringify(totalUsageStats.value));
+        localStorage.setItem('last-usage', JSON.stringify(lastUsage.value));
+    }
+};
+
+const createConversationFromCode = async (title, code, intro = '') => {
+    const conversationId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+    
+    const conversation = {
+        id: conversationId,
+        title: title || 'New Conversation',
+        date: new Date().toISOString(),
+        messages: [{
+            id: Date.now().toString(),
+            role: 'assistant',
+            content: intro || "I've generated this code for you. Feel free to ask for any modifications!",
+            timestamp: new Date().toISOString()
+        }],
+        code: {
+            html: code.html || '',
+            css: code.css || '',
+            js: code.js || ''
+        },
+        history: [{ 
+            html: code.html || '', 
+            css: code.css || '', 
+            js: code.js || '' 
+        }],
+        historyIndex: 0
+    };
+    
+    conversations.value.unshift(conversation);
+    await saveConversations(conversation);
+    await loadConversation(conversationId);
+    return conversationId;
+};
+
 // Chat & AI — Adaptive Pipeline
 const handleSendMessage = async ({ text, attachment, intent, type }) => {
     const targetConversationId = currentConversationId.value;
@@ -749,7 +835,7 @@ const handleUpdateAllCode = ({ html, css, js }) => {
     saveToHistory();
 };
 
-const handleDissectResult = (data) => {
+const handleDissectResult = async (data) => {
     console.log('📬 Received dissection result:', data);
     if (!data.sections || data.sections.length === 0) {
         console.warn('⚠️ No sections found in dissection result');
@@ -758,29 +844,15 @@ const handleDissectResult = (data) => {
     
     const { sections, checklist, message, usage } = data;
 
-    // Track token usage for dissection
-    if (usage) {
-        console.log('💎 Tracking dissection usage:', usage);
-        const billed = calculateBilledTokens(usage);
-        totalTokens.value += billed;
-        
-        totalUsageStats.value.input_tokens += (usage.input_tokens || 0);
-        totalUsageStats.value.output_tokens += (usage.output_tokens || 0);
-        totalUsageStats.value.cache_creation_input_tokens += (usage.cache_creation_input_tokens || 0);
-        totalUsageStats.value.cache_read_input_tokens += (usage.cache_read_input_tokens || 0);
-        totalUsageStats.value.billed_tokens += billed;
-
-        localStorage.setItem('total-tokens', totalTokens.value);
-        localStorage.setItem('total-usage-stats', JSON.stringify(totalUsageStats.value));
-        
-        console.log(`📊 Dissection usage tracked: ${billed} billed tokens`);
-    }
+    // 1. Track token usage
+    updateUsageStats(usage);
     
-    // Create a new conversation for the modernized website
-    sections.forEach(section => {
-        const conversationId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
-        
-        // Construct the intro message with checklist
+    // 2. Create conversations for each section
+    for (const section of sections) {
+        const title = section.name === "Modernized Website" 
+            ? `Site: ${data.url.replace(/^https?:\/\//, '').split('/')[0]}` 
+            : `Extracted: ${section.name}`;
+            
         let introText = `I've analyzed the website and reconstructed it based on this core information checklist:\n\n`;
         if (checklist && checklist.length > 0) {
             checklist.forEach(item => {
@@ -789,37 +861,79 @@ const handleDissectResult = (data) => {
         }
         introText += `\n**Design Strategy:** ${message || section.description}`;
 
-        const conversation = {
-            id: conversationId,
-            title: section.name === "Modernized Website" ? `Site: ${data.url.replace(/^https?:\/\//, '').split('/')[0]}` : `Extracted: ${section.name}`,
-            date: new Date().toISOString(),
-            messages: [{
-                id: Date.now().toString(),
-                role: 'assistant',
-                content: introText,
-                timestamp: new Date().toISOString()
-            }],
-            code: {
-                html: section.html || '',
-                css: section.css || '',
-                js: section.javascript || section.js || ''
-            },
-            history: [{ 
-                html: section.html || '', 
-                css: section.css || '', 
-                js: section.javascript || section.js || '' 
-            }],
-            historyIndex: 0
-        };
-        conversations.value.unshift(conversation);
-    });
-    
-    saveConversations();
-    
-    // Load the first (most recent) extracted section
-    if (conversations.value.length > 0) {
-        loadConversation(conversations.value[0].id);
+        await createConversationFromCode(title, {
+            html: section.html,
+            css: section.css,
+            js: section.javascript || section.js
+        }, introText);
     }
+};
+
+const handleModernizeComplete = async (data) => {
+    console.log('🚀 Modernization Complete:', data);
+    
+    // 1. Track Usage
+    updateUsageStats(data.usage);
+    
+    // 2. Create a new conversation
+    const siteName = data.url ? data.url.replace(/^https?:\/\//, '').split('/')[0] : 'Modernized Site';
+    const title = `Modernized: ${siteName}`;
+    
+    const introText = `I've finished modernizing **${data.url || 'the website'}** for you!\n\n` +
+        `**Analysis:** ${data.analysis || 'Rebuilt with modern architecture and responsive design.'}\n\n` +
+        `I've separated the code into HTML, CSS, and JavaScript tabs for you.`;
+
+    await createConversationFromCode(title, {
+        html: data.html,
+        css: data.css,
+        js: data.js
+    }, introText);
+    
+    // 3. Ensure we are in editor mode (not page mode)
+    isPageMode.value = false;
+};
+
+const handleDissectSections = (components) => {
+    console.log('✂️ Dissecting sections into a single page components:', components);
+    if (!components || components.length === 0) return;
+
+    // 1. Save each section as a separate component in the library first
+    const componentIds = components.map(comp => {
+        const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+        const newComponent = {
+            id: id,
+            name: comp.name || 'Untitled Component',
+            html: comp.html || '',
+            css: comp.css || '',
+            js: comp.js || '',
+            dateCreated: new Date().toISOString(),
+            thumbnail: (comp.html || '').substring(0, 100)
+        };
+        savedComponents.value.unshift(newComponent);
+        return id;
+    });
+
+    // Save the updated component library
+    localStorage.setItem('webdev_saved_components', JSON.stringify(savedComponents.value));
+
+    // 2. Create the new page referencing these component IDs
+    const pageId = Date.now().toString();
+    const newPage = {
+        id: pageId,
+        title: `Dissections from ${new Date().toLocaleTimeString()}`,
+        components: componentIds, // Store IDs, not objects
+        dateCreated: new Date().toISOString(),
+        dateModified: new Date().toISOString()
+    };
+
+    pages.value.unshift(newPage);
+    savePages();
+    
+    // Switch to page mode and load the new page
+    isPageMode.value = true;
+    currentPageId.value = pageId;
+    
+    alert(`Successfully dissected ${components.length} sections into one new page!`);
 };
 
 const handleModernizeResult = async ({ screenshotUrl, theme, color }) => {
@@ -850,6 +964,9 @@ const handleModernizeResult = async ({ screenshotUrl, theme, color }) => {
         if (!modernizeRes.ok) throw new Error('Direct modernization failed');
         const modernizedData = await modernizeRes.json();
         
+        // Track modernization usage
+        updateUsageStats(modernizedData.usage);
+
         console.log('✂️ Modernization complete. Factoring into components...');
 
         // 3. Factor into components
@@ -866,10 +983,16 @@ const handleModernizeResult = async ({ screenshotUrl, theme, color }) => {
         if (!factorRes.ok) throw new Error('Dismantling into components failed');
         const factoredData = await factorRes.json();
         
-        // 4. Update the component system and automatically create a page
+        // Track factoring usage
+        updateUsageStats(factoredData.usage);
+
+        // 4. Create a new conversation instead of just components/page
+        const title = `${theme} Modernized (${color})`;
+        const introText = `I've modernized your screenshot into a **${theme}** design with **${color}** as the primary color.\n\n` +
+            `I've also broken it down into modular components that you'll find in your library!`;
+
+        // We still save to library for convenience
         if (factoredData.components && factoredData.components.length > 0) {
-            const newComponentIds = [];
-            
             factoredData.components.forEach(comp => {
                 const component = {
                     id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
@@ -881,31 +1004,18 @@ const handleModernizeResult = async ({ screenshotUrl, theme, color }) => {
                     thumbnail: comp.html.substring(0, 50)
                 };
                 savedComponents.value.unshift(component);
-                newComponentIds.push(component.id);
             });
-            
-            // Persist components
             localStorage.setItem('webdev_saved_components', JSON.stringify(savedComponents.value));
-            
-            // 5. Create a new page automatically
-            const pageId = Date.now().toString();
-            const page = {
-                id: pageId,
-                title: `${theme} Modernized Page`,
-                components: newComponentIds,
-                dateCreated: new Date().toISOString(),
-                dateModified: new Date().toISOString()
-            };
-            pages.value.unshift(page);
-            savePages();
-            
-            // Load the page
-            loadPage(pageId);
-            
-            console.log(`✅ Flow complete! Processed ${factoredData.components.length} components.`);
-        } else {
-            throw new Error('No components were extracted');
         }
+
+        await createConversationFromCode(title, {
+            html: modernizedData.html,
+            css: modernizedData.css,
+            js: modernizedData.javascript
+        }, introText);
+
+        isPageMode.value = false;
+        console.log(`✅ Flow complete! Processed ${factoredData.components?.length || 0} components.`);
 
     } catch (error) {
         console.error('Error in modernization flow:', error);
@@ -1117,6 +1227,9 @@ const generateFullHTML = (page) => {
             :total-tokens="totalTokens"
             :total-usage-stats="totalUsageStats"
             :last-usage="lastUsage"
+            :html-code="htmlCode"
+            :css-code="cssCode"
+            :js-code="jsCode"
             @toggle-sidebar="toggleSidebar"
             @new-conversation="initializeConversation"
             @load-conversation="loadConversation"
@@ -1126,8 +1239,10 @@ const generateFullHTML = (page) => {
             @load-page="loadPage"
             @delete-page="deletePage"
             @close-page="closePage"
-            @dissect-website="handleDissectResult"
+            @dissect-sections="handleDissectSections"
             @modernize-web="handleModernizeResult"
+            @modernize-website-complete="handleModernizeComplete"
+            @reset-stats="resetUsageStats"
         />
 
         <!-- Sidebar Resize Handle -->
